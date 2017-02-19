@@ -225,7 +225,7 @@
  :config
  (setq magit-repository-directories '("~/Developer"))
  (setq magit-refresh-status-buffer nil)
- ;; (setq magit-completing-read-function 'ivy-completing-read)
+ (setq magit-completing-read-function 'ivy-completing-read)
  (setq vc-handled-backends (delq 'Git vc-handled-backends)))
 
 ;; Don't let osx swallow Meta key.
@@ -236,6 +236,147 @@
  (setq mac-option-modifier 'super)
  (setq mac-command-modifier 'meta)
 
+(use-package ivy
+ :ensure t
+ :config
+ (ivy-mode))
+
+(use-package counsel
+ :ensure t
+ :config
+ ;; Disable for now while trying grizzl.
+ (global-set-key (kbd "M-x") 'counsel-M-x)
+ (global-set-key (kbd "s-x") 'counsel-M-x))
+
+(use-package swiper
+ :ensure t
+ :diminish ivy-mode
+ :config
+ (setq ivy-initial-inputs-alist nil)
+
+ ;; swapping behavior
+ (define-key ivy-minibuffer-map (kbd "RET") 'ivy-alt-done)
+ (define-key ivy-minibuffer-map (kbd "C-j") 'ivy-done)
+
+ ;; default: "ag --nocolor --nogroup %s -- ."
+ (setq counsel-ag-base-command "ag -U --nocolor --nogroup %s -- .")
+ (setq ivy-count-format "")
+ (setq ivy-height 15))
+
+(use-package smex
+ :ensure t)
+
+(use-package projectile
+ :ensure t
+ :commands (projectile-project-p
+            projectile-project-root
+            projectile-find-file
+            projectile-switch-project
+            projectile-switch-to-buffer
+            projectile-ag
+            projectile-recentf
+            jojo/projectile-find)
+ :diminish projectile-mode
+ :config
+ (setq projectile-enable-caching t)
+ (projectile-mode)
+ (setq projectile-completion-system 'ivy))
+
+(use-package neotree
+ :ensure t
+ :commands (neo-global--window-exists-p
+            neotree-dir
+            neotree-toggle
+            neotree-enter
+            neotree-hide)
+ :init
+ (setq neo-persist-show nil)
+ (setq neo-window-fixed-size nil)
+ (setq neo-create-file-auto-open t)
+ (setq neo-smart-open nil)
+ (setq neo-mode-line-type 'neotree)
+ (setq neo-show-hidden-files t)
+ (setq neo-mode-line-type 'none)
+ (defun neotree-resize-window (&rest _args)
+   "Resize neotree window.
+https://github.com/jaypei/emacs-neotree/pull/110"
+   (interactive)
+   (neo-buffer--with-resizable-window
+    (let ((fit-window-to-buffer-horizontally t))
+      (fit-window-to-buffer))))
+
+ (defun neotree-reopen (&rest _args)
+   "Close and reopen neotree returning to the current window after.
+`neotree-resize-window' doesn't work on file open (neotree window isn't live anymore).
+Hiding and showing again will resize the neotree window properly."
+   (interactive)
+   (save-selected-window
+     (neotree-hide)
+     (neotree-show)))
+
+ (defun neotree-resize-window-with-timer (&rest args)
+   "Resize neotree window after waiting for redisplay."
+   (when (neo-global--window-exists-p)
+     (redisplay)
+     (run-with-timer .1 nil #'neotree-resize-window args)))
+
+ ;; When opening a file from neotree.
+ (advice-add 'neo-open-file :after #'neotree-reopen)
+ ;; When going up the directory stack.
+ (advice-add 'neotree-change-root :after #'neotree-resize-window)
+ ;; When opening a directory node.
+ (advice-add 'neo-open-dir :after #'neotree-resize-window)
+ ;; When showing neotree with `neotree-show'.
+ (advice-add 'neotree-show :after #'neotree-resize-window)
+ ;; Inside neotree-projectile
+ (advice-add 'neotree-dir :after #'neotree-resize-window)
+ ;; Inside neotree-projectile
+ (advice-add 'neotree-find :after #'neotree-resize-window)
+
+ (defun jojo/neotree-around-reopen (orig-fun &rest args)
+   "Close neotree before calling advised function.
+Reopen neotree after advised function runs."
+   (interactive)
+   (if (not (neo-global--window-exists-p))
+       (apply orig-fun args)
+     (save-selected-window
+       (neotree-hide)
+       (let ((res (apply orig-fun args)))
+         (neotree-show)
+         res))))
+
+ (defun neotree-projectile ()
+   "Open neotree with projectile as root and open node for current file.
+If projectile unavailable or not in a project, open node at file path.
+If file path is not available, open $HOME."
+   (interactive)
+   (if (neo-global--window-exists-p)
+       (call-interactively 'neotree-hide)
+     (let ((file-name (buffer-file-name)))
+       (if (and (not file-name)
+                (let ((buffer-name (buffer-name)))
+                  (cond
+                   ((equal buffer-name "*cider-repl server*") nil)
+                   (t t))))
+           (neotree-dir "~/")
+         (let ((dir-name (if (and (fboundp 'projectile-project-p)
+                                  (projectile-project-p))
+                             (projectile-project-root)
+                           (file-name-directory file-name))))
+           (neotree-dir dir-name)
+           (neotree-find file-name))))))
+ :config
+ ;; Upon resizing window
+ (advice-add #'toggle-frame-maximized
+             :after #'neotree-resize-window-with-timer)
+
+ ;; Try to use icons from `all-the-icons',
+ ;; if font is not installed, we use fallback.
+ (if (null (find-font (font-spec :name "github-octicons")))
+     (setq neo-theme 'nerd)
+   (use-package all-the-icons :ensure t)
+   (setq neo-theme 'icons))
+ )
 
 
 
@@ -299,7 +440,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (magit exec-path-from-shell nlinum s dash use-package))))
+    (projectile magit exec-path-from-shell nlinum s dash use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

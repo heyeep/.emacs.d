@@ -1,0 +1,17 @@
+
+;; ----- smex-history -----
+(
+ magit-status
+ neotree
+ cd
+ 5x5
+ arp
+ dbx
+ dig
+)
+
+;; ----- smex-data -----
+(
+ (neotree . 1)
+ (magit-status . 1)
+)
