@@ -378,59 +378,335 @@ If file path is not available, open $HOME."
    (setq neo-theme 'icons))
  )
 
+(use-package company
+  :ensure t
+  :init
+  (defun jojo/company-visible-and-explicit-action-p ()
+    "Determine if tooltip is visible and user explicit action took place."
+    (and (company-tooltip-visible-p)
+         (company-explicit-action-p)))
+  (defun company-ac-setup ()
+    "Sets up company to behave similarly to auto-complete mode."
+    (setq company-require-match nil)
+    (setq company-tooltip-idle-delay .25)
+    (setq company-auto-complete #'jojo/company-visible-and-explicit-action-p)
+    (setq company-frontends
+          '(company-echo-metadata-frontend
+            company-pseudo-tooltip-unless-just-one-frontend-with-delay
+            company-preview-frontend))
+    (define-key company-active-map [tab]
+      'company-select-next-if-tooltip-visible-or-complete-selection)
+    (define-key company-active-map (kbd "TAB")
+      'company-select-next-if-tooltip-visible-or-complete-selection))
+  (defun jojo/company-set-prefix-length (len)
+    "Changing prefix length locally."
+    (make-local-variable 'company-minimum-prefix-length)
+    (setq company-minimum-prefix-length len))
+  (defun jojo/company-set-delay (delay)
+    "Changing delay length locally."
+    (make-local-variable 'company-idle-delay)
+    (setq company-idle-delay delay))
+  (defun jojo/company-set-clang-args (clang-args)
+    "Set up clang arguments locally."
+    (make-local-variable 'company-clang-arguments)
+    (setq company-clang-arguments clang-args))
+  (defun jojo/company-backend-in-backends (b)
+    "Check if backend b is already in company-backends.
+We need to do this check because each backend has additional symbols attached.
+Ex. company-clang :with company-yasnippet."
+    (let ((in-backend nil))
+      (dolist (backend company-backends)
+        (when (member b backend)
+          (setq in-backend t)))
+      in-backend))
+  (defun jojo/company-push-backend (b &optional no-merge)
+    "Adds backend b to company mode if it's not already in the list of backends.
+If `no-merge' is non-nil, don't merge additional backends."
+    (unless (jojo/company-backend-in-backends b)
+      (add-to-list 'company-backends b))
+    (unless no-merge
+      (jojo/company-merge-backends)))
+  (defun jojo/company-push-backend-local (b &optional no-merge)
+    "Push backend into local backends.
+If `no-merge' is non-nil, don't merge additional backends."
+    (make-local-variable 'company-backends)
+    (jojo/company-push-backend b no-merge))
+  (defun jojo/company-set-local-backends (backends &optional no-merge)
+    "Set backends locally.
+If `no-merge' is non-nill, don't merge additional backends."
+    (make-local-variable 'company-backends)
+    (setq company-backends backends)
+    (unless no-merge
+      (jojo/company-merge-backends)))
+  :config
+  (setq company-echo-delay 0)
+  (setq company-minimum-prefix-length 1)
+  ;; Add additional backend support for all company backends.
+  ;; https://github.com/syl20bnr/spacemacs/pull/179
+  ;; https://stackoverflow.com/questions/134887/when-to-use-quote-in-lisp
+  (defun merge-backend-with-company-backends (backend-to-merge)
+    "Merges a backend with every backend in company-backends.
+The backend will only be merged if it's not already being used in the current backend.
+We do this because so that the backend that we're merging
+will always be part of the completion candidates.
+For example, merging company-yasnippet to company-capf
+will yield (company-capf :with company-yasnippet)."
+    ;; create a list of backend-to-merge with a count equal to company-backends
+    ;; this is so mapcar* can iterate over both lists equally
+    ;; ex. if we have (company-capf company-xcode),
+    ;; then the list is (company-yasnippet company-yasnippet)
+    (setq blist (make-list (cl-list-length company-backends) backend-to-merge))
+    ;; b will be backend-to-merge
+    ;; backend will be a backend from company-backends
+    (setq company-backends (cl-mapcar (lambda (backend b)
+                                        (if (and (listp backend) (member b backend))
+                                            backend
+                                          (append (if (consp backend)
+                                                      backend
+                                                    (list backend))
+                                                  (if (and (listp backend)
+                                                           (member :with backend))
+                                                      `(,b)
+                                                    `(:with ,b)))))
+                                      company-backends blist)))
+  (defun jojo/company-merge-backends ()
+    "Merge common backends."
+    (merge-backend-with-company-backends 'company-dabbrev-code))
+  (jojo/company-merge-backends)
+  ;; if the completion is JoJo, typing jojo will get to it
+  (setq company-dabbrev-downcase nil)
+  (setq company-dabbrev-ignore-case t) ; default is keep-prefix
+  ;; Dabbrev same major mode buffers.
+  (setq company-dabbrev-other-buffers t)
+  ;; use tab to cycle selection
+  ;; https://github.com/company-mode/company-mode/issues/216
+  ;; https://github.com/company-mode/company-mode/issues/246#issuecomment-68538735
+  (setq company-auto-complete nil)
+  (define-key company-active-map [backtab] 'company-select-previous)
+  (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
+  (define-key company-active-map [S-tab] 'company-select-previous)
+  (define-key company-active-map [S-iso-lefttab] 'company-select-previous)
+  (define-key company-active-map [(shift tab)] 'company-select-previous)
+  (define-key company-active-map [tab] 'company-complete-common-or-cycle)
+  (define-key company-active-map (kbd "TAB") 'company-complete-common-or-cycle)
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-active-map (kbd "RET")
+    'jojo/company-complete-selection-or-abort-if-same-unless-yas)
+  (define-key company-active-map [return]
+    'jojo/company-complete-selection-or-abort-if-same-unless-yas)
+  (defun jojo/company-complete-selection-or-abort-if-same-unless-yas ()
+    "Complete selection or abort if prefix matches selection.
+If backend is yasnippet, complete normally."
+    (interactive)
+    (if (and
+         ;; Completion is not from Yasnippet.
+         (not (eq 'company-yasnippet
+                  (get-text-property 0 'company-backend
+                                     (nth company-selection company-candidates))))
+         ;; Completion result is the same as the prefix.
+         (string-equal company-prefix
+                       (nth company-selection company-candidates)))
+        (jojo/company-abort-and-newline)
+      (company-complete-selection)))
+  (defun jojo/company-abort-and-newline ()
+    "Cancel the company selection and then go to next line."
+    (interactive)
+    (company-abort)
+    (newline-and-indent))
+  (define-key company-active-map (kbd "<S-return>") 'jojo/company-abort-and-newline)
+  ;; loop completion selections
+  (setq company-selection-wrap-around t)
+  (setq company-idle-delay .1)
+  (company-ac-setup)
+  (defun jojo/setup-company-transformers (&optional reset)
+    "Push list of transformers to `company-transformers'.
+If `reset', set `company-transformers' to nil."
+    (if reset
+        (setq company-transformers nil)
+      (push #'company-sort-prefer-same-case-prefix company-transformers)))
+  (jojo/setup-company-transformers)
+  (global-company-mode))
+;; documentation popup for company
+(use-package company-quickhelp
+  :ensure t
+  :commands (company-quickhelp-mode)
+  :init
+  (defun jojo/company-quickhelp-hook ()
+    "Setting up company-quickhelp."
+    (company-quickhelp-mode 1))
+  (add-hook 'company-mode-hook #'jojo/company-quickhelp-hook)
+  :config
+  (setq company-quickhelp-delay 2.3))
 
+(use-package lisp-mode
+ :ensure nil
+ :config
+ ;; https://github.com/jwiegley/use-package/issues/152
+ ;; Edebug a defun or defmacro
+ (defvar modi/fns-in-edebug nil
+   "List of functions for which `edebug' is instrumented.")
 
+ (defconst modi/fns-regexp (concat "(\\s-*"
+                                   "\\(defun\\|defmacro\\)\\s-+"
+                                   "\\(?1:\\(\\w\\|\\s_\\)+\\)\\_>")
+   "Regexp to find defun or defmacro definition.")
 
+ (defun modi/toggle-edebug-defun ()
+   (interactive)
+   (let (fn)
+     (save-mark-and-excursion
+      (search-backward-regexp modi/fns-regexp)
+      (setq fn (match-string 1))
+      (mark-sexp)
+      (narrow-to-region (point) (mark))
+      (if (member fn modi/fns-in-edebug)
+          ;; If the function is already being edebugged, uninstrument it
+          (progn
+            (setq modi/fns-in-edebug (delete fn modi/fns-in-edebug))
+            (eval-region (point) (mark))
+            (setq-default eval-expression-print-length 12)
+            (setq-default eval-expression-print-level  4)
+            (message "Edebug disabled: %s" fn))
+        ;; If the function is not being edebugged, instrument it
+        (progn
+          (add-to-list 'modi/fns-in-edebug fn)
+          (setq-default eval-expression-print-length nil)
+          (setq-default eval-expression-print-level  nil)
+          (edebug-defun)
+          (message "Edebug: %s" fn)))
+      (widen)))))
 
+(use-package elisp-slime-nav
+ :ensure t
+ :diminish elisp-slime-nav-mode
+ :commands (turn-on-elisp-slime-nav-mode)
+ :init
+ (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+   (add-hook hook 'turn-on-elisp-slime-nav-mode))
+ :config
+ (turn-on-elisp-slime-nav-mode))
 
+(use-package eval-sexp-fu
+ :ensure t
+ :commands (eval-sexp-fu-flash-mode)
+ :init
+ (add-hook 'cider-mode-hook 'eval-sexp-fu-flash-mode)
+ (add-hook 'clojure-mode-hook 'eval-sexp-fu-flash-mode)
+ (add-hook 'emacs-lisp-mode-hook 'eval-sexp-fu-flash-mode)
+ :config
+ (eval-sexp-fu-flash-mode 1))
 
+(use-package elixir-mode
+ :ensure t
+ :mode
+ ("\\.elixir\\'" . elixir-mode)
+ ("\\.ex\\'" . elixir-mode)
+ ("\\.exs\\'" . elixir-mode)
+ :init
+ (add-hook 'elixir-mode-hook
+           (lambda ()
+             (setq tab-width 2)
+             (after-evil
+              (setq evil-shift-width 2)))))
 
+(use-package alchemist
+ :ensure t
+ :commands alchemist-mode
+ :init
+ (add-hook 'elixir-mode-hook #'alchemist-mode)
+ (add-hook 'alchemist-mode-hook
+           (lambda ()
+             (jojo/company-merge-backends)) t)
+ :config
+ (setq alchemist-test-ask-about-save nil)
+ (setq alchemist-goto-elixir-source-dir "~/.source/elixir/elixir-1.3.4")
+ (setq alchemist-goto-erlang-source-dir "~/.source/erlang/otp_src_19.2")
+ 
+ ;; Erlang synergy
+ (defun jojo/elixir-erlang-pop-back ()
+   "Pop back definition function for Erlang mode."
+   (interactive)
+   (if (ring-empty-p erl-find-history-ring)
+       (alchemist-goto-jump-back)
+     (erl-find-source-unwind)))
 
+ (defun jojo/alchemist-erlang-mode-hook ()
+   (define-key erlang-mode-map (kbd "M-,") 'jojo/elixir-erlang-pop-back))
 
+ (add-hook 'erlang-mode-hook 'jojo/alchemist-erlang-mode-hook))
 
+(use-package web-mode
+ :ensure t
+ :mode
+ ("\\.phtml\\'" . web-mode)
+ ("\\.tpl\\.php\\'" . web-mode)
+ ("\\.blade\\.php\\'" . web-mode)
+ ("/\\(views\\|html\\|theme\\|templates\\)/.*\\.php\\'" . web-mode)
+ ("\\.[agj]sp\\'" . web-mode)
+ ("\\.as[cp]x\\'" . web-mode)
+ ("\\.erb\\'" . web-mode)
+ ("\\.mustache\\'" . web-mode)
+ ("\\.djhtml\\'" . web-mode)
+ ("\\.jsp\\'" . web-mode)
+ ("\\.eex\\'" . web-mode)
+ :init
+ (add-hook 'web-mode-hook
+           (lambda ()
+             (when t
+               (setq-local web-mode-markup-indent-offset 2)
+               (setq-local web-mode-css-indent-offset 2)
+               (setq-local web-mode-code-indent-offset 2)))))
 
+;; colors for various 'color codes' aka hex strings
+(use-package rainbow-mode
+ :ensure t
+ :commands (rainbow-mode)
+ :init
+ (add-hook 'css-mode-hook
+           (lambda ()
+             ;; This 2 spaces check could go in a css mode package.
+             ;; Adding it here for now out of laziness.
+             (when t
+               (setq css-indent-offset 2))
+             (rainbow-mode)))
+ :diminish rainbow-mode
+ :config
+ (rainbow-mode 1))
 
+(use-package js2-mode
+ :ensure t
+ :mode
+ ("\\.js\\'" . js2-mode)
+ ;; ("\\.jsx?\\'" . js2-jsx-mode)
+ :interpreter
+ ("node" . js2-mode)
+ ;; ("node" . js2-jsx-mode)
+ :config
+ (setq js2-highlight-level 3)
+ ;; (use-package xref-js2) Look into this for Emacs 25.
 
+ ;; https://www.reddit.com/r/emacs/comments/4xiaym/packages_for_javascript/
+ ;; js2-mode
+ ;; js2-refactor for refactorings
+ ;; xref-js2 for navigation to references/definitions
+ ;; jade for a REPL, inspector & stepping debugger
+ ;; company-tern for autocompletion
 
+ (add-hook 'js2-mode-hook (lambda ()
+                            (when t
+                              (setq js2-basic-offset 2)))))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(use-package ac-js2
+ :ensure t
+ :commands
+ (ac-js2-mode)
+ :init
+ (defun jojo/ac-js2-hook ()
+   "Sets up ac-js2."
+   (ac-js2-mode)
+   (jojo/company-push-backend-local 'ac-js2-company))
+ (add-hook 'js2-mode-hook #'jojo/ac-js2-hook))
 
 
 (custom-set-variables
@@ -440,7 +716,7 @@ If file path is not available, open $HOME."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (projectile magit exec-path-from-shell nlinum s dash use-package))))
+    (eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

@@ -13,5 +13,5 @@
 ;; ----- smex-data -----
 (
  (neotree . 1)
- (magit-status . 1)
+ (magit-status . 2)
 )
