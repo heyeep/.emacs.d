@@ -2,16 +2,17 @@
 ;; ----- smex-history -----
 (
  magit-status
+ magit-log
  neotree
  cd
  5x5
  arp
  dbx
- dig
 )
 
 ;; ----- smex-data -----
 (
- (neotree . 1)
- (magit-status . 2)
+ (neotree . 2)
+ (magit-status . 7)
+ (magit-log . 1)
 )

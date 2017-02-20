@@ -9,7 +9,6 @@
 (let ((default-directory "~/.emacs.d/"))
   (normal-top-level-add-subdirs-to-load-path))
 
-
 ;; M-x list-packages U x to upgrade packages.
 (setq package-list '(diminish))
 
@@ -439,7 +438,7 @@ If `no-merge' is non-nill, don't merge additional backends."
     (unless no-merge
       (jojo/company-merge-backends)))
   :config
-  (setq company-echo-delay 0)
+  (setq company-echo-delay 1)
   (setq company-minimum-prefix-length 1)
   ;; Add additional backend support for all company backends.
   ;; https://github.com/syl20bnr/spacemacs/pull/179
@@ -477,7 +476,7 @@ will yield (company-capf :with company-yasnippet)."
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t) ; default is keep-prefix
   ;; Dabbrev same major mode buffers.
-  (setq company-dabbrev-other-buffers t)
+  (setq company-dabbrev-other-buffers nil)
   ;; use tab to cycle selection
   ;; https://github.com/company-mode/company-mode/issues/216
   ;; https://github.com/company-mode/company-mode/issues/246#issuecomment-68538735
@@ -707,6 +706,16 @@ If `reset', set `company-transformers' to nil."
    (ac-js2-mode)
    (jojo/company-push-backend-local 'ac-js2-company))
  (add-hook 'js2-mode-hook #'jojo/ac-js2-hook))
+
+(use-package undo-tree
+ :ensure t
+ :diminish undo-tree-mode
+ :config
+ ;; Double undo limit
+ (setq undo-limit 160000)
+ (setq undo-strong-limit 240000)
+ (setq undo-outer-limit 24000000)
+ (global-undo-tree-mode))
 
 
 (custom-set-variables
