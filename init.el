@@ -222,7 +222,7 @@
  :ensure t
  :commands (magit-toplevel magit-status magit-blame magit-log)
  :config
- (setq magit-repository-directories '("~/Developer"))
+ (setq magit-repository-directories '("~/Code"))
  (setq magit-refresh-status-buffer nil)
  (setq magit-completing-read-function 'ivy-completing-read)
  (setq vc-handled-backends (delq 'Git vc-handled-backends)))
@@ -619,7 +619,7 @@ If `reset', set `company-transformers' to nil."
              (jojo/company-merge-backends)) t)
  :config
  (setq alchemist-test-ask-about-save nil)
- (setq alchemist-goto-elixir-source-dir "~/.source/elixir/elixir-1.3.4")
+ (setq alchemist-goto-elixir-source-dir "~/.source/elixir/elixir-1.4.1")
  (setq alchemist-goto-erlang-source-dir "~/.source/erlang/otp_src_19.2")
  
  ;; Erlang synergy
