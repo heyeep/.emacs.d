@@ -1,5 +1,7 @@
 ;;;; -*- lexical-binding: t; -*-
 
+
+
 ;; (package-initialize)
 
 
@@ -18,6 +20,14 @@
 ;; Package Repositories
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
+
+
+(require 'package) ;; You might already have this line
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;; Activate all packages (in particular autoloads).
 (package-initialize)
@@ -51,6 +61,12 @@
 (use-package s :ensure t)
 
 (use-package gotham-theme :defer :ensure t)
+
+(use-package spacemacs-theme
+  :defer
+  :ensure t
+  :init
+  (setq spacemacs-theme-comment-bg nil))
 
 ;; https://stackoverflow.com/questions/9840558/why-cant-emacs-24-find-a-custom-theme-i-added
 ;; Add wildcard matching to themes in elpa folder.
@@ -115,8 +131,18 @@
 
    (advice-add 'change-theme :after #'jojo/update-theme)
    (set-frame-parameter nil 'background-mode 'light)
-   (change-theme 'gotham 'gotham))
-
+;;
+;; Gotham Theme: James' default
+;;   (change-theme 'gotham 'gotham))
+;; SpaceMacs Theme: Light/Dark
+;;   (change-theme 'spacemacs-light 'spacemacs-dark))
+;; SpaceMacs Theme: Light/Light
+;;   (change-theme 'spacemacs-light 'spacemacs-light))
+;; Solarized Theme: Light/Dark
+;;   (change-theme 'solarized-light 'solarized-dark))
+;; Solarized Theme: Light/Light
+   (change-theme 'solarized-light 'solarized-light))
+   
 ; Diminish modeline clutter.
  (when (require 'diminish nil 'noerror)
    (diminish 'subword-mode)
@@ -718,14 +744,18 @@ If `reset', set `company-transformers' to nil."
  (global-undo-tree-mode))
 
 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
  '(package-selected-packages
    (quote
-    (eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
+    (solarized-theme eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
