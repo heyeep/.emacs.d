@@ -1,9 +1,9 @@
 
 ;; ----- smex-history -----
 (
+ magit-status
  load-theme
  package-install
- magit-status
  magit-log
  neotree
  cd
@@ -13,7 +13,7 @@
 ;; ----- smex-data -----
 (
  (neotree . 2)
- (magit-status . 11)
+ (magit-status . 15)
  (magit-log . 3)
  (package-install . 1)
  (load-theme . 4)

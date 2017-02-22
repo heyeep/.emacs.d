@@ -1,9 +1,8 @@
-;;;; -*- lexical-binding: t; -*-
+;;;; -*- Lexical-binding: t; -*-
 
 
 
 ;; (package-initialize)
-
 
 (setq gc-cons-threshold 100000000) ; 100 mb
 (add-hook 'focus-out-hook 'garbage-collect)
@@ -20,14 +19,6 @@
 ;; Package Repositories
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
-
-
-(require 'package) ;; You might already have this line
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;; Activate all packages (in particular autoloads).
 (package-initialize)
@@ -138,10 +129,10 @@
 ;;   (change-theme 'spacemacs-light 'spacemacs-dark))
 ;; SpaceMacs Theme: Light/Light
 ;;   (change-theme 'spacemacs-light 'spacemacs-light))
-;; Solarized Theme: Light/Dark
-;;   (change-theme 'solarized-light 'solarized-dark))
+;; Solarized Theme: Light/Dark | Preferred
+   (change-theme 'solarized-light 'solarized-dark))
 ;; Solarized Theme: Light/Light
-   (change-theme 'solarized-light 'solarized-light))
+;;   (change-theme 'solarized-light 'solarized-light))
    
 ; Diminish modeline clutter.
  (when (require 'diminish nil 'noerror)
