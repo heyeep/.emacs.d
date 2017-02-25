@@ -1,20 +1,21 @@
 
 ;; ----- smex-history -----
 (
+ neotree
+ mixal-mode
  magit-status
  load-theme
  package-install
  magit-log
- neotree
  cd
- 5x5
 )
 
 ;; ----- smex-data -----
 (
- (neotree . 2)
- (magit-status . 15)
+ (neotree . 4)
+ (magit-status . 16)
  (magit-log . 3)
  (package-install . 1)
- (load-theme . 4)
+ (load-theme . 5)
+ (mixal-mode . 2)
 )

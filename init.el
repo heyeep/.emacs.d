@@ -394,6 +394,10 @@ If file path is not available, open $HOME."
    (setq neo-theme 'icons))
  )
 
+ ;; Show neotree by default
+ (neotree-show)
+
+
 (use-package company
   :ensure t
   :init
