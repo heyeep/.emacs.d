@@ -1,4 +1,4 @@
-;;;; -*- Lexical-binding: t; -*-
+;;;; -*- lexical-binding: t; -*-
 
 
 
@@ -51,6 +51,11 @@
 (use-package dash :ensure t)
 (use-package s :ensure t)
 
+;; Start daemon automatically.
+(add-hook 'after-init-hook (lambda ()
+                             (load "server") ;; server-running-p is not autoloaded.
+                             (unless (server-running-p)
+                               (server-start))))
 (use-package gotham-theme :defer :ensure t)
 
 (use-package spacemacs-theme
@@ -395,7 +400,7 @@ If file path is not available, open $HOME."
  )
 
  ;; Show neotree by default
- (neotree-show)
+ (neotree-toggle)
 
 
 (use-package company
@@ -737,6 +742,64 @@ If `reset', set `company-transformers' to nil."
  (setq undo-strong-limit 240000)
  (setq undo-outer-limit 24000000)
  (global-undo-tree-mode))
+
+;; Figure out how to bind 'ff-find-other-file
+
+(use-package flycheck
+    ;; :load-path "~/.emacs.d/fork/flycheck/"
+    :ensure t
+    :diminish flycheck-mode
+    :commands (flycheck-mode)
+    :init
+    (setq flycheck-idle-change-delay 2)
+    (setq-default flycheck-emacs-lisp-load-path 'inherit)
+    (add-hook 'prog-mode-hook #'flycheck-mode)
+    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+
+(use-package flycheck-pos-tip
+    :ensure t
+    :after flycheck
+    :config
+    (flycheck-pos-tip-mode))
+
+(use-package dummy-h-mode
+  :ensure t
+  :init
+  :mode ("\\.h$" . dummy-h-mode))
+
+(use-package irony
+  ;; Run ~/.emacs.d/tools/irony_setup.sh
+  :ensure t
+  :commands (irony-mode irony-install-server)
+  :init
+  (add-hook 'c-mode-hook 'irony-mode)
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+(use-package company-irony
+  :ensure t
+  :commands (company-irony)
+  :init
+  (setq company-irony-ignore-case t)
+  (defun jojo/irony-mode-hook ()
+    "Hook for irony mode."
+    (jojo/company-push-backend-local '(company-irony-c-headers company-irony))
+    (jojo/company-set-delay 0)
+    (jojo/company-set-prefix-length 1))
+  (add-hook 'irony-mode-hook #'jojo/irony-mode-hook))
+
+(use-package company-irony-c-headers
+  :ensure t
+  :commands (company-irony-c-headers))
+
+(use-package flycheck-irony
+  :ensure t
+  :commands (flycheck-irony-setup)
+  :init
+  (add-hook 'irony-mode-hook
+            (lambda ()
+              (eval-after-load 'flycheck
+                '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))))
 
 
 
