@@ -399,10 +399,6 @@ If file path is not available, open $HOME."
    (setq neo-theme 'icons))
  )
 
- ;; Show neotree by default
- (neotree-toggle)
-
-
 (use-package company
   :ensure t
   :init
@@ -801,7 +797,60 @@ If `reset', set `company-transformers' to nil."
               (eval-after-load 'flycheck
                 '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))))
 
+(setq mouse-wheel-scroll-amount '(1))
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-follow-mouse 't)
 
+(setq mac-mouse-wheel-mode nil)
+(setq mac-mouse-wheel-smooth-scroll nil)
+
+(use-package lua-mode
+  :ensure t
+  :mode ("\\.lua\\'" . lua-mode)
+  :interpreter ("lua" . lua-mode)
+  :config
+  (setq lua-indent-level 2)
+ 
+  (defun pd/love-run ()
+    "Run pdrun script in root of project."
+    (interactive)
+    (let ((default-directory
+            (locate-dominating-file default-directory "pdrun")))
+      (with-current-buffer
+          (get-buffer-create "*compilation*")
+        (compilation-start "./pdrun" 'compilation-mode
+                           (lambda (_mode-name)
+                             "*pdrun*")
+                           t)))))
+ 
+(use-package company-lua
+  :ensure t
+  :commands (company-lua)
+  :init
+  (add-hook 'lua-mode-hook
+            (lambda ()
+              (setq company-lua-interpreter 'love)
+              (jojo/company-push-backend-local 'company-lua))))
+ 
+(use-package love-minor-mode
+  :ensure t
+  :commands (love/possibly-enable-mode)
+  :init
+  (defcustom love/documentation-url
+    "https://love2d.org/wiki/"
+    "URL pointing to the Love wiki."
+    :type 'string
+    :group 'lua)
+ 
+  (defun love/search-documentation ()
+    "Search Love documentation for the word at the point."
+    (interactive)
+    (let ((url (concat love/documentation-url (lua-funcname-at-point))))
+      (funcall lua-documentation-function url)))
+ 
+  (add-hook 'lua-mode-hook
+            (lambda ()
+              (love/possibly-enable-mode))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
