@@ -852,6 +852,10 @@ If `reset', set `company-transformers' to nil."
             (lambda ()
               (love/possibly-enable-mode))))
 
+(use-package smartparens-mode)
+
+(add-hook 'js-mode-hook #'smartparens-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
