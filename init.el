@@ -811,6 +811,60 @@ If `reset', set `company-transformers' to nil."
   :config
   (setq lua-indent-level 2)
  
+  (defun jojo/lua-run-test-suite ()
+    "Run test_suite.lua."
+    (interactive)
+    (let ((default-directory (locate-dominating-file
+                              (file-name-directory buffer-file-name)
+                              "test_suite.lua")))
+      (compilation-start
+       "lua test_suite.lua -v"
+       'compilation-mode
+       (lambda (_mode-name)
+         "*lua test results*")
+       t)))
+
+  (defun jojo/lua-run-test-file ()
+    "Run test file using buffer as file."
+    (interactive)
+    (if-let ((buffer-file (buffer-file-name)))
+        (let ((default-directory (locate-dominating-file
+                                  (file-name-directory buffer-file-name)
+                                  "main.lua")))
+          (compilation-start (format "lua %s -v" buffer-file)
+                             'compilation-mode
+                             (lambda (_mode-name)
+                               "*lua test results*")
+                             t))
+      (message "`buffer-file-name' is nil.")))
+
+  (defun jojo/lua-run-test-at-point ()
+    "Run test at point."
+    (interactive)
+    (if-let ((buffer-file (buffer-file-name)))
+        (let ((function-name
+               (let ((current-line (thing-at-point 'line t)))
+                 (progn
+                   (unless (string-match-p "function" current-line)
+                     (search-backward "function"))
+                   (let ((new-current-line (s-trim (thing-at-point 'line t))))
+                     (s-trim
+                      (s-chop-suffix
+                       "()"
+                       (s-chop-prefix "function" new-current-line))))))))
+          (if function-name
+              (let ((default-directory (locate-dominating-file
+                                        (file-name-directory buffer-file-name)
+                                        "main.lua")))
+                (compilation-start
+                 (format "lua %s %s -v" buffer-file (s-replace ":" "." function-name))
+                 'compilation-mode
+                 (lambda (_mode-name)
+                   "*lua test results*")
+                 t))
+            (message "Couldn't find `function-name'.")))
+      (message "`buffer-file-name' is nil.")))
+
   (defun pd/love-run ()
     "Run pdrun script in root of project."
     (interactive)
@@ -852,9 +906,14 @@ If `reset', set `company-transformers' to nil."
             (lambda ()
               (love/possibly-enable-mode))))
 
-(use-package smartparens-mode)
+(use-package smartparens
+:ensure t
+:config
+(use-package smartparens-config :ensure nil)
+(smartparens-global-mode 1))
 
-(add-hook 'js-mode-hook #'smartparens-mode)
+(global-set-key (kbd "C-x g") 'magit-status)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -866,7 +925,7 @@ If `reset', set `company-transformers' to nil."
     ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
  '(package-selected-packages
    (quote
-    (solarized-theme eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
+    (smartparens solarized-theme eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
