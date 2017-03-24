@@ -913,6 +913,7 @@ If `reset', set `company-transformers' to nil."
 (smartparens-global-mode 1))
 
 (global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key [f8] 'neotree-toggle)
 
 
 (custom-set-variables
