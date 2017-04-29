@@ -1,21 +1,45 @@
 
 ;; ----- smex-history -----
 (
- neotree
- mixal-mode
- magit-status
+ rtags-find-symbol-at-point
+ rtags-find-references
+ dired
+ rtags-install
+ package-list-packages
  load-theme
- package-install
- magit-log
- cd
+ indent-buffer
 )
 
 ;; ----- smex-data -----
 (
- (neotree . 4)
- (magit-status . 16)
- (magit-log . 3)
- (package-install . 1)
- (load-theme . 5)
+ (neotree . 16)
+ (magit-status . 53)
+ (magit-log . 43)
+ (package-install . 9)
+ (load-theme . 18)
  (mixal-mode . 2)
+ (neotree-hide . 1)
+ (package-list-packages . 5)
+ (irony-install-server . 1)
+ (magit-stash . 1)
+ (ivy-recentf . 1)
+ (jojo/lua-run-test-at-point . 3)
+ (eshell . 25)
+ (pd/love-run . 28)
+ (ad-update . 1)
+ (magit-branch-and-checkout . 45)
+ (magit-branch-delete . 72)
+ (magit-branch . 4)
+ (magit-checkout . 14)
+ (magit-remote-popup . 1)
+ (alchemist-mix-test . 3)
+ (alchemist-mix-test-file . 41)
+ (enable-theme . 2)
+ (diff-context->unified . 2)
+ (indent-region . 1)
+ (indent-buffer . 1)
+ (rtags-install . 4)
+ (dired . 1)
+ (rtags-find-references . 2)
+ (rtags-find-symbol-at-point . 1)
 )
