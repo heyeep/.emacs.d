@@ -1,13 +1,13 @@
 
 ;; ----- smex-history -----
 (
- rtags-find-symbol-at-point
- rtags-find-references
- dired
+ enable-theme
+ package-install
  rtags-install
+ malinka-mode
+ irony-mode
+ irony-install-server
  package-list-packages
- load-theme
- indent-buffer
 )
 
 ;; ----- smex-data -----
@@ -15,12 +15,12 @@
  (neotree . 16)
  (magit-status . 53)
  (magit-log . 43)
- (package-install . 9)
+ (package-install . 17)
  (load-theme . 18)
  (mixal-mode . 2)
  (neotree-hide . 1)
- (package-list-packages . 5)
- (irony-install-server . 1)
+ (package-list-packages . 7)
+ (irony-install-server . 13)
  (magit-stash . 1)
  (ivy-recentf . 1)
  (jojo/lua-run-test-at-point . 3)
@@ -34,12 +34,15 @@
  (magit-remote-popup . 1)
  (alchemist-mix-test . 3)
  (alchemist-mix-test-file . 41)
- (enable-theme . 2)
+ (enable-theme . 5)
  (diff-context->unified . 2)
  (indent-region . 1)
  (indent-buffer . 1)
- (rtags-install . 4)
+ (rtags-install . 16)
  (dired . 1)
  (rtags-find-references . 2)
  (rtags-find-symbol-at-point . 1)
+ (irony-mode . 5)
+ (irony-eldoc . 1)
+ (malinka-mode . 2)
 )

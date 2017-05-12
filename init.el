@@ -968,7 +968,7 @@ If `reset', set `company-transformers' to nil."
   (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
   (defun jojo/ycmd-base-setup ()
     "Base setup for ycmd."
-    (set-variable 'ycmd-server-command `("python" "/Users/hieppy/Code/buildstuff/ycmd/ycmd"))
+    (set-variable 'ycmd-server-command `("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
     (setq ycmd-extra-conf-handler 'ignore) ;; Only use global config
     (jojo/company-push-backend 'company-ycmd)
     (ycmd-mode 1))
@@ -1016,7 +1016,7 @@ If `reset', set `company-transformers' to nil."
     ("12ab69d8db952a79aa079da812c147ae551f6427448f2564e29f910bcef7bf93" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "1db337246ebc9c083be0d728f8d20913a0f46edc0a00277746ba411c149d7fe5" "f5512c02e0a6887e987a816918b7a684d558716262ac7ee2dd0437ab913eaec6" "8abee8a14e028101f90a2d314f1b03bed1cde7fd3f1eb945ada6ffc15b1d7d65" "ecb9fe1d5b165a35499191a909b2b5710a52935614058b327a39bfbbb07c7dc8" "4f2ede02b3324c2f788f4e0bad77f7ebc1874eff7971d2a2c9b9724a50fb3f65" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
  '(package-selected-packages
    (quote
-    (company-ycmd flycheck-ycmd malinka ample-zen-theme zenburn-theme tango-2-theme tango-plus-theme heroku-theme material-theme smartparens solarized-theme eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
+    (flycheck-rtags irony-eldoc clang-format company-ycmd flycheck-ycmd malinka ample-zen-theme zenburn-theme tango-2-theme tango-plus-theme heroku-theme material-theme smartparens solarized-theme eval-sexp-fu projectile magit exec-path-from-shell nlinum s dash use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
