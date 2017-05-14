@@ -968,7 +968,7 @@ If `reset', set `company-transformers' to nil."
   (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
   (defun jojo/ycmd-base-setup ()
     "Base setup for ycmd."
-    (set-variable 'ycmd-server-command `("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
+    (set-variable 'ycmd-server-command '("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
     (setq ycmd-extra-conf-handler 'ignore) ;; Only use global config
     (jojo/company-push-backend 'company-ycmd)
     (ycmd-mode 1))
