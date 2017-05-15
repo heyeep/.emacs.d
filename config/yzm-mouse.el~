@@ -1,0 +1,10 @@
+;;;; -*- lexical-binding: t; -*-
+
+(setq mouse-wheel-scroll-amount '(1))
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-follow-mouse 't)
+
+(setq mac-mouse-wheel-mode nil)
+(setq mac-mouse-wheel-smooth-scroll nil)
+
+(provide 'yzm-mouse)

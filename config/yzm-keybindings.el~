@@ -1,0 +1,12 @@
+;;;; -*- lexical-binding: t; -*-
+
+;; Right Alt -> Control
+(setq ns-right-option-modifier 'control)
+
+;; Magit
+(global-set-key (kbd "C-x g") 'magit-status)
+
+;; Neotree
+(global-set-key [f8] 'neotree-toggle)
+
+(provide 'yzm-keybindings)
