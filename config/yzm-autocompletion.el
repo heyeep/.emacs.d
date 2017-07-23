@@ -234,42 +234,6 @@ If `reset', set `company-transformers' to nil."
   :init
   :mode ("\\.h$" . dummy-h-mode))
 
-;; Irony
-;; Irony
-(use-package irony
-  ;; Run ~/.emacs.d/tools/irony_setup.sh
-  :ensure t
-  :commands (irony-mode irony-install-server)
-  :init
-  (add-hook 'c-mode-hook 'irony-mode)
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-
-(use-package company-irony
-  :ensure t
-  :commands (company-irony)
-  :init
-  (setq company-irony-ignore-case t)
-  (defun jojo/irony-mode-hook ()
-    "Hook for irony mode."
-    (jojo/company-push-backend-local '(company-irony-c-headers company-irony))
-    (jojo/company-set-delay 0)
-    (jojo/company-set-prefix-length 1))
-  (add-hook 'irony-mode-hook #'jojo/irony-mode-hook))
-
-(use-package company-irony-c-headers
-  :ensure t
-  :commands (company-irony-c-headers))
-
-(use-package flycheck-irony
-  :ensure t
-  :commands (flycheck-irony-setup)
-  :init
-  (add-hook 'irony-mode-hook
-            (lambda ()
-              (eval-after-load 'flycheck
-                '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))))
-
 ;; YCMD
 (use-package company-ycmd
   :ensure t
