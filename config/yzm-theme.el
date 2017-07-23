@@ -1,6 +1,12 @@
 ;;;; -*- lexical-binding: t; -*-
 
 ;;; Themes
+(use-package solarized-theme :defer :ensure t
+  :config
+  (setq solarized-distinct-fringe-background t)
+  (setq solarized-use-less-bold t))
+
+
 (use-package gotham-theme :defer :ensure t)
 
 (use-package spacemacs-theme
