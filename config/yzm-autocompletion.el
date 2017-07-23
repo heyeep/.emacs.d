@@ -281,4 +281,40 @@ If `reset', set `company-transformers' to nil."
   (setq rtags-display-result-backend 'default)
   (setq rtags-autostart-diagnostics t))
 
+;; Whitespace
+
+;;; Flagging
+(use-package whitespace
+  ;; Show trailing whitespace, tabs and lines over 80 characters.
+  :ensure nil
+  :init
+  (add-hook 'prog-mode-hook #'whitespace-mode)
+  :config
+  (setq whitespace-style '(face trailing tabs lines-tail)))
+
+;;; Removing
+(use-package ws-butler
+  :diminish ws-butler-mode
+  :ensure t
+  :config
+  (setq ws-butler-keep-whitespace-before-point nil)
+  (ws-butler-global-mode))
+
+;; Malinka
+(use-package malinka
+  :ensure t
+  :commands (malinka-mode)
+  :init
+  (add-hook 'c++-mode-hook 'malinka-mode)
+  :config
+  (setq malinka-print-debug t)
+  (setq malinka-idle-project-check-seconds 3)
+
+  (malinka-define-project
+   :name "flappy"
+   :root-directory "~/Code/flappyworld/c/flappy"
+   :build-directory "~/Code/flappyworld/c/flappy/build"
+   :configure-cmd "cmake .. -DCMAKE_BUILD_TYPE=Debug -DHEADLESS=1"
+   :compile-cmd "make -j4"))
+
 (provide 'yzm-autocompletion)
