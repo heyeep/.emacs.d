@@ -1,0 +1,8 @@
+.DS_STORE
+auto-save-list/*
+elpa/
+games/
+irony/
+network-security.data
+projectile-bookmarks.eld
+recentf
