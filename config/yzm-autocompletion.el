@@ -235,40 +235,40 @@ If `reset', set `company-transformers' to nil."
   :mode ("\\.h$" . dummy-h-mode))
 
 ;; YCMD
-(use-package company-ycmd
-  :ensure t
-  :commands (ycmd-mode)
-  :init
-  (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
-  (defun jojo/ycmd-base-setup ()
-    "Base setup for ycmd."
-    (set-variable 'ycmd-server-command '("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
-    (setq ycmd-extra-conf-handler 'ignore) ;; Only use global config
-    (jojo/company-push-backend 'company-ycmd)
-    (ycmd-mode 1))
+;; (use-package company-ycmd
+;;   :ensure t
+;;   :commands (ycmd-mode)
+;;   :init
+;;   (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
+;;   (defun jojo/ycmd-base-setup ()
+;;     "Base setup for ycmd."
+;;     (set-variable 'ycmd-server-command '("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
+;;     (setq ycmd-extra-conf-handler 'ignore) ;; Only use global config
+;;     (jojo/company-push-backend 'company-ycmd)
+;;     (ycmd-mode 1))
 
-  (mapcar
-   (lambda (x)
-     (add-hook x #'jojo/ycmd-base-setup))
-   '(c-mode-hook c++-mode-hook))
-  :config
-  (setq ycmd-min-num-chars-for-completion 1)
-  (setq ycmd-force-semantic-completion nil)
-  (setq ycmd-tag-files 'auto)
-  (setq request-message-level -1))
+;;   (mapcar
+;;    (lambda (x)
+;;      (add-hook x #'jojo/ycmd-base-setup))
+;;    '(c-mode-hook c++-mode-hook))
+;;   :config
+;;   (setq ycmd-min-num-chars-for-completion 1)
+;;   (setq ycmd-force-semantic-completion nil)
+;;   (setq ycmd-tag-files 'auto)
+;;   (setq request-message-level -1))
 
-(use-package flycheck-ycmd
-  :ensure t
-  :commands
-  (flycheck-ycmd-setup)
-  :init
-  (mapcar
-   (lambda (x)
-     (add-hook x #'flycheck-ycmd-setup))
-   '(c-mode-hook c++-mode-hook))
-  :config
-  (when (not (display-graphic-p))
-    (setq flycheck-indication-mode nil)))
+;; (use-package flycheck-ycmd
+;;   :ensure t
+;;   :commands
+;;   (flycheck-ycmd-setup)
+;;   :init
+;;   (mapcar
+;;    (lambda (x)
+;;      (add-hook x #'flycheck-ycmd-setup))
+;;    '(c-mode-hook c++-mode-hook))
+;;   :config
+;;   (when (not (display-graphic-p))
+;;     (setq flycheck-indication-mode nil)))
 
 ;; Rtags
 (use-package rtags
@@ -311,10 +311,11 @@ If `reset', set `company-transformers' to nil."
   (setq malinka-idle-project-check-seconds 3)
 
   (malinka-define-project
-   :name "flappy"
+   :name "flappy2"
    :root-directory "~/Code/flappyworld/c/flappy"
    :build-directory "~/Code/flappyworld/c/flappy/build"
    :configure-cmd "cmake .. -DCMAKE_BUILD_TYPE=Debug -DHEADLESS=1"
-   :compile-cmd "make -j4"))
+   :compile-cmd "make -j4"
+   :watch-file "~/Code/flappyworld/c/flappy/CMakeLists.txt"))
 
 (provide 'yzm-autocompletion)
