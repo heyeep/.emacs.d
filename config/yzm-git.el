@@ -9,4 +9,7 @@
   (setq magit-completing-read-function 'ivy-completing-read)
   (setq vc-handled-backends (delq 'Git vc-handled-backends)))
 
+;; Don't make backups of files in version control.
+(setq vc-make-backup-files nil)
+
 (provide 'yzm-git)
