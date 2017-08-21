@@ -405,4 +405,9 @@ If file path is not available, open $HOME."
   :config
   (+bold-parens))
 
+(use-package expand-region
+  :ensure t
+  :commands er/expand-region
+  :bind ("C-;" . er/expand-region))
+
 (provide 'yzm-theme)
