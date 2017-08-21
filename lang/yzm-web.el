@@ -27,7 +27,7 @@
   :config
   ;; Use `company-dabbrev-code' with `web-mode'.
   (when (boundp 'company-dabbrev-code-modes)
-    (push 'web-mode company-dabbrev-code-modes))
+    (push 'web-mode company-dabbrev-code-modes)))
 
 ;; colors for various 'color codes' aka hex strings
 (use-package rainbow-mode
@@ -57,7 +57,7 @@
                 (setq-local css-indent-offset n)
                 (setq-local js-indent-level n)
                 (setq-local sgml-basic-offset n)))))
-
+;;
 ;; Nodes Path
 (use-package add-node-modules-path
   :ensure t
@@ -202,7 +202,7 @@
   (advice-add 'js--proper-indentation :override '+js--proper-indentation))
  (:else
   (advice-add 'js--proper-indentation :override '+25-js--proper-indentation)))
-
+;;
 ;; Mocha
 (use-package mocha
   :ensure t
@@ -308,8 +308,7 @@ IF TESTNAME is specified run jest with a pattern for just that test."
                (string-match-p ".d.ts$" (buffer-file-name)))
       (flycheck-mode -1))
     (tide-setup)
-    (tide-hl-identifier-mode +1)
-    (+company-merge-backends))
+    (tide-hl-identifier-mode +1))
   (add-hook 'typescript-mode-hook #'+setup-tide-mode)
 
   (add-hook 'js2-mode-hook

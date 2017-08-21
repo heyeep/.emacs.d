@@ -66,7 +66,8 @@
 
   (advice-add 'change-theme :after #'jojo/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
-  (change-theme 'solarized-light 'solarized-dark))
+  (change-theme 'solarized-light 'solarized-dark)
+  (run-hooks 'after-load-theme-hook))
 
 ;;; Neotree
 (use-package neotree
@@ -332,5 +333,76 @@ If file path is not available, open $HOME."
 ;; using large fonts, at the price of a larger memory footprint of the
 ;; Emacs session.
 (setq inhibit-compacting-font-caches t)
+
+(use-package highlight-symbol
+  :ensure t
+  :diminish highlight-symbol-mode
+  :defer 5
+  :config
+  (setq highlight-symbol-idle-delay .5)
+
+  (defun +match-highlight-symbol-face ()
+    "Make `highlight-symbol-face' look like `highlight'."
+    (set-face-attribute 'highlight-symbol-face nil
+                        :background nil
+                        :foreground nil
+                        :inherit 'highlight))
+
+  ;; Match for existing buffers.
+  (dolist (b (buffer-list))
+    (with-current-buffer b
+      (when (and (derived-mode-p 'prog-mode)
+                 (not (member major-mode '(typescript-mode))))
+        (+match-highlight-symbol-face)
+        (highlight-symbol-mode 1))))
+
+  ;; Match after theme changes.
+  (add-hook 'after-load-theme-hook #'+match-highlight-symbol-face)
+
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              ;; `tide-mode' already supplies a highlight.
+              (unless (member major-mode '(typescript-mode))
+                (+match-highlight-symbol-face)
+                (highlight-symbol-mode 1)))))
+
+(defun +lisp-modes ()
+  "Return modes that are lispy."
+  '(lisp-mode
+    lisp-interaction-mode
+    emacs-lisp-mode
+    common-lisp-mode
+    slime-mode
+    clojure-mode
+    cider-mode
+    cider-repl-mode
+    scheme-mode
+    geiser-mode
+    geiser-repl-mode))
+
+(defun +lisp-hooks ()
+  "Return hooks that are lispy."
+  (mapcar #'+mode-hook (+lisp-modes)))
+
+(defun +mode-hook (mode)
+  "Return hook given `mode' symbol."
+  (intern (concat (symbol-name mode) "-hook")))
+
+(use-package rainbow-delimiters
+  ;; Use colorful parens.
+  :ensure t
+  :commands (rainbow-delimiters-mode)
+  :init
+  (defun +bold-parens ()
+    "Bold parentheses."
+    (dotimes (i 9)
+      (set-face-attribute
+       (intern (format "rainbow-delimiters-depth-%d-face" (+ i 1))) nil :bold t)))
+  (add-hook 'after-load-theme-hook #'+bold-parens)
+
+  (dolist (hook (+lisp-hooks))
+    (add-hook hook #'rainbow-delimiters-mode))
+  :config
+  (+bold-parens))
 
 (provide 'yzm-theme)
