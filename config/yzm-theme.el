@@ -410,4 +410,45 @@ If file path is not available, open $HOME."
   :commands er/expand-region
   :bind ("C-;" . er/expand-region))
 
+(use-package dired-sidebar
+  :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
+  :ensure t
+  :commands (dired-sidebar-toggle-sidebar)
+  :config
+  (setq dired-sidebar-use-custom-font t)
+  (setq dired-sidebar-face
+        (cond
+         ((eq system-type 'darwin)
+          '(:family "Helvetica" :height 140))
+         ((eq system-type 'windows-nt)
+          '(:family "Times New Roman" :height 150))
+         (:default
+          '(:family "Arial" :height 150))))
+
+  (use-package all-the-icons-dired
+    ;; M-x all-the-icons-install-fonts
+    :ensure t
+    :commands (all-the-icons-dired-mode)))
+
+(use-package dired-collapse
+  :ensure t
+  :commands (dired-collapse-mode)
+  :init
+  (add-hook 'dired-mode-hook #'dired-collapse-mode))
+
+(use-package dired-subtree
+  :ensure t
+  :commands (dired-subtree-toggle dired-subtree-cycle)
+  :config
+  (setq dired-subtree-line-prefix "_ ")
+  (setq dired-subtree-use-backgrounds nil))
+
+(use-package ace-window
+  :ensure t
+  :commands (ace-delete-window
+             ace-swap-window
+             ace-delete-other-windows
+             ace-window
+             aw-select))
+
 (provide 'yzm-theme)

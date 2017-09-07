@@ -8,8 +8,10 @@
 (global-set-key (kbd "C-x C-g") 'magit-status)
 
 ;; Neotree
-(global-set-key (kbd "<f8>") 'neotree-toggle)
+;; (global-set-key (kbd "<f8>") 'neotree-toggle)
 
+;; Dired Sidebar
+(global-set-key (kbd "<f8>") 'dired-sidebar-toggle-sidebar)
 ;; Other
 (global-set-key (kbd "<f9>") (lambda() (interactive) (find-file "~/.emacs.d/init.el")))
 (global-set-key (kbd "<f7>") (lambda() (interactive) (find-file "~/Code/flappyworld/c/flappy/scene/GameScene.cpp")))
