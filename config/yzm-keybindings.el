@@ -24,5 +24,6 @@
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
 
-
+(define-key c++-mode-map (kbd "<f3>") #'compile)
+(global-set-key (kbd "<f4>") (lambda () (interactive) (shell-command "./app")))
 (provide 'yzm-keybindings)
