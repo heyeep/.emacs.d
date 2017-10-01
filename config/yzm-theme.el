@@ -1,6 +1,10 @@
 ;;;; -*- lexical-binding: t; -*-
 
 ;;; Themes
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+(tool-bar-mode -1)
+
 (use-package solarized-theme :defer :ensure t
   :config
   (setq solarized-distinct-fringe-background t)
