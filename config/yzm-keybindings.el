@@ -24,11 +24,29 @@
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
 
-(add-hook 'c++-mode-hook 'hiepc++-mode-hook)
+;; (add-hook 'c++-mode-hook 'hiepc++-mode-hook)
+
+;; (add-hook 'c++-mode-hook
+;;           (lambda ()
+;;             (when (string-equal (buffer-name) "A.cpp")
+;;               (add-hook 'after-save-hook
+;;                         (lambda ()
+;;                           (compile (format "g++ %s" buffer-file-name))) nil t))))
+
+(defun +c++-hook ()
+  ""
+  (add-hook 'after-save-hook #'+after-save-hook nil t))
+
+(defun +after-save-hook ()
+  ""
+  (let ((noext (file-name-sans-extension (buffer-name))))
+    (compile (format "g++ %s -o %s; ./%s" buffer-file-name noext noext))))
+
+(add-hook 'c++-mode-hook #'+c++-hook)
 
 (defun hiepc++-mode-hook ()
    (define-key c++-mode-map (kbd "<f3>") #'compile))
 
-(global-set-key (kbd "<f4>") (lambda () (interactive) (shell-command "./app")))
+(global-set-key (kbd "<f4>") (lambda () (interactive) (shell-command "./main")))
 
 (provide 'yzm-keybindings)
