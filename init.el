@@ -14,9 +14,6 @@
 (let ((default-directory "~/.emacs.d/"))
   (normal-top-level-add-subdirs-to-load-path))
 
-;; M-x list-packages U x to upgrade packages.
-(setq package-list '(diminish))
-
 ;; Disable in favor of `use-package'.
 (setq package-enable-at-startup nil)
 
@@ -26,6 +23,30 @@
 
 ;; Activate all packages (in particular autoloads).
 (package-initialize)
+
+;; Auto downloads packages from mepla
+;; diminish is does not come with 'use-package' any
+;; has to be installed manually
+(require 'cl-lib)
+(defvar my-packages
+  '(diminish)
+  "A list of packages to ensure are installed at launch.")
+
+(defun my-packages-installed-p ()
+  (cl-loop for p in my-packages
+           when (not (package-installed-p p)) do (cl-return nil)
+           finally (cl-return t)))
+
+(unless (my-packages-installed-p)
+  ;; check for new packages (package versions)
+  (package-refresh-contents)
+  ;; install the missing packages
+  (dolist (p my-packages)
+    (when (not (package-installed-p p))
+      (package-install p))))
+
+;; M-x list-packages U x to upgrade packages.
+(setq package-list '(diminish))
 
 ;; Bootstrap `use-package'.
 (unless (package-installed-p 'use-package)
@@ -59,35 +80,17 @@
                                (server-start))))
 
 ;; Config
-(use-package yzm-autocompletion
-  :load-path "config/yzm-autocompletion"
-  :ensure nil)
-(use-package yzm-keybindings
-  :load-path "config/yzm-keybindings"
-  :ensure nil)
-(use-package yzm-mouse
-  :load-path "config/yzm-mouse"
-  :ensure nil)
-(use-package yzm-theme
-  :load-path "config/yzm-theme"
-  :ensure nil)
-(use-package yzm-git
-  :load-path "config/yzm-git"
-  :ensure nil)
+(use-package yzm-autocompletion :ensure nil)
+(use-package yzm-keybindings :ensure nil)
+(use-package yzm-mouse :ensure nil)
+(use-package yzm-theme :ensure nil)
+(use-package yzm-git :ensure nil)
 
 ;; Lang
-(use-package yzm-elixir
-  :load-path "lang/yzm-elixir"
-  :ensure nil)
-(use-package yzm-lisp
-  :load-path "lang/yzm-lisp"
-  :ensure nil)
-(use-package yzm-lua
-  :load-path "lang/yzm-lau"
-  :ensure nil)
-(use-package yzm-web
-  :load-path "lang/yzm-web"
-  :ensure nil)
+(use-package yzm-elixir :ensure nil)
+(use-package yzm-lisp :ensure nil)
+(use-package yzm-lua :ensure nil)
+(use-package yzm-web :ensure nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
