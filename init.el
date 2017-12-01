@@ -34,8 +34,8 @@
 
 (eval-when-compile
   (require 'use-package))
-(require 'diminish) ; for :diminish
-(require 'bind-key) ; for :bind
+  (require 'diminish) ; for :diminish
+  (require 'bind-key) ; for :bind
 
 ;; Install package if not existing.
 (setq use-package-always-ensure nil)
@@ -59,17 +59,35 @@
                                (server-start))))
 
 ;; Config
-(use-package yzm-autocompletion :ensure nil)
-(use-package yzm-keybindings :ensure nil)
-(use-package yzm-mouse :ensure nil)
-(use-package yzm-theme :ensure nil)
-(use-package yzm-git :ensure nil)
+(use-package yzm-autocompletion
+  :load-path "config/yzm-autocompletion"
+  :ensure nil)
+(use-package yzm-keybindings
+  :load-path "config/yzm-keybindings"
+  :ensure nil)
+(use-package yzm-mouse
+  :load-path "config/yzm-mouse"
+  :ensure nil)
+(use-package yzm-theme
+  :load-path "config/yzm-theme"
+  :ensure nil)
+(use-package yzm-git
+  :load-path "config/yzm-git"
+  :ensure nil)
 
 ;; Lang
-(use-package yzm-elixir :ensure nil)
-(use-package yzm-lisp :ensure nil)
-(use-package yzm-lua :ensure nil)
-(use-package yzm-web :ensure nil)
+(use-package yzm-elixir
+  :load-path "lang/yzm-elixir"
+  :ensure nil)
+(use-package yzm-lisp
+  :load-path "lang/yzm-lisp"
+  :ensure nil)
+(use-package yzm-lua
+  :load-path "lang/yzm-lau"
+  :ensure nil)
+(use-package yzm-web
+  :load-path "lang/yzm-web"
+  :ensure nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -78,7 +96,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
+    (malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

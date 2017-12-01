@@ -5,9 +5,9 @@
  package-install
  rtags-install
  malinka-mode
- irony-mode
- irony-install-server
  package-list-packages
+ magit-branch-delete
+ magit-status
 )
 
 ;; ----- smex-data -----
