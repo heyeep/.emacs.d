@@ -85,7 +85,7 @@
 (use-package yzm-mouse :ensure nil)
 (use-package yzm-theme :ensure nil)
 (use-package yzm-git :ensure nil)
-
+(use-package yzm-slime :ensure nil)
 ;; Lang
 (use-package yzm-elixir :ensure nil)
 (use-package yzm-lisp :ensure nil)
@@ -99,7 +99,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
+    (slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
