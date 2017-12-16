@@ -49,7 +49,6 @@
   (setq projectile-completion-system 'ivy))
 
 ;;; Company
-
 (use-package company
   :ensure t
   :init
@@ -234,42 +233,6 @@ If `reset', set `company-transformers' to nil."
   :init
   :mode ("\\.h$" . dummy-h-mode))
 
-;; YCMD
-;; (use-package company-ycmd
-;;   :ensure t
-;;   :commands (ycmd-mode)
-;;   :init
-;;   (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
-;;   (defun jojo/ycmd-base-setup ()
-;;     "Base setup for ycmd."
-;;     (set-variable 'ycmd-server-command '("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
-;;     (setq ycmd-extra-conf-handler 'ignore) ;; Only use global config
-;;     (jojo/company-push-backend 'company-ycmd)
-;;     (ycmd-mode 1))
-
-;;   (mapcar
-;;    (lambda (x)
-;;      (add-hook x #'jojo/ycmd-base-setup))
-;;    '(c-mode-hook c++-mode-hook))
-;;   :config
-;;   (setq ycmd-min-num-chars-for-completion 1)
-;;   (setq ycmd-force-semantic-completion nil)
-;;   (setq ycmd-tag-files 'auto)
-;;   (setq request-message-level -1))
-
-;; (use-package flycheck-ycmd
-;;   :ensure t
-;;   :commands
-;;   (flycheck-ycmd-setup)
-;;   :init
-;;   (mapcar
-;;    (lambda (x)
-;;      (add-hook x #'flycheck-ycmd-setup))
-;;    '(c-mode-hook c++-mode-hook))
-;;   :config
-;;   (when (not (display-graphic-p))
-;;     (setq flycheck-indication-mode nil)))
-
 ;; Rtags
 (use-package rtags
   :ensure t
@@ -282,7 +245,6 @@ If `reset', set `company-transformers' to nil."
   (setq rtags-autostart-diagnostics t))
 
 ;; Whitespace
-
 ;;; Flagging
 (use-package whitespace
   ;; Show trailing whitespace, tabs and lines over 80 characters.
