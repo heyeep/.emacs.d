@@ -7,9 +7,6 @@
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x C-g") 'magit-status)
 
-;; Neotree
-;; (global-set-key (kbd "<f8>") 'neotree-toggle)
-
 ;; Dired Sidebar
 (global-set-key (kbd "<f8>") 'dired-sidebar-toggle-sidebar)
 ;; Other
