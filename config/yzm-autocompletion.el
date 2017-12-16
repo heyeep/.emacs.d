@@ -41,7 +41,7 @@
              projectile-switch-to-buffer
              projectile-ag
              projectile-recentf
-             jojo/projectile-find)
+             hip/projectile-find)
   :diminish projectile-mode
   :config
   (setq projectile-enable-caching t)
@@ -52,7 +52,7 @@
 (use-package company
   :ensure t
   :init
-  (defun jojo/company-visible-and-explicit-action-p ()
+  (defun hip/company-visible-and-explicit-action-p ()
     "Determine if tooltip is visible and user explicit action took place."
     (and (company-tooltip-visible-p)
          (company-explicit-action-p)))
@@ -60,7 +60,7 @@
     "Sets up company to behave similarly to auto-complete mode."
     (setq company-require-match nil)
     (setq company-tooltip-idle-delay .25)
-    (setq company-auto-complete #'jojo/company-visible-and-explicit-action-p)
+    (setq company-auto-complete #'hip/company-visible-and-explicit-action-p)
     (setq company-frontends
           '(company-echo-metadata-frontend
             company-pseudo-tooltip-unless-just-one-frontend-with-delay
@@ -69,19 +69,19 @@
       'company-select-next-if-tooltip-visible-or-complete-selection)
     (define-key company-active-map (kbd "TAB")
       'company-select-next-if-tooltip-visible-or-complete-selection))
-  (defun jojo/company-set-prefix-length (len)
+  (defun hip/company-set-prefix-length (len)
     "Changing prefix length locally."
     (make-local-variable 'company-minimum-prefix-length)
     (setq company-minimum-prefix-length len))
-  (defun jojo/company-set-delay (delay)
+  (defun hip/company-set-delay (delay)
     "Changing delay length locally."
     (make-local-variable 'company-idle-delay)
     (setq company-idle-delay delay))
-  (defun jojo/company-set-clang-args (clang-args)
+  (defun hip/company-set-clang-args (clang-args)
     "Set up clang arguments locally."
     (make-local-variable 'company-clang-arguments)
     (setq company-clang-arguments clang-args))
-  (defun jojo/company-backend-in-backends (b)
+  (defun hip/company-backend-in-backends (b)
     "Check if backend b is already in company-backends.
 We need to do this check because each backend has additional symbols attached.
 Ex. company-clang :with company-yasnippet."
@@ -90,25 +90,25 @@ Ex. company-clang :with company-yasnippet."
         (when (member b backend)
           (setq in-backend t)))
       in-backend))
-  (defun jojo/company-push-backend (b &optional no-merge)
+  (defun hip/company-push-backend (b &optional no-merge)
     "Adds backend b to company mode if it's not already in the list of backends.
 If `no-merge' is non-nil, don't merge additional backends."
-    (unless (jojo/company-backend-in-backends b)
+    (unless (hip/company-backend-in-backends b)
       (add-to-list 'company-backends b))
     (unless no-merge
-      (jojo/company-merge-backends)))
-  (defun jojo/company-push-backend-local (b &optional no-merge)
+      (hip/company-merge-backends)))
+  (defun hip/company-push-backend-local (b &optional no-merge)
     "Push backend into local backends.
 If `no-merge' is non-nil, don't merge additional backends."
     (make-local-variable 'company-backends)
-    (jojo/company-push-backend b no-merge))
-  (defun jojo/company-set-local-backends (backends &optional no-merge)
+    (hip/company-push-backend b no-merge))
+  (defun hip/company-set-local-backends (backends &optional no-merge)
     "Set backends locally.
 If `no-merge' is non-nill, don't merge additional backends."
     (make-local-variable 'company-backends)
     (setq company-backends backends)
     (unless no-merge
-      (jojo/company-merge-backends)))
+      (hip/company-merge-backends)))
   :config
   (setq company-echo-delay 1)
   (setq company-minimum-prefix-length 1)
@@ -140,11 +140,11 @@ will yield (company-capf :with company-yasnippet)."
                                                       `(,b)
                                                     `(:with ,b)))))
                                       company-backends blist)))
-  (defun jojo/company-merge-backends ()
+  (defun hip/company-merge-backends ()
     "Merge common backends."
     (merge-backend-with-company-backends 'company-dabbrev-code))
-  (jojo/company-merge-backends)
-  ;; if the completion is JoJo, typing jojo will get to it
+  (hip/company-merge-backends)
+  ;; if the completion is Hip, typing hip will get to it
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t) ; default is keep-prefix
   ;; Dabbrev same major mode buffers.
@@ -163,10 +163,10 @@ will yield (company-capf :with company-yasnippet)."
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (define-key company-active-map (kbd "RET")
-    'jojo/company-complete-selection-or-abort-if-same-unless-yas)
+    'hip/company-complete-selection-or-abort-if-same-unless-yas)
   (define-key company-active-map [return]
-    'jojo/company-complete-selection-or-abort-if-same-unless-yas)
-  (defun jojo/company-complete-selection-or-abort-if-same-unless-yas ()
+    'hip/company-complete-selection-or-abort-if-same-unless-yas)
+  (defun hip/company-complete-selection-or-abort-if-same-unless-yas ()
     "Complete selection or abort if prefix matches selection.
 If backend is yasnippet, complete normally."
     (interactive)
@@ -178,35 +178,35 @@ If backend is yasnippet, complete normally."
          ;; Completion result is the same as the prefix.
          (string-equal company-prefix
                        (nth company-selection company-candidates)))
-        (jojo/company-abort-and-newline)
+        (hip/company-abort-and-newline)
       (company-complete-selection)))
-  (defun jojo/company-abort-and-newline ()
+  (defun hip/company-abort-and-newline ()
     "Cancel the company selection and then go to next line."
     (interactive)
     (company-abort)
     (newline-and-indent))
-  (define-key company-active-map (kbd "<S-return>") 'jojo/company-abort-and-newline)
+  (define-key company-active-map (kbd "<S-return>") 'hip/company-abort-and-newline)
   ;; loop completion selections
   (setq company-selection-wrap-around t)
   (setq company-idle-delay .1)
   (company-ac-setup)
-  (defun jojo/setup-company-transformers (&optional reset)
+  (defun hip/setup-company-transformers (&optional reset)
     "Push list of transformers to `company-transformers'.
 If `reset', set `company-transformers' to nil."
     (if reset
         (setq company-transformers nil)
       (push #'company-sort-prefer-same-case-prefix company-transformers)))
-  (jojo/setup-company-transformers)
+  (hip/setup-company-transformers)
   (global-company-mode))
 ;; documentation popup for company
 (use-package company-quickhelp
   :ensure t
   :commands (company-quickhelp-mode)
   :init
-  (defun jojo/company-quickhelp-hook ()
+  (defun hip/company-quickhelp-hook ()
     "Setting up company-quickhelp."
     (company-quickhelp-mode 1))
-  (add-hook 'company-mode-hook #'jojo/company-quickhelp-hook)
+  (add-hook 'company-mode-hook #'hip/company-quickhelp-hook)
   :config
   (setq company-quickhelp-delay 2.3))
 

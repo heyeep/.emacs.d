@@ -29,7 +29,7 @@
   ;; (setq calendar-latitude 36.3147)
   ;; (setq calendar-longitude 139.8)
   :config
-  (defun jojo/make-modeline-taller ()
+  (defun hip/make-modeline-taller ()
     "Make the mode line taller."
     (dolist (sym '(mode-line mode-line-inactive))
       (set-face-attribute
@@ -44,12 +44,12 @@
          (sunset-today (second today-times)))
       (daytime-p sunrise-today sunset-today)))
 
-  (defun jojo/update-theme (&rest _args)
+  (defun hip/update-theme (&rest _args)
     "Update various UI elements when theme changes"
-    (jojo/make-modeline-taller)
+    (hip/make-modeline-taller)
     (eval-after-load 'org-mode
       (lambda ()
-        (jojo/customize-org-ui)))
+        (hip/customize-org-ui)))
     (when (fboundp 'org-reload)
       (eval-after-load 'org-faces
         (lambda ()
@@ -68,7 +68,7 @@
          nil
          :background (face-attribute 'company-preview-common :background)))))
 
-  (advice-add 'change-theme :after #'jojo/update-theme)
+  (advice-add 'change-theme :after #'hip/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
   (change-theme 'solarized-light 'solarized-dark)
   (run-hooks 'after-load-theme-hook))

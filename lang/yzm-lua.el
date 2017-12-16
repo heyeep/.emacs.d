@@ -7,7 +7,7 @@
   :config
   (setq lua-indent-level 2)
 
-  (defun jojo/lua-run-test-suite ()
+  (defun hip/lua-run-test-suite ()
     "Run test_suite.lua."
     (interactive)
     (let ((default-directory (locate-dominating-file
@@ -20,7 +20,7 @@
          "*lua test results*")
        t)))
 
-  (defun jojo/lua-run-test-file ()
+  (defun hip/lua-run-test-file ()
     "Run test file using buffer as file."
     (interactive)
     (if-let ((buffer-file (buffer-file-name)))
@@ -34,7 +34,7 @@
                              t))
       (message "`buffer-file-name' is nil.")))
 
-  (defun jojo/lua-run-test-at-point ()
+  (defun hip/lua-run-test-at-point ()
     "Run test at point."
     (interactive)
     (if-let ((buffer-file (buffer-file-name)))
@@ -80,7 +80,7 @@
   (add-hook 'lua-mode-hook
             (lambda ()
               (setq company-lua-interpreter 'love)
-              (jojo/company-push-backend-local 'company-lua))))
+              (hip/company-push-backend-local 'company-lua))))
 
 (use-package love-minor-mode
   :ensure t

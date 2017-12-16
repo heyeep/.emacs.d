@@ -1,13 +1,13 @@
 
 ;; ----- smex-history -----
 (
+ replace-string
+ comment-region
+ uncomment-region
+ slime
  enable-theme
  package-install
  rtags-install
- malinka-mode
- package-list-packages
- magit-branch-delete
- magit-status
 )
 
 ;; ----- smex-data -----
@@ -45,4 +45,8 @@
  (irony-mode . 5)
  (irony-eldoc . 1)
  (malinka-mode . 2)
+ (slime . 1)
+ (replace-string . 31)
+ (comment-region . 3)
+ (uncomment-region . 1)
 )
