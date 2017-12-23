@@ -191,7 +191,7 @@
   :config
   (use-package smartparens-config :ensure nil)
   (smartparens-global-mode 1))
-
+(add-hook 'emacs-lisp-mode-hook 'smartparens-strict-mode)
 
 ;; Indentation
 (defun indent-buffer ()
