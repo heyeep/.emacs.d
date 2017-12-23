@@ -126,13 +126,7 @@
   (eval-after-load "autorevert"
     '(diminish 'auto-revert-mode)))
 
-;; nlinum
-(use-package nlinum
-  :ensure t
-  :init
-  (dolist (hook '(prog-mode-hook
-                  nxml-mode-hook))
-    (add-hook hook #'nlinum-mode)))
+(global-display-line-numbers-mode)
 
 ;; https://stackoverflow.com/questions/3631220/fix-to-get-smooth-scrolling-in-emacs
 (setq scroll-margin 5
