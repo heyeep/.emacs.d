@@ -42,8 +42,7 @@
         ((today-times (sunrise-sunset-times (today)))
          (sunrise-today (first today-times))
          (sunset-today (second today-times)))
-      (daytime-p sunrise-today sunset-today)))
-
+      (daytime-p sunrise-today sunset-today)))3
   (defun hip/update-theme (&rest _args)
     "Update various UI elements when theme changes"
     (hip/make-modeline-taller)
@@ -70,7 +69,7 @@
 
   (advice-add 'change-theme :after #'hip/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
-  (change-theme 'solarized-light 'solarized-dark)
+  (change-theme 'solarized-dark 'solarized-dark)
   (run-hooks 'after-load-theme-hook))
 
 ;; emacs 24+ auto indents by default if `electric-indent-mode' is on
