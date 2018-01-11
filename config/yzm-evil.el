@@ -113,4 +113,5 @@
   :after magit
   :init
   (setq evil-magit-want-horizontal-movement t))
+
 (provide 'yzm-evil)
