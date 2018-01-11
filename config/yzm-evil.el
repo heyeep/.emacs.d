@@ -64,7 +64,7 @@
         evil-visual-state-tag   (propertize " VISUAL")
         evil-replace-state-tag  (propertize " REPLACE")
         evil-operator-state-tag (propertize " OPERATOR"))
-
+  (setq evil-default-state 'emacs)
   (evil-set-initial-state 'etags-select-mode 'motion)
   (evil-set-initial-state 'debugger-mode 'motion)
   (evil-set-initial-state 'messages-buffer-mode 'motion)
@@ -113,5 +113,4 @@
   :after magit
   :init
   (setq evil-magit-want-horizontal-movement t))
-
 (provide 'yzm-evil)

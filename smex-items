@@ -1,13 +1,13 @@
 
 ;; ----- smex-history -----
 (
- replace-string
- comment-region
- uncomment-region
+ ansi-term
  slime
- enable-theme
- package-install
- rtags-install
+ make-directory
+ asm-mode
+ load-theme
+ org-indent-mode
+ browse-web
 )
 
 ;; ----- smex-data -----
@@ -16,7 +16,7 @@
  (magit-status . 53)
  (magit-log . 43)
  (package-install . 17)
- (load-theme . 18)
+ (load-theme . 33)
  (mixal-mode . 2)
  (neotree-hide . 1)
  (package-list-packages . 7)
@@ -24,19 +24,19 @@
  (magit-stash . 1)
  (ivy-recentf . 1)
  (jojo/lua-run-test-at-point . 3)
- (eshell . 25)
+ (eshell . 26)
  (pd/love-run . 28)
  (ad-update . 1)
- (magit-branch-and-checkout . 45)
- (magit-branch-delete . 72)
- (magit-branch . 4)
- (magit-checkout . 14)
+ (magit-branch-and-checkout . 46)
+ (magit-branch-delete . 73)
+ (magit-branch . 8)
+ (magit-checkout . 26)
  (magit-remote-popup . 1)
  (alchemist-mix-test . 3)
  (alchemist-mix-test-file . 41)
  (enable-theme . 5)
  (diff-context->unified . 2)
- (indent-region . 1)
+ (indent-region . 2)
  (indent-buffer . 1)
  (rtags-install . 16)
  (dired . 1)
@@ -45,8 +45,21 @@
  (irony-mode . 5)
  (irony-eldoc . 1)
  (malinka-mode . 2)
- (slime . 1)
- (replace-string . 31)
+ (slime . 2)
+ (replace-string . 89)
  (comment-region . 3)
  (uncomment-region . 1)
+ (ansi-term . 15)
+ (magit-branch-or-checkout . 1)
+ (term . 2)
+ (make-directory . 49)
+ (pdf-tools-help . 2)
+ (doc-view-menu . 1)
+ (insert-char . 1)
+ (string-insert-rectangle . 20)
+ (web-mode . 2)
+ (org-mode . 2)
+ (browse-web . 1)
+ (org-indent-mode . 1)
+ (asm-mode . 1)
 )
