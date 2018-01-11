@@ -351,4 +351,31 @@
              ace-window
              aw-select))
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages '(
+       (awk . t)
+       (calc .t)
+       (C . t)
+       (emacs-lisp . t)
+       (haskell . t)
+       (gnuplot . t)
+       (latex . t)
+       (js . t)
+       (haskell . t)
+       (perl . t)
+       (python . t)
+       (R . t)
+       (scheme . t)
+       (sql . t)
+       ))
+(setq org-src-fontify-natively t)
+(setq org-startup-indented t)
+
+(defun my-asm-mode-hook ()
+  ;; you can use `comment-dwim' (M-;) for this kind of behaviour anyway
+  (local-unset-key (vector asm-comment-char))
+  ;; asm-mode sets it locally to nil, to "stay closer to the old TAB behaviour".
+  (setq tab-always-indent (default-value 'tab-always-indent)))
+
+(add-hook 'asm-mode-hook #'my-asm-mode-hook)
 (provide 'yzm-theme)
