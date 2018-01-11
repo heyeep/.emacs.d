@@ -368,7 +368,12 @@
        (scheme . t)
        (sql . t)
        ))
-(setq org-src-fontify-natively t)
+
+(setq org-src-fontify-natively t
+      org-src-tab-acts-natively t
+      org-confirm-babel-evaluate nil
+      org-edit-src-content-indentation 0)
+
 (setq org-startup-indented t)
 
 (defun my-asm-mode-hook ()
@@ -377,5 +382,4 @@
   ;; asm-mode sets it locally to nil, to "stay closer to the old TAB behaviour".
   (setq tab-always-indent (default-value 'tab-always-indent)))
 
-(add-hook 'asm-mode-hook #'my-asm-mode-hook)
 (provide 'yzm-theme)
