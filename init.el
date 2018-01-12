@@ -104,7 +104,7 @@
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "b550fc3d6f0407185ace746913449f6ed5ddc4a9f0cf3be218af4fb3127c7877" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
  '(package-selected-packages
    (quote
-    (evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
+    (slime-company evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

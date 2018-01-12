@@ -1,12 +1,10 @@
 ;; Install SLIME
-(use-package slime
-  :ensure t
-  :commands (slime slime-lisp-mode-hook)
-  :diminish)
+(add-to-list 'load-path "~/.emacs.d/site-lisp/slime")
+(require 'slime-autoloads)
 
-;; Set path
 (setq inferior-lisp-program "/usr/bin/sbcl")
-(setq slime-contribs '(slime-fancy))
 
-(load (expand-file-name "~/.quicklisp/slime-helper.el"))
+;; (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+(setq slime-contribs '(slime-fancy slime-indentation))
+;;(slime-setup '(slime-company))
 (provide 'yzm-slime)
