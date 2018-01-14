@@ -56,4 +56,14 @@
       scroll-conservatively 10000
       scroll-preserve-screen-position 1)
 
+;; Which-Key
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :init
+  (which-key-mode)
+  :config
+  (setq which-key-sort-order
+        'which-key-key-order-alpha))
+
 (provide 'yzm-default)
