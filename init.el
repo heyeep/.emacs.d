@@ -80,6 +80,7 @@
                                (server-start))))
 
 ;; Config
+(use-package yzm-default :ensure nil)
 (use-package yzm-autocompletion :ensure nil)
 (use-package yzm-keybindings :ensure nil)
 (use-package yzm-mouse :ensure nil)

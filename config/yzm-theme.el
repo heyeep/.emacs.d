@@ -71,11 +71,6 @@
   (change-theme 'solarized-dark 'solarized-dark)
   (run-hooks 'after-load-theme-hook))
 
-;; emacs 24+ auto indents by default if `electric-indent-mode' is on
-;; so disable automatic indent by default
-;; but enable it in all programming modes.
-(electric-indent-mode 0)
-
 (dolist (mode '(prog-mode-hook
                 yaml-mode-hook
                 css-mode-hook
@@ -124,18 +119,6 @@
   (eval-after-load "autorevert"
     '(diminish 'auto-revert-mode)))
 
-(global-display-line-numbers-mode)
-
-;; https://stackoverflow.com/questions/3631220/fix-to-get-smooth-scrolling-in-emacs
-(setq scroll-margin 5
-      scroll-step 1
-      scroll-conservatively 10000
-      scroll-preserve-screen-position 1)
-
-;; emacs 24+ auto indents by default if `electric-indent-mode' is on
-;; so disable automatic indent by default
-;; but enable it in all programming modes.
-(electric-indent-mode 0)
 
 (dolist (mode '(prog-mode-hook
                 yaml-mode-hook
@@ -147,35 +130,6 @@
                    (electric-indent-local-mode 1))))
 
 (add-hook 'prog-mode-hook 'eldoc-mode)
-
-;; Reverting buffers
-(global-auto-revert-mode t) ; automatically reload buffers on change
-
-;; No Autosave by default
-(setq auto-save-default nil)
-
-;; Don't make backups of files in version control.
-(setq vc-make-backup-files nil)
-
-;; Disable startup screen.
-(setq inhibit-startup-screen t)
-
-;; Mute system sound.
-(setq ring-bell-function #'ignore)
-
-;; Set title of window to current file.
-(setq frame-title-format '("%f"))
-
-;; Wrap line when it reaches end.
-(setq-default truncate-lines 1)
-(global-visual-line-mode 0)
-(setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
-
-(setq kill-whole-line t)
-;; yes or no to y or n
-(fset 'yes-or-no-p 'y-or-n-p)
-;; Make the column number show up.
-(column-number-mode 1)
 
 ;; Highlight matching parentheses.
 (use-package paren
@@ -214,11 +168,6 @@
         (indent-buffer)
         (message "Indented buffer.")))))
 
-;; Indenting
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-(setq c-basic-offset 4)
-
 ;; Same filenames get the directory name inserted also.
 (use-package uniquify
   :ensure nil
@@ -227,11 +176,6 @@
   (setq uniquify-separator "|")
   (setq uniquify-after-kill-buffer-p t)
   (setq uniquify-ignore-buffers-re "^\\*"))
-
-;; Set this variable to a non-nil value to speed up display of characters
-;; using large fonts, at the price of a larger memory footprint of the
-;; Emacs session.
-(setq inhibit-compacting-font-caches t)
 
 (use-package highlight-symbol
   :ensure t
