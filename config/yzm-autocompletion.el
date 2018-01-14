@@ -4,7 +4,9 @@
 (use-package ivy
   :ensure t
   :config
-  (ivy-mode))
+  (ivy-mode)
+  (setq ivy-display-style 'fancy)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume))
 
 (use-package counsel
   :ensure t
@@ -26,7 +28,8 @@
   ;; default: "ag --nocolor --nogroup %s -- ."
   (setq counsel-ag-base-command "ag -U --nocolor --nogroup %s -- .")
   (setq ivy-count-format "")
-  (setq ivy-height 15))
+  (setq ivy-height 15)
+  (global-set-key (kbd "C-s") 'swiper))
 
 (use-package smex
   :ensure t)
