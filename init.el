@@ -86,15 +86,31 @@
 (use-package yzm-mouse :ensure nil)
 (use-package yzm-theme :ensure nil)
 (use-package yzm-git :ensure nil)
-(use-package yzm-slime :ensure nil)
 (use-package yzm-evil :ensure nil)
 (use-package yzm-documents :ensure nil)
+
 ;; Lang
 (use-package yzm-elixir :ensure nil)
+(use-package yzm-haskell :ensure nil
+  :mode
+  ("\\.hsc\\'" . +haskell-mode)
+  ("\\.[gh]s\\'" . +haskell-mode)
+  ("\\.hs\\'" . +haskell-mode))
 (use-package yzm-latex :ensure nil)
-(use-package yzm-lisp :ensure nil)
+(use-package yzm-lisp :ensure nil
+  :mode
+  ("\\.l\\'" . +commonlisp-mode)
+  ("\\.li?sp\\'" . +commonlisp-mode)
+  ("\\.lisp\\'" . +commonlisp-mode))
 (use-package yzm-lua :ensure nil)
-(use-package yzm-web :ensure nil)
+(use-package yzm-python :ensure nil
+  :mode
+  ("\\.pyw?\\'" . +python-mode)
+  ("\\.py?\\'" . +python-mode)
+  :interpreter ("python . +python-mode"))
+
+(use-package yzm-web :ensure nil) 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
