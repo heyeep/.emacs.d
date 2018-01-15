@@ -1,7 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
 
-;; (package-initialize)
-
 (setq gc-cons-threshold 100000000) ; 100 mb
 (add-hook 'focus-out-hook 'garbage-collect)
 
@@ -80,50 +78,15 @@
                                (server-start))))
 
 ;; Config
-(use-package yzm-default :ensure nil)
-(use-package yzm-autocompletion :ensure nil)
-(use-package yzm-keybindings :ensure nil)
-(use-package yzm-mouse :ensure nil)
-(use-package yzm-theme :ensure nil)
-(use-package yzm-git :ensure nil)
-(use-package yzm-evil :ensure nil)
-(use-package yzm-documents :ensure nil)
+(use-package hpd-git :ensure nil)
 
-;; Lang
-(use-package yzm-elixir :ensure nil)
-(use-package yzm-elisp :ensure nil)
-(use-package yzm-haskell :ensure nil
-  :mode
-  ("\\.hsc\\'" . +haskell-mode)
-  ("\\.[gh]s\\'" . +haskell-mode)
-  ("\\.hs\\'" . +haskell-mode))
-(use-package yzm-latex :ensure nil)
-(use-package yzm-lisp :ensure nil
-  :mode
-  ("\\.l\\'" . +commonlisp-mode)
-  ("\\.li?sp\\'" . +commonlisp-mode)
-  ("\\.lisp\\'" . +commonlisp-mode))
-(use-package yzm-lua :ensure nil)
-(use-package yzm-python :ensure nil
-  :mode
-  ("\\.pyw?\\'" . +python-mode)
-  ("\\.py?\\'" . +python-mode)
-  :interpreter ("python . +python-mode"))
-
-(use-package yzm-web :ensure nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "b550fc3d6f0407185ace746913449f6ed5ddc4a9f0cf3be218af4fb3127c7877" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
- '(package-selected-packages
-   (quote
-    (slime-company evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
-
+ '(package-selected-packages (quote (use-package diminish))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

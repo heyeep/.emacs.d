@@ -37,4 +37,4 @@
           (message "Deleted backup %s" file)
           (delete-file file))))))
 
-(provide 'yzm-git)
+(provide 'hpd-git)
