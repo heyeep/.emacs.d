@@ -91,6 +91,7 @@
 
 ;; Lang
 (use-package yzm-elixir :ensure nil)
+(use-package yzm-elisp :ensure nil)
 (use-package yzm-haskell :ensure nil
   :mode
   ("\\.hsc\\'" . +haskell-mode)
@@ -109,7 +110,7 @@
   ("\\.py?\\'" . +python-mode)
   :interpreter ("python . +python-mode"))
 
-(use-package yzm-web :ensure nil) 
+(use-package yzm-web :ensure nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

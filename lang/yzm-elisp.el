@@ -1,8 +1,5 @@
 ;;;; -*- lexical-binding: t; -*-
 
-(require 'jn-functions)
-(require 'jn-dependencies)
-
 (use-package elisp-mode
   :ensure nil
   :init
