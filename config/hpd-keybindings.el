@@ -49,4 +49,4 @@
 
 (global-set-key (kbd "<f4>") (lambda () (interactive) (shell-command "./main")))
 
-(provide 'yzm-keybindings)
+(provide 'hpd-keybindings)

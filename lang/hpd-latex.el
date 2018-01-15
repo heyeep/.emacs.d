@@ -12,4 +12,4 @@
 (global-font-lock-mode t)
 
 ;;(latex-preview-pane-enable)
-(provide 'yzm-latex)
+(provide 'hpd-latex)

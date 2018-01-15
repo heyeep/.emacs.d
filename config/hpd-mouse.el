@@ -13,4 +13,4 @@
       scroll-conservatively 10000
       scroll-preserve-screen-position 1)
 
-(provide 'yzm-mouse)
+(provide 'hpd-mouse)

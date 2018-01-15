@@ -7,7 +7,7 @@
   :config
   (setq lua-indent-level 2)
 
-  (defun hip/lua-run-test-suite ()
+  (defun hpd/lua-run-test-suite ()
     "Run test_suite.lua."
     (interactive)
     (let ((default-directory (locate-dominating-file
@@ -20,7 +20,7 @@
          "*lua test results*")
        t)))
 
-  (defun hip/lua-run-test-file ()
+  (defun hpd/lua-run-test-file ()
     "Run test file using buffer as file."
     (interactive)
     (if-let ((buffer-file (buffer-file-name)))
@@ -34,7 +34,7 @@
                              t))
       (message "`buffer-file-name' is nil.")))
 
-  (defun hip/lua-run-test-at-point ()
+  (defun hpd/lua-run-test-at-point ()
     "Run test at point."
     (interactive)
     (if-let ((buffer-file (buffer-file-name)))
@@ -80,7 +80,7 @@
   (add-hook 'lua-mode-hook
             (lambda ()
               (setq company-lua-interpreter 'love)
-              (hip/company-push-backend-local 'company-lua))))
+              (hpd/company-push-backend-local 'company-lua))))
 
 (use-package love-minor-mode
   :ensure t
@@ -102,4 +102,4 @@
             (lambda ()
               (love/possibly-enable-mode))))
 
-(provide 'yzm-lua)
+(provide 'hpd-lua)

@@ -1,8 +1,8 @@
 
 ;; ----- smex-history -----
 (
+ replace-string
  ansi-term
- slime
  make-directory
  asm-mode
  load-theme
@@ -46,7 +46,7 @@
  (irony-eldoc . 1)
  (malinka-mode . 2)
  (slime . 2)
- (replace-string . 89)
+ (replace-string . 105)
  (comment-region . 3)
  (uncomment-region . 1)
  (ansi-term . 15)

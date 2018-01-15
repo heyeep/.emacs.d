@@ -100,7 +100,7 @@
              debbugs-org-mode
              debbugs-org-bugs))
 
-(provide 'yzm-elisp)
+(provide 'hpd-elisp)
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars unresolved noruntime cl-functions obsolete)
 ;; End:

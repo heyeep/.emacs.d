@@ -468,4 +468,4 @@ IF TESTNAME is specified run jest with a pattern for just that test."
                 (tern-mode t)
                 (+company-push-backend #'company-tern t)))))
 
-(provide 'yzm-web)
+(provide 'hpd-web)

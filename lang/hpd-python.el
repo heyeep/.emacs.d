@@ -85,11 +85,11 @@
 
 ;;;###autoload
 (defun +python-mode ()
-  "Bootstrap `yzm-python'."
+  "Bootstrap `hpd-python'."
   (setq auto-mode-alist (rassq-delete-all #'+python-mode auto-mode-alist))
   (python-mode))
 
-(provide 'yzm-python)
+(provide 'hpd-python)
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars unresolved noruntime cl-functions)
 ;; End:

@@ -4,15 +4,16 @@
 (use-package ivy
   :ensure t
   :config
-  (ivy-mode))
+  (ivy-mode)
+  (setq ivy-display-style 'fancy)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume))
 
-;; Package isn't on melpa
-;;(use-package counsel
-;;  :ensure t
-;;  :config
-;;  ;; Disable for now while trying grizzl.
-;;;  (global-set-key (kbd "M-x") 'counsel-M-x)
-;;  (global-set-key (kbd "s-x") 'counsel-M-x))
+(use-package counsel
+  :ensure t
+  :config
+  ;; Disable for now while trying grizzl.
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "s-x") 'counsel-M-x))
 
 (use-package swiper
   :ensure t
@@ -27,7 +28,8 @@
   ;; default: "ag --nocolor --nogroup %s -- ."
   (setq counsel-ag-base-command "ag -U --nocolor --nogroup %s -- .")
   (setq ivy-count-format "")
-  (setq ivy-height 15))
+  (setq ivy-height 15)
+  (global-set-key (kbd "C-s") 'swiper))
 
 (use-package smex
   :ensure t)
@@ -42,7 +44,7 @@
              projectile-switch-to-buffer
              projectile-ag
              projectile-recentf
-             jojo/projectile-find)
+             hpd/projectile-find)
   :diminish projectile-mode
   :config
   (setq projectile-enable-caching t)
@@ -50,11 +52,10 @@
   (setq projectile-completion-system 'ivy))
 
 ;;; Company
-
 (use-package company
   :ensure t
   :init
-  (defun jojo/company-visible-and-explicit-action-p ()
+  (defun hpd/company-visible-and-explicit-action-p ()
     "Determine if tooltip is visible and user explicit action took place."
     (and (company-tooltip-visible-p)
          (company-explicit-action-p)))
@@ -62,7 +63,7 @@
     "Sets up company to behave similarly to auto-complete mode."
     (setq company-require-match nil)
     (setq company-tooltip-idle-delay .25)
-    (setq company-auto-complete #'jojo/company-visible-and-explicit-action-p)
+    (setq company-auto-complete #'hpd/company-visible-and-explicit-action-p)
     (setq company-frontends
           '(company-echo-metadata-frontend
             company-pseudo-tooltip-unless-just-one-frontend-with-delay
@@ -71,19 +72,19 @@
       'company-select-next-if-tooltip-visible-or-complete-selection)
     (define-key company-active-map (kbd "TAB")
       'company-select-next-if-tooltip-visible-or-complete-selection))
-  (defun jojo/company-set-prefix-length (len)
+  (defun hpd/company-set-prefix-length (len)
     "Changing prefix length locally."
     (make-local-variable 'company-minimum-prefix-length)
     (setq company-minimum-prefix-length len))
-  (defun jojo/company-set-delay (delay)
+  (defun hpd/company-set-delay (delay)
     "Changing delay length locally."
     (make-local-variable 'company-idle-delay)
     (setq company-idle-delay delay))
-  (defun jojo/company-set-clang-args (clang-args)
+  (defun hpd/company-set-clang-args (clang-args)
     "Set up clang arguments locally."
     (make-local-variable 'company-clang-arguments)
     (setq company-clang-arguments clang-args))
-  (defun jojo/company-backend-in-backends (b)
+  (defun hpd/company-backend-in-backends (b)
     "Check if backend b is already in company-backends.
 We need to do this check because each backend has additional symbols attached.
 Ex. company-clang :with company-yasnippet."
@@ -92,25 +93,25 @@ Ex. company-clang :with company-yasnippet."
         (when (member b backend)
           (setq in-backend t)))
       in-backend))
-  (defun jojo/company-push-backend (b &optional no-merge)
+  (defun hpd/company-push-backend (b &optional no-merge)
     "Adds backend b to company mode if it's not already in the list of backends.
 If `no-merge' is non-nil, don't merge additional backends."
-    (unless (jojo/company-backend-in-backends b)
+    (unless (hpd/company-backend-in-backends b)
       (add-to-list 'company-backends b))
     (unless no-merge
-      (jojo/company-merge-backends)))
-  (defun jojo/company-push-backend-local (b &optional no-merge)
+      (hpd/company-merge-backends)))
+  (defun hpd/company-push-backend-local (b &optional no-merge)
     "Push backend into local backends.
 If `no-merge' is non-nil, don't merge additional backends."
     (make-local-variable 'company-backends)
-    (jojo/company-push-backend b no-merge))
-  (defun jojo/company-set-local-backends (backends &optional no-merge)
+    (hpd/company-push-backend b no-merge))
+  (defun hpd/company-set-local-backends (backends &optional no-merge)
     "Set backends locally.
 If `no-merge' is non-nill, don't merge additional backends."
     (make-local-variable 'company-backends)
     (setq company-backends backends)
     (unless no-merge
-      (jojo/company-merge-backends)))
+      (hpd/company-merge-backends)))
   :config
   (setq company-echo-delay 1)
   (setq company-minimum-prefix-length 1)
@@ -142,11 +143,11 @@ will yield (company-capf :with company-yasnippet)."
                                                       `(,b)
                                                     `(:with ,b)))))
                                       company-backends blist)))
-  (defun jojo/company-merge-backends ()
+  (defun hpd/company-merge-backends ()
     "Merge common backends."
     (merge-backend-with-company-backends 'company-dabbrev-code))
-  (jojo/company-merge-backends)
-  ;; if the completion is JoJo, typing jojo will get to it
+  (hpd/company-merge-backends)
+  ;; if the completion is Hpd, typing hpd will get to it
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t) ; default is keep-prefix
   ;; Dabbrev same major mode buffers.
@@ -165,10 +166,10 @@ will yield (company-capf :with company-yasnippet)."
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (define-key company-active-map (kbd "RET")
-    'jojo/company-complete-selection-or-abort-if-same-unless-yas)
+    'hpd/company-complete-selection-or-abort-if-same-unless-yas)
   (define-key company-active-map [return]
-    'jojo/company-complete-selection-or-abort-if-same-unless-yas)
-  (defun jojo/company-complete-selection-or-abort-if-same-unless-yas ()
+    'hpd/company-complete-selection-or-abort-if-same-unless-yas)
+  (defun hpd/company-complete-selection-or-abort-if-same-unless-yas ()
     "Complete selection or abort if prefix matches selection.
 If backend is yasnippet, complete normally."
     (interactive)
@@ -180,35 +181,35 @@ If backend is yasnippet, complete normally."
          ;; Completion result is the same as the prefix.
          (string-equal company-prefix
                        (nth company-selection company-candidates)))
-        (jojo/company-abort-and-newline)
+        (hpd/company-abort-and-newline)
       (company-complete-selection)))
-  (defun jojo/company-abort-and-newline ()
+  (defun hpd/company-abort-and-newline ()
     "Cancel the company selection and then go to next line."
     (interactive)
     (company-abort)
     (newline-and-indent))
-  (define-key company-active-map (kbd "<S-return>") 'jojo/company-abort-and-newline)
+  (define-key company-active-map (kbd "<S-return>") 'hpd/company-abort-and-newline)
   ;; loop completion selections
   (setq company-selection-wrap-around t)
   (setq company-idle-delay .1)
   (company-ac-setup)
-  (defun jojo/setup-company-transformers (&optional reset)
+  (defun hpd/setup-company-transformers (&optional reset)
     "Push list of transformers to `company-transformers'.
 If `reset', set `company-transformers' to nil."
     (if reset
         (setq company-transformers nil)
       (push #'company-sort-prefer-same-case-prefix company-transformers)))
-  (jojo/setup-company-transformers)
+  (hpd/setup-company-transformers)
   (global-company-mode))
 ;; documentation popup for company
 (use-package company-quickhelp
   :ensure t
   :commands (company-quickhelp-mode)
   :init
-  (defun jojo/company-quickhelp-hook ()
+  (defun hpd/company-quickhelp-hook ()
     "Setting up company-quickhelp."
     (company-quickhelp-mode 1))
-  (add-hook 'company-mode-hook #'jojo/company-quickhelp-hook)
+  (add-hook 'company-mode-hook #'hpd/company-quickhelp-hook)
   :config
   (setq company-quickhelp-delay 2.3))
 
@@ -235,78 +236,6 @@ If `reset', set `company-transformers' to nil."
   :init
   :mode ("\\.h$" . dummy-h-mode))
 
-;; Irony
-;; Irony
-(use-package irony
-  ;; Run ~/.emacs.d/tools/irony_setup.sh
-  :ensure t
-  :commands (irony-mode irony-install-server)
-  :init
-  (add-hook 'c-mode-hook 'irony-mode)
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-
-(use-package company-irony
-  :ensure t
-  :commands (company-irony)
-  :init
-  (setq company-irony-ignore-case t)
-  (defun jojo/irony-mode-hook ()
-    "Hook for irony mode."
-    (jojo/company-push-backend-local '(company-irony-c-headers company-irony))
-    (jojo/company-set-delay 0)
-    (jojo/company-set-prefix-length 1))
-  (add-hook 'irony-mode-hook #'jojo/irony-mode-hook))
-
-(use-package company-irony-c-headers
-  :ensure t
-  :commands (company-irony-c-headers))
-
-(use-package flycheck-irony
-  :ensure t
-  :commands (flycheck-irony-setup)
-  :init
-  (add-hook 'irony-mode-hook
-            (lambda ()
-              (eval-after-load 'flycheck
-                '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))))
-
-;; YCMD
-(use-package company-ycmd
-  :ensure t
-  :commands (ycmd-mode)
-  :init
-  (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)
-  (defun jojo/ycmd-base-setup ()
-    "Base setup for ycmd."
-    (set-variable 'ycmd-server-command '("python" "/Users/hiep/.emacs.d/fork/ycmd/ycmd"))
-    (setq ycmd-extra-conf-handler 'ignore) ;; Only use global config
-    (jojo/company-push-backend 'company-ycmd)
-    (ycmd-mode 1))
-
-  (mapcar
-   (lambda (x)
-     (add-hook x #'jojo/ycmd-base-setup))
-   '(c-mode-hook c++-mode-hook))
-  :config
-  (setq ycmd-min-num-chars-for-completion 1)
-  (setq ycmd-force-semantic-completion nil)
-  (setq ycmd-tag-files 'auto)
-  (setq request-message-level -1))
-
-(use-package flycheck-ycmd
-  :ensure t
-  :commands
-  (flycheck-ycmd-setup)
-  :init
-  (mapcar
-   (lambda (x)
-     (add-hook x #'flycheck-ycmd-setup))
-   '(c-mode-hook c++-mode-hook))
-  :config
-  (when (not (display-graphic-p))
-    (setq flycheck-indication-mode nil)))
-
 ;; Rtags
 (use-package rtags
   :ensure t
@@ -318,4 +247,40 @@ If `reset', set `company-transformers' to nil."
   (setq rtags-display-result-backend 'default)
   (setq rtags-autostart-diagnostics t))
 
-(provide 'yzm-autocompletion)
+;; Whitespace
+;;; Flagging
+(use-package whitespace
+  ;; Show trailing whitespace, tabs and lines over 80 characters.
+  :ensure nil
+  :init
+  (add-hook 'prog-mode-hook #'whitespace-mode)
+  :config
+  (setq whitespace-style '(face trailing tabs lines-tail)))
+
+;;; Removing
+(use-package ws-butler
+  :diminish ws-butler-mode
+  :ensure t
+  :config
+  (setq ws-butler-keep-whitespace-before-point nil)
+  (ws-butler-global-mode))
+
+;; Malinka
+(use-package malinka
+  :ensure t
+  :commands (malinka-mode)
+  :init
+  (add-hook 'c++-mode-hook 'malinka-mode)
+  :config
+  (setq malinka-print-debug t)
+  (setq malinka-idle-project-check-seconds 3)
+
+  (malinka-define-project
+   :name "flappy2"
+   :root-directory "~/Code/flappyworld/c/flappy"
+   :build-directory "~/Code/flappyworld/c/flappy/build"
+   :configure-cmd "cmake .. -DCMAKE_BUILD_TYPE=Debug -DHEADLESS=1"
+   :compile-cmd "make -j4"
+   :watch-file "~/Code/flappyworld/c/flappy/CMakeLists.txt"))
+
+(provide 'hpd-autocompletion)

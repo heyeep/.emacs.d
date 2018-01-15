@@ -39,8 +39,8 @@
 "\C-j" #'slime-eval-print-last-expression)))
 
 (defun +commonlisp-mode ()
-  "Bootstrap 'yzm-commonlisp'."
+  "Bootstrap 'hpd-commonlisp'."
   (setq auto-mode-alist (rassq-delete-all #'+commonlisp-mode auto-mode-alist))
   (lisp-mode))
 
-(provide 'yzm-lisp)
+(provide 'hpd-lisp)

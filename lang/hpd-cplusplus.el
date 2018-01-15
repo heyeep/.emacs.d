@@ -1,3 +1,3 @@
 ;;;; -*- lexical-binding: t; -*-
 
-(provide 'yzm-cplusplus)
+(provide 'hpd-cplusplus)

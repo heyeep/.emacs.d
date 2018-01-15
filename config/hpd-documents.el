@@ -12,4 +12,4 @@
 
 (pdf-tools-install)
 
-(provide 'yzm-documents)
+(provide 'hpd-documents)

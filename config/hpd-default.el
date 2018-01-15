@@ -66,4 +66,4 @@
   (setq which-key-sort-order
         'which-key-key-order-alpha))
 
-(provide 'yzm-default)
+(provide 'hpd-default)

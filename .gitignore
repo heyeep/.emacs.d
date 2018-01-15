@@ -6,3 +6,6 @@ irony/
 network-security.data
 projectile-bookmarks.eld
 recentf
+
+*~
+.el*~

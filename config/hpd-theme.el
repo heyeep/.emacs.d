@@ -28,7 +28,7 @@
   ;; (setq calendar-latitude 36.3147)
   ;; (setq calendar-longitude 139.8)
   :config
-  (defun hip/make-modeline-taller ()
+  (defun hpd/make-modeline-taller ()
     "Make the mode line taller."
     (dolist (sym '(mode-line mode-line-inactive))
       (set-face-attribute
@@ -42,12 +42,12 @@
          (sunrise-today (first today-times))
          (sunset-today (second today-times)))
       (daytime-p sunrise-today sunset-today)))
-  (defun hip/update-theme (&rest _args)
+  (defun hpd/update-theme (&rest _args)
     "Update various UI elements when theme changes"
-    (hip/make-modeline-taller)
+    (hpd/make-modeline-taller)
     (eval-after-load 'org-mode
       (lambda ()
-        (hip/customize-org-ui)))
+        (hpd/customize-org-ui)))
     (when (fboundp 'org-reload)
       (eval-after-load 'org-faces
         (lambda ()
@@ -66,7 +66,7 @@
          nil
          :background (face-attribute 'company-preview-common :background)))))
 
-  (advice-add 'change-theme :after #'hip/update-theme)
+  (advice-add 'change-theme :after #'hpd/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
   (change-theme 'solarized-dark 'solarized-dark)
   (run-hooks 'after-load-theme-hook))
@@ -325,4 +325,4 @@
   ;; asm-mode sets it locally to nil, to "stay closer to the old TAB behaviour".
   (setq tab-always-indent (default-value 'tab-always-indent)))
 
-(provide 'yzm-theme)
+(provide 'hpd-theme)

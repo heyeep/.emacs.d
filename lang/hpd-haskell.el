@@ -10,11 +10,11 @@
 
 ;;;###autoload
 (defun +haskell-mode ()
-  "Bootstrap `yzm-haskell'."
+  "Bootstrap `hpd-haskell'."
   (setq auto-mode-alist (rassq-delete-all #'+haskell-mode auto-mode-alist))
   (haskell-mode))
 
-(provide 'yzm-haskell)
+(provide 'hpd-haskell)
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars unresolved noruntime cl-functions)
 ;; End:

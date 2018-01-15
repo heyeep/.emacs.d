@@ -1,3 +1,3 @@
 ;;;; -*- lexical-binding: t; -*-
 
-(provide 'yzm-default)
+(provide 'hpd-default)
