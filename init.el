@@ -78,8 +78,9 @@
                                (server-start))))
 
 ;; Config
+(use-package hpd-autocompletion :ensure nil)
 (use-package hpd-git :ensure nil)
-
+(use-package hpd-keybindings :ensure nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
