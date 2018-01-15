@@ -41,7 +41,7 @@
         ((today-times (sunrise-sunset-times (today)))
          (sunrise-today (first today-times))
          (sunset-today (second today-times)))
-      (daytime-p sunrise-today sunset-today)))3
+      (daytime-p sunrise-today sunset-today)))
   (defun hip/update-theme (&rest _args)
     "Update various UI elements when theme changes"
     (hip/make-modeline-taller)
