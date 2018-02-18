@@ -92,11 +92,14 @@
 ;; Lang
 (use-package hpd-elixir :ensure nil)
 (use-package hpd-elisp :ensure nil)
-(use-package hpd-haskell :ensure nil
-  :mode
-  ("\\.hsc\\'" . +haskell-mode)
-  ("\\.[gh]s\\'" . +haskell-mode)
-  ("\\.hs\\'" . +haskell-mode))
+(use-package hpd-golang :ensure nil)
+(use-package hpd-haskell :ensure nil)
+
+;; (use-package hpd-haskell :ensure nil
+;;   :mode
+;;   ("\\.hsc\\'" . +haskell-mode)
+;;   ("\\.[gh]s\\'" . +haskell-mode)
+;;   ("\\.hs\\'" . +haskell-mode))
 (use-package hpd-latex :ensure nil)
 (use-package hpd-lisp :ensure nil
   :mode
@@ -104,12 +107,25 @@
   ("\\.li?sp\\'" . +commonlisp-mode)
   ("\\.lisp\\'" . +commonlisp-mode))
 (use-package hpd-lua :ensure nil)
-(use-package hpd-python :ensure nil
-  :mode
-  ("\\.pyw?\\'" . +python-mode)
-  ("\\.py?\\'" . +python-mode)
-  :interpreter ("python . +python-mode"))
-
+(use-package hpd-python :ensure nil)
+(use-package hpd-scheme :ensure nil)
+;; (use-package hpd-python :ensure nil
+;;   :mode
+;;   ("\\.pyw?\\'" . +python-mode)
+;;   ("\\.py?\\'" . +python-mode)
+;;   :interpreter ("python . +python-mode"))
+;; (use-package hpd-scheme :ensure nil
+;;     :init
+;;     (remove-hook 'scheme-mode-hook 'geiser-mode--maybe-activate)
+;;     :mode
+;;     ("\\.oak\\'" . +scheme-mode)
+;;     ("\\.scm\\.[0-9]*\\'" . +scheme-mode)
+;;     ("\\.\\(scm\\|stk\\|ss\\|sch\\)\\'" . +scheme-mode)
+;;     ("\\.rkt\\'" . +scheme-mode)
+;;     ("\\.scm\\'" . +scheme-mode)
+;;     :interpreter
+;;     ("guile" . +scheme-mode)
+;;     ("scm" . +scheme-mode))
 (use-package hpd-web :ensure nil)
 
 (custom-set-variables
@@ -122,7 +138,8 @@
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "b550fc3d6f0407185ace746913449f6ed5ddc4a9f0cf3be218af4fb3127c7877" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
  '(package-selected-packages
    (quote
-    (slime-company evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))))
+    (go-dlv godoctor company-go go-guru go-mode company-anaconda anaconda-mode slime-company evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package)))
+ '(safe-local-variable-values (quote ((geiser-scheme-implementation racket)))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
