@@ -24,6 +24,7 @@
 ;; Ace-Window
 (global-set-key (kbd "M-p") 'ace-window)
 (windmove-default-keybindings)
+
 ;; (add-hook 'c++-mode-hook 'hiepc++-mode-hook)
 
 ;; (add-hook 'c++-mode-hook

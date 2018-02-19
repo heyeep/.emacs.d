@@ -42,7 +42,7 @@
 
 ;; emacs 24+ auto indents by default if `electric-indent-mode' is on
 ;; so disable automatic indent by default
-;; but enable it in all programming modes.
+ ;; but enable it in all programming modes.
 (electric-indent-mode 0)
 
 ;; Set this variable to a non-nil value to speed up display of characters
