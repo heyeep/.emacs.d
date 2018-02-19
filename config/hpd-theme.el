@@ -142,7 +142,8 @@
   :ensure t
   :config
   (use-package smartparens-config :ensure nil)
-  (smartparens-global-mode 1))
+  (smartparens-global-mode 1)
+  (sp-pair "'" nil :actions :rem))
 (add-hook 'emacs-lisp-mode-hook 'smartparens-strict-mode)
 
 ;; Indentation
