@@ -94,12 +94,6 @@
 (use-package hpd-elisp :ensure nil)
 (use-package hpd-golang :ensure nil)
 (use-package hpd-haskell :ensure nil)
-
-;; (use-package hpd-haskell :ensure nil
-;;   :mode
-;;   ("\\.hsc\\'" . +haskell-mode)
-;;   ("\\.[gh]s\\'" . +haskell-mode)
-;;   ("\\.hs\\'" . +haskell-mode))
 (use-package hpd-latex :ensure nil)
 (use-package hpd-lisp :ensure nil
   :mode
@@ -109,23 +103,6 @@
 (use-package hpd-lua :ensure nil)
 (use-package hpd-python :ensure nil)
 (use-package hpd-scheme :ensure nil)
-;; (use-package hpd-python :ensure nil
-;;   :mode
-;;   ("\\.pyw?\\'" . +python-mode)
-;;   ("\\.py?\\'" . +python-mode)
-;;   :interpreter ("python . +python-mode"))
-;; (use-package hpd-scheme :ensure nil
-;;     :init
-;;     (remove-hook 'scheme-mode-hook 'geiser-mode--maybe-activate)
-;;     :mode
-;;     ("\\.oak\\'" . +scheme-mode)
-;;     ("\\.scm\\.[0-9]*\\'" . +scheme-mode)
-;;     ("\\.\\(scm\\|stk\\|ss\\|sch\\)\\'" . +scheme-mode)
-;;     ("\\.rkt\\'" . +scheme-mode)
-;;     ("\\.scm\\'" . +scheme-mode)
-;;     :interpreter
-;;     ("guile" . +scheme-mode)
-;;     ("scm" . +scheme-mode))
 (use-package hpd-web :ensure nil)
 ;; Yaml
 (use-package yaml-mode
