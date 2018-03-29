@@ -304,6 +304,7 @@
        (haskell . t)
        (gnuplot . t)
        (latex . t)
+       (java . t)
        (js . t)
        (haskell . t)
        (perl . t)
