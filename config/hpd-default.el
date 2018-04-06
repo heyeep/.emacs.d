@@ -9,7 +9,7 @@
 ;; Indenting
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
-(setq c-basic-offset 4)
+(setq-default c-basic-offset 4)
 
 ;; No Autosave by default
 (setq auto-save-default nil)
@@ -42,8 +42,17 @@
 
 ;; emacs 24+ auto indents by default if `electric-indent-mode' is on
 ;; so disable automatic indent by default
- ;; but enable it in all programming modes.
+;; but enable it in all programming modes.
 (electric-indent-mode 0)
+
+;; Indenting for these modes
+(dolist (mode '(prog-mode-hook
+                yaml-mode-hook
+                css-mode-hook
+                html-mode-hook
+                nxml-mode-hook))
+  (add-hook mode (lambda ()
+                   (electric-indent-local-mode 1))))
 
 ;; Set this variable to a non-nil value to speed up display of characters
 ;; using large fonts, at the price of a larger memory footprint of the
