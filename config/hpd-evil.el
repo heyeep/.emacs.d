@@ -107,11 +107,11 @@
   (global-evil-visualstar-mode)
   (setq evil-visualstar/persistent t))
 
-(use-package evil-magit
-  ;; Magit integration
-  :ensure t
-  :after magit
-  :init
-  (setq evil-magit-want-horizontal-movement t))
+;; (use-package evil-magit
+;;   ;; Magit integration
+;;   :ensure nil
+;;   :after magit
+;;   :init
+;;   (setq evil-magit-want-horizontal-movement t))
 
 (provide 'hpd-evil)
