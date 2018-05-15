@@ -12,11 +12,11 @@
 
 (use-package gotham-theme :defer :ensure t)
 
-(use-package spacemacs-theme
-  :defer
-  :ensure t
-  :init
-  (setq spacemacs-theme-comment-bg nil))
+;; (use-package spacemacs-theme
+;;   :defer
+;;   :ensure t
+;;   :init
+;;   (setq spacemacs-theme-comment-bg nil))
 
 (use-package theme-changer
   :ensure t
@@ -68,7 +68,7 @@
 
   (advice-add 'change-theme :after #'hpd/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
-  (change-theme 'solarized-dark 'solarized-dark)
+  (change-theme 'solarized-light 'solarized-dark)
   (run-hooks 'after-load-theme-hook))
 
 (dolist (mode '(prog-mode-hook

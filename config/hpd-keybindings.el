@@ -34,19 +34,19 @@
 ;;                         (lambda ()
 ;;                           (compile (format "g++ %s" buffer-file-name))) nil t))))
 
-(defun +c++-hook ()
-  ""
-  (add-hook 'after-save-hook #'+after-save-hook nil t))
+;; (defun +c++-hook ()
+;;   ""
+;;   (add-hook 'after-save-hook #'+after-save-hook nil t))
 
-(defun +after-save-hook ()
-  ""
-  (let ((noext (file-name-sans-extension (buffer-name))))
-    (compile (format "g++ %s -o %s; ./%s" buffer-file-name noext noext))))
+;; (defun +after-save-hook ()
+;;   ""
+;;   (let ((noext (file-name-sans-extension (buffer-name))))
+;;     (compile (format "g++ %s -o %s; ./%s" buffer-file-name noext noext))))
 
-(add-hook 'c++-mode-hook #'+c++-hook)
+;; (add-hook 'c++-mode-hook #'+c++-hook)
 
-(defun hiepc++-mode-hook ()
-   (define-key c++-mode-map (kbd "<f3>") #'compile))
+;; (defun hiepc++-mode-hook ()
+;;    (define-key c++-mode-map (kbd "<f3>") #'compile))
 
 (global-set-key (kbd "<f4>") (lambda () (interactive) (shell-command "./main")))
 
