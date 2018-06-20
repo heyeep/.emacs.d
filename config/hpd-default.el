@@ -1,6 +1,6 @@
 ;;;; -*- lexical-binding: t; -*-
 
-(setq initial-scratch-message ";; Nothing.")
+(setq initial-scratch-message "")
 (global-display-line-numbers-mode)
 
 ;; Reverting buffers
@@ -62,7 +62,7 @@
 ;; https://stackoverflow.com/questions/3631220/fix-to-get-smooth-scrolling-in-emacs
 (setq scroll-margin 5
       scroll-step 1
-      scroll-conservatively 10000
+      scroll-conservatively 20000
       scroll-preserve-screen-position 1)
 
 ;; Which-Key

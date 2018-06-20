@@ -70,7 +70,8 @@
   (setq org-hide-leading-stars t)
   (setq org-hide-emphasis-markers t)
   (setq org-goto-interface 'outline-path-completion
-        org-goto-max-level 10))
+        org-goto-max-level 10)
+  (setq org-image-actual-width nil))
 
 (use-package graphviz-dot-mode
   :ensure t
@@ -81,7 +82,3 @@
   (setq default-tab-width 4))
 
 (provide 'hpd-org)
-;; Local Variables:
-;; byte-compile-warnings: (not free-vars unresolved noruntime cl-functions)
-;; End:
-;;; hpd-org.el ends here
