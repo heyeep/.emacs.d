@@ -4,6 +4,7 @@
 (use-package web-mode
   :ensure t
   :mode
+  ("\\.html\\'" . web-mode)
   ("\\.phtml\\'" . web-mode)
   ("\\.tpl\\.php\\'" . web-mode)
   ("\\.blade\\.php\\'" . web-mode)
