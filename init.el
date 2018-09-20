@@ -59,8 +59,8 @@
 
 (eval-when-compile
   (require 'use-package))
-  (require 'diminish) ; for :diminish
-  (require 'bind-key) ; for :bind
+(require 'diminish) ; for :diminish
+(require 'bind-key) ; for :bind
 
 ;; Install package if not existing.
 (setq use-package-always-ensure nil)
