@@ -13,6 +13,9 @@
   :mode ("\\.org\\'" . org-mode)
 
   :init
+  (setq org-latex-to-mathml-convert-command
+      "latexmlmath \"%i\" --presentationmathml=%o")
+
   (defun +set-up-writing-conditionally ()
     "Set up writing conditionally."
     (when (string-equal (buffer-name) "M.org.gpg")
