@@ -17,6 +17,7 @@
   ("\\.jsp\\'" . web-mode)
   ("\\.eex\\'" . web-mode)
   ("\\.tsx\\'" . web-mode)
+  ("\\.ejs\\'" . web-mode)
   :init
   (add-hook 'web-mode-hook
             (lambda ()
