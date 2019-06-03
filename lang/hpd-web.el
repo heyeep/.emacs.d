@@ -353,7 +353,7 @@ IF TESTNAME is specified run jest with a pattern for just that test."
 (use-package rjsx-mode
   :ensure t
   :mode
-  ("\\.jsx?\\'" . rjsx-mode)
+  ("\\.js[x]?\\'" . rjsx-mode)
   :interpreter
   ("node" . rjsx-mode)
   :config
@@ -396,7 +396,7 @@ IF TESTNAME is specified run jest with a pattern for just that test."
       (indent-region-or-buffer))
      ((and (eq major-mode 'web-mode)
            buffer-file-name
-           (or (string-match "\\.jsx?\\'" buffer-file-name)
+           (or (string-match "\\.js[x]?\\'" buffer-file-name)
                (string-match "\\.tsx?\\'" buffer-file-name)))
       (prettier-js))
      ((executable-find "prettier")
