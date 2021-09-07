@@ -46,25 +46,25 @@
   (require 'org-notmuch)
   (with-eval-after-load 'evil
     (evil-define-key 'normal org-mode-map
-      (kbd "M-.") 'org-open-at-point
-      [tab] #'indent-org-block-automatically-or-cycle
-      (kbd "TAB") #'indent-org-block-automatically-or-cycle))
-    (setq evil-shift-width 4))
-  ;; (defun indent-org-block-automatically-or-cycle ()
-  ;;   "Indent source code in source blocks."
-  ;;   (interactive)
-  ;;   (if (org-in-src-block-p)
-  ;;       (progn
-  ;;         (org-edit-special)
-  ;;         (indent-region (point-min) (point-max))
-  ;;         (org-edit-src-exit))
-  ;;     (call-interactively #'org-cycle)))
+                     (kbd "M-.") 'org-open-at-point
+                     [tab] #'indent-org-block-automatically-or-cycle
+                     (kbd "TAB") #'indent-org-block-automatically-or-cycle))
+  (setq evil-shift-width 4)
+  (defun indent-org-block-automatically-or-cycle ()
+    "Indent source code in source blocks."
+    (interactive)
+    (if (org-in-src-block-p)
+        (progn
+          (org-edit-special)
+          (indent-region (point-min) (point-max))
+          (org-edit-src-exit))
+      (call-interactively #'org-cycle)))
+  (setq org-src-fontify-natively t)
+  (setq org-src-preserve-indentation nil
+        org-edit-src-content-indentation 0)
+  (setq org-src-tab-acts-natively t)
+  (setq org-export-backends '(ascii html icalendar latex md)))
 
-;;   (setq org-export-backends '(ascii html icalendar latex md))
-;;   (setq org-src-fontify-natively t)
-;;   (setq org-src-preserve-indentation nil
-;;         org-edit-src-content-indentation 0)
-;; ;;  (setq org-src-tab-acts-natively t)
 ;;   (setq org-hide-leading-stars t)
 ;;   (setq org-hide-emphasis-markers t)
 ;;   (setq org-goto-interface 'outline-path-completion
