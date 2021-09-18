@@ -12,19 +12,19 @@
   (with-eval-after-load 'flycheck
     (flycheck-swiftlint-setup)))
 
-;; (use-package flycheck-swiftlint
-;; ;;  :load-path "~/.emacs.d/fork/flycheck-swiftlint"
-;;   :ensure nil
-;;   :config
-;;   (setq flycheck-swiftlint-should-run-swiftlint-function
-;;         (lambda ()
-;;           (and
-;;            (flycheck-swiftlint-should-run-p)
-;;            (not (string-match-p
-;;                  "auth"
-;;                  (flycheck-swiftlint--find-swiftlint-directory))))))
-;;   (with-eval-after-load 'flycheck
-;;     (flycheck-swiftlint-setup)))
+(use-package flycheck-swiftlint
+  :load-path "~/.emacs.d/elpa/flycheck-swiftlint"
+  :ensure nil
+  :config
+  (setq flycheck-swiftlint-should-run-swiftlint-function
+        (lambda ()
+          (and
+           (flycheck-swiftlint-should-run-p)
+           (not (string-match-p
+                 "auth"
+                 (flycheck-swiftlint--find-swiftlint-directory))))))
+  (with-eval-after-load 'flycheck
+    (flycheck-swiftlint-setup)))
 
 ;;;###autoload
 (defun hpd-swift-mode ()
