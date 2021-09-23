@@ -26,6 +26,9 @@
   (with-eval-after-load 'flycheck
     (flycheck-swiftlint-setup)))
 
+(require 'company-sourcekit)
+(add-to-list 'company-backends 'company-sourcekit)
+
 ;;;###autoload
 (defun hpd-swift-mode ()
   "Bootstrap `hpd-swift'."

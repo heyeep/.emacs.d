@@ -110,6 +110,7 @@
 (use-package hpd-lua :ensure nil)
 (use-package hpd-python :ensure nil)
 (use-package hpd-scheme :ensure nil)
+(use-package hpd-swift :ensure nil)
 (use-package hpd-web :ensure nil)
 ;; Yaml
 (use-package yaml-mode
