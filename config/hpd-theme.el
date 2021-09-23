@@ -5,6 +5,8 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
+;;(set-frame-font "Inconsolata for Powerline 12" nil t)
+(set-face-attribute 'default nil :font "Inconsolata-g for Powerline" :height 128)
 (use-package solarized-theme :defer :ensure t
   :config
   (setq solarized-distinct-fringe-background t)
@@ -68,7 +70,7 @@
 
   (advice-add 'change-theme :after #'hpd/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
-  (change-theme 'solarized-dark 'solarized-dark)
+  (change-theme 'solarized-light'solarized-dark)
   (run-hooks 'after-load-theme-hook))
 
 (dolist (mode '(prog-mode-hook
@@ -263,7 +265,7 @@
   (setq dired-sidebar-face
         (cond
          ((eq system-type 'darwin)
-          '(:family "Helvetica" :height 140))
+          '(:family "Inconsolata-g for Powerline" :height 140))
          ((eq system-type 'windows-nt)
           '(:family "Times New Roman" :height 150))
          (:default
@@ -311,6 +313,7 @@
        (python . t)
        (R . t)
        (scheme . t)
+       (shell . t)
        (sql . t)
        ))
 
