@@ -13,6 +13,10 @@
 (global-set-key (kbd "<f9>") (lambda() (interactive) (find-file "~/.emacs.d/init.el")))
 ;;(global-set-key (kbd "<f7>") (lambda() (interactive) (find-file "~/Code/flappyworld/c/flappy/scene/GameScene.cpp")))
 
+;; counsel-git-search
+(global-set-key (kbd "C-c C-f") 'counsel-git)
+(global-set-key (kbd "C-c C-s") 'counsel-git-grep)
+
 ;; Don't let osx swallow Meta key.
 (setq mac-pass-command-to-system nil)
 
