@@ -1,13 +1,13 @@
 
 ;; ----- smex-history -----
 (
- replace-string
+ package-refresh-contents
+ package-install
+ list-packages
  ansi-term
- make-directory
- asm-mode
- load-theme
- org-indent-mode
- browse-web
+ describe-package
+ robe-mode
+ multi-term
 )
 
 ;; ----- smex-data -----
@@ -15,7 +15,7 @@
  (neotree . 16)
  (magit-status . 53)
  (magit-log . 43)
- (package-install . 17)
+ (package-install . 28)
  (load-theme . 33)
  (mixal-mode . 2)
  (neotree-hide . 1)
@@ -28,7 +28,7 @@
  (pd/love-run . 28)
  (ad-update . 1)
  (magit-branch-and-checkout . 46)
- (magit-branch-delete . 73)
+ (magit-branch-delete . 74)
  (magit-branch . 8)
  (magit-checkout . 26)
  (magit-remote-popup . 1)
@@ -46,20 +46,35 @@
  (irony-eldoc . 1)
  (malinka-mode . 2)
  (slime . 2)
- (replace-string . 105)
+ (replace-string . 217)
  (comment-region . 3)
  (uncomment-region . 1)
- (ansi-term . 15)
+ (ansi-term . 68)
  (magit-branch-or-checkout . 1)
- (term . 2)
+ (term . 4)
  (make-directory . 49)
  (pdf-tools-help . 2)
  (doc-view-menu . 1)
  (insert-char . 1)
- (string-insert-rectangle . 20)
+ (string-insert-rectangle . 23)
  (web-mode . 2)
  (org-mode . 2)
  (browse-web . 1)
  (org-indent-mode . 1)
  (asm-mode . 1)
+ (package-install-file . 7)
+ (swift-mode . 2)
+ (vterm . 5)
+ (markdown-mode . 1)
+ (markdown-export . 1)
+ (markdown-live-preview-mode . 3)
+ (counsel-git . 2)
+ (counsel-M-x . 1)
+ (counsel-git-grep . 2)
+ (package-install-from-buffer . 2)
+ (multi-term . 3)
+ (robe-mode . 1)
+ (describe-package . 1)
+ (list-packages . 1)
+ (package-refresh-contents . 1)
 )

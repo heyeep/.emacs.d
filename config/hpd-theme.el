@@ -6,7 +6,7 @@
 (tool-bar-mode -1)
 
 ;;(set-frame-font "Inconsolata for Powerline 12" nil t)
-(set-face-attribute 'default nil :font "Inconsolata-g for Powerline" :height 128)
+(set-face-attribute 'default nil :font "Inconsolata for Powerline" :height 128)
 (use-package solarized-theme :defer :ensure t
   :config
   (setq solarized-distinct-fringe-background t)
