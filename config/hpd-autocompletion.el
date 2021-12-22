@@ -275,12 +275,12 @@ If `reset', set `company-transformers' to nil."
   (setq malinka-print-debug t)
   (setq malinka-idle-project-check-seconds 3)
 
-  (malinka-define-project
-   :name "flappy2"
-   :root-directory "~/Code/flappyworld/c/flappy"
-   :build-directory "~/Code/flappyworld/c/flappy/build"
-   :configure-cmd "cmake .. -DCMAKE_BUILD_TYPE=Debug -DHEADLESS=1"
-   :compile-cmd "make -j4"
-   :watch-file "~/Code/flappyworld/c/flappy/CMakeLists.txt"))
-
+  ;; (malinka-define-project
+  ;;  :name "flappy2"
+  ;;  :root-directory "~/Code/flappyworld/c/flappy"
+  ;;  :build-directory "~/Code/flappyworld/c/flappy/build"
+  ;;  :configure-cmd "cmake .. -DCMAKE_BUILD_TYPE=Debug -DHEADLESS=1"
+  ;;  :compile-cmd "make -j4"
+  ;;  :watch-file "~/Code/flappyworld/c/flappy/CMakeLists.txt"))
+  )
 (provide 'hpd-autocompletion)
