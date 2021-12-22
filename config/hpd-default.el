@@ -75,6 +75,9 @@ n;; Emacs session.
   (setq which-key-sort-order
         'which-key-key-order-alpha))
 
+(use-package vterm :ensure t)
+(use-package multi-vterm :ensure t)
+
 (provide 'hpd-default)
 
 ;; (use-package markdown-mode
