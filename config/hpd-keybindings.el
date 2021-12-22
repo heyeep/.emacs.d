@@ -17,6 +17,9 @@
 (global-set-key (kbd "C-c C-f") 'counsel-git)
 (global-set-key (kbd "C-c C-s") 'counsel-git-grep)
 
+(global-set-key (kbd "s-p f") 'projectile-find-file)
+(global-set-key (kbd "s-p s") 'projectile-ag)
+
 ;; Don't let osx swallow Meta key.
 (setq mac-pass-command-to-system nil)
 

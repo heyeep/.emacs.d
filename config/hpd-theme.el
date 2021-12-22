@@ -12,6 +12,10 @@
   (setq solarized-distinct-fringe-background t)
   (setq solarized-use-less-bold t))
 
+(when (memq window-system '(mac ns))
+      ;; solves issue of not buildling in macOS
+      (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
+
 (use-package gotham-theme :defer :ensure t)
 
 ;; (use-package spacemacs-theme
