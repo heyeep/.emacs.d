@@ -74,7 +74,7 @@
 
   (advice-add 'change-theme :after #'hpd/update-theme)
   (set-frame-parameter nil 'background-mode 'light)
-  (change-theme 'solarized-light'solarized-dark)
+  (change-theme 'solarized-dark-high-contrast 'solarized-dark)
   (run-hooks 'after-load-theme-hook))
 
 (dolist (mode '(prog-mode-hook

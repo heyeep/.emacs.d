@@ -124,9 +124,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "b550fc3d6f0407185ace746913449f6ed5ddc4a9f0cf3be218af4fb3127c7877" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default))
+   '("7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "19759a26a033dcb680aa11ee08677e3146ba547f1e8a83514a1671e0d36d626c" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "b550fc3d6f0407185ace746913449f6ed5ddc4a9f0cf3be218af4fb3127c7877" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default))
  '(package-selected-packages
-   '(multi-vterm ag gotham-theme theme-changer inf-ruby projectile-rails company-inf-ruby robe multi-term vterm company-sourcekit flycheck-swift swift-mode flycheck-swiftlint markdown-preview-mode simple-httpd markdown-mode grip-mode auto-sudoedit go-autocomplete meghanada javadoc-lookup android-mode magit lorem-ipsum graphviz-dot-mode org-plus-contrib htmlize yaml-mode go-dlv godoctor company-go go-guru go-mode company-anaconda anaconda-mode slime-company evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))
+   '(the-matrix-theme blamer multi-vterm ag gotham-theme theme-changer inf-ruby projectile-rails company-inf-ruby robe multi-term vterm company-sourcekit flycheck-swift swift-mode flycheck-swiftlint markdown-preview-mode simple-httpd markdown-mode grip-mode auto-sudoedit go-autocomplete meghanada javadoc-lookup android-mode magit lorem-ipsum graphviz-dot-mode org-plus-contrib htmlize yaml-mode go-dlv godoctor company-go go-guru go-mode company-anaconda anaconda-mode slime-company evil-magit preview-latex auctex pdf-tools ni all-the-icons-dired slime malinka ws-butler rtags dummy-h-mode flycheck-pos-tip flycheck company-quickhelp company projectile smex ivy expand-region typescript-mode tide add-node-modules-path clang-format company-ycmd ycmd counsel solarized-theme use-package))
  '(safe-local-variable-values '((geiser-scheme-implementation racket))))
 
 (custom-set-faces
@@ -134,4 +134,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(blamer-face ((t :foreground "#7a88cf" :background nil :height 100 :italic t))))

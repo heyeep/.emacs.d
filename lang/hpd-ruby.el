@@ -17,7 +17,8 @@
     (when (string-match-p "^.*Podfile$" (buffer-file-name))
       (when (bound-and-true-p flycheck-mode)
         (flycheck-mode 0))))
-  (add-hook 'ruby-mode-hook #'hn-ruby-check-for-cocoapods))
+  (add-hook 'ruby-mode-hook #'hn-ruby-check-for-cocoapods)
+  (setq ruby-insert-encoding-magic-comment nil))
 
 (use-package robe
   :ensure t
