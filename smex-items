@@ -2,12 +2,12 @@
 ;; ----- smex-history -----
 (
  replace-string
+ smartparens-mode
+ projectile-run-vterm
+ vterm
  package-install
- load-theme
- magit-file-checkout
  ansi-term
- magit-blame
- vc-annotate
+ kill-all-abbrevs
 )
 
 ;; ----- smex-data -----
@@ -15,8 +15,8 @@
  (neotree . 16)
  (magit-status . 53)
  (magit-log . 43)
- (package-install . 37)
- (load-theme . 53)
+ (package-install . 38)
+ (load-theme . 56)
  (mixal-mode . 2)
  (neotree-hide . 1)
  (package-list-packages . 7)
@@ -28,7 +28,7 @@
  (pd/love-run . 28)
  (ad-update . 1)
  (magit-branch-and-checkout . 46)
- (magit-branch-delete . 74)
+ (magit-branch-delete . 77)
  (magit-branch . 8)
  (magit-checkout . 26)
  (magit-remote-popup . 1)
@@ -46,10 +46,10 @@
  (irony-eldoc . 1)
  (malinka-mode . 2)
  (slime . 2)
- (replace-string . 704)
+ (replace-string . 1118)
  (comment-region . 3)
  (uncomment-region . 1)
- (ansi-term . 71)
+ (ansi-term . 72)
  (magit-branch-or-checkout . 1)
  (term . 4)
  (make-directory . 49)
@@ -64,7 +64,7 @@
  (asm-mode . 1)
  (package-install-file . 7)
  (swift-mode . 2)
- (vterm . 10)
+ (vterm . 15)
  (markdown-mode . 1)
  (markdown-export . 1)
  (markdown-live-preview-mode . 3)
@@ -80,7 +80,7 @@
  (counsel-load-theme . 1)
  (projectile-mode . 6)
  (magit . 2)
- (vterm-next-prompt . 1)
+ (vterm-next-prompt . 2)
  (multi-vterm . 4)
  (magit-rebase . 1)
  (org-latex-export-to-pdf . 1)
@@ -92,4 +92,7 @@
  (blamer-mode . 4)
  (vc-region-history . 5)
  (magit-file-checkout . 3)
+ (smartparens-mode . 25)
+ (kill-all-abbrevs . 2)
+ (projectile-run-vterm . 3)
 )
