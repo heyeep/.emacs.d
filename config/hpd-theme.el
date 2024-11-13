@@ -316,6 +316,7 @@
        (perl . t)
        (python . t)
        (R . t)
+       (ruby . t)
        (scheme . t)
        (shell . t)
        (sql . t)
