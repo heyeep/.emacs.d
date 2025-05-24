@@ -51,12 +51,12 @@
   ;; Show completions in the minibuffer instead of a popup
   (setq which-key-popup-type 'minibuffer)
   ;; Decrease the delay before which-key shows completions
-  (setq which-key-idle-delay 0.1)
+  (setq which-key-idle-delay 0.3)
   ;; Sort keybindings alphabetically by key
   (setq which-key-sort-order 'which-key-key-order-alpha)
   (which-key-mode)
-  (which-key-show-top-level)
-  (which-key-show-keymap 'org-mode-map))
+  (which-key-show-top-level))
+;;  (which-key-show-keymap 'org-mode-map))
 
 ;;; Make C-k kill the whole line, including the newline
 (setq kill-whole-line t)
@@ -88,6 +88,8 @@
 
 ;;; Speed up display of large fonts (at the cost of higher memory usage)
 (setq inhibit-compacting-font-caches t)
+
+(setq native-comp-async-report-warnings-errors nil)
 
 (provide 'nh-default)
 ;;; nh-default.el ends here 

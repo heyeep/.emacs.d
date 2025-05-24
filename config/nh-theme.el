@@ -55,4 +55,9 @@
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
+;; Rainbow delimiters for all Lisp modes
+(use-package rainbow-delimiters
+  :ensure t
+  :hook ((emacs-lisp-mode lisp-mode lisp-interaction-mode scheme-mode) . rainbow-delimiters-mode))
+
 ;;; nh-theme.el ends here 
