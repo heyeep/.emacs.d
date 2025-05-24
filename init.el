@@ -1,11 +1,5 @@
 ;;; init.el --- Emacs configuration -*- lexical-binding: t; -*-
 
-;;; Ensure Emacs inherits shell environment (for asdf, node, etc.)
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (exec-path-from-shell-initialize))
-
 ;;; Prevent package.el from automatically loading packages at startup
 (setq package-enable-at-startup nil)
 (setq load-prefer-newer t)
@@ -107,7 +101,7 @@
             (require 'nh-mouse)
             (require 'nh-org)
             ;; Load all language-specific configuration files
-            (nh-load-directory (expand-file-name "lang" user-emacs-directory))))
+            (nh/load-directory (expand-file-name "lang" user-emacs-directory))))
 
 (setq native-comp-async-report-warnings-errors nil)
 
@@ -123,7 +117,13 @@
      "b49f66a2e1724db880692485a5d5bcb9baf28ed2a3a05c7a799fa091f24321da"
      "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(ag all-the-icons-ivy-rich circadian company-box copilot counsel
+        diminish enh-ruby-mode geiser graphviz-dot-mode htmlize
+        ivy-prescient keycast magit multi-vterm org-bullets
+        org-download org-modern paredit prettier-js rainbow-delimiters
+        rainbow-mode rjsx-mode robe slime solarized-theme tide
+        typescript-mode web-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

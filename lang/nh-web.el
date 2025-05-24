@@ -126,7 +126,7 @@
   :ensure t
   :commands (tide-setup)
   :init
-  (defun +setup-tide-mode ()
+  (defun nh/setup-tide-mode ()
     "Setup Tide in the current buffer, with project and file checks."
     (interactive)
     (when (locate-dominating-file default-directory "tsfmt.json")
@@ -138,22 +138,22 @@
     (tide-setup)
     (tide-hl-identifier-mode +1))
 
-  (defun my/js2-tide-setup ()
+  (defun nh/js2-tide-setup ()
     (when (or (locate-dominating-file default-directory "tsconfig.json")
               (locate-dominating-file default-directory "jsconfig.json"))
-      (+setup-tide-mode)))
+      (nh/setup-tide-mode)))
 
-  (defun my/web-tide-setup ()
+  (defun nh/web-tide-setup ()
     (when (and buffer-file-name
                (string-equal "tsx" (file-name-extension buffer-file-name)))
       (setq-local web-mode-enable-auto-quoting nil)
       (when (fboundp 'yas-activate-extra-mode)
         (yas-activate-extra-mode 'typescript-mode))
-      (+setup-tide-mode)))
+      (nh/setup-tide-mode)))
   :hook
-  (typescript-mode . +setup-tide-mode)
-  (js2-mode . my/js2-tide-setup)
-  (web-mode . my/web-tide-setup)
+  (typescript-mode . nh/setup-tide-mode)
+  (js2-mode . nh/js2-tide-setup)
+  (web-mode . nh/web-tide-setup)
   :config
   ;; Set up Typescript linting with `web-mode'.
   (with-eval-after-load 'flycheck

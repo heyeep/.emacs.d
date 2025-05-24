@@ -37,6 +37,14 @@
                   (abbreviate-file-name (buffer-file-name))
                 "%b")))
 
+;; Ensure Emacs inherits the correct PATH and environment variables from the user's shell
+;; This is especially important for GUI Emacs and for tools managed by asdf, nvm, pyenv, etc.
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (setq exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-initialize))
+
 ;;; Show pressed keys and commands in the header line using keycast
 (use-package keycast
   :ensure t
@@ -78,13 +86,16 @@
 ;;; Disable electric-indent-mode globally (no auto-indent by default)
 (electric-indent-mode 0)
 
-;;; Enable electric-indent-local-mode in programming and markup modes
+;;; Always enable electric-indent-local-mode in programming and markup modes
+;; This ensures automatic indentation is always active in all relevant buffers.
 (dolist (hook '(prog-mode-hook
                 yaml-mode-hook
                 css-mode-hook
                 html-mode-hook
                 nxml-mode-hook))
-  (add-hook hook #'electric-indent-local-mode))
+  (add-hook hook (lambda () (electric-indent-local-mode 1))))
+
+(add-hook 'prog-mode-hook 'eldoc-mode)
 
 ;;; Speed up display of large fonts (at the cost of higher memory usage)
 (setq inhibit-compacting-font-caches t)

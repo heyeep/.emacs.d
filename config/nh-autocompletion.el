@@ -122,7 +122,7 @@ If NO-MERGE is non-nil, don't merge additional backends."
     (unless no-merge
       (nh/company-merge-backends)))
 
-  (defun merge-backend-with-company-backends (backend-to-merge)
+  (defun nh/company-merge-backend-with-company-backends (backend-to-merge)
     "Merge BACKEND-TO-MERGE with every backend in `company-backends`.
 This ensures the merged backend (e.g., company-dabbrev-code) is always available
 as a fallback for all completions."
@@ -139,7 +139,7 @@ as a fallback for all completions."
 
   (defun nh/company-merge-backends ()
     "Merge common backends (e.g., dabbrev-code) into all company backends."
-    (merge-backend-with-company-backends 'company-dabbrev-code))
+    (nh/company-merge-backend-with-company-backends 'company-dabbrev-code))
 
   :custom
   ;; Delay before suggestions popup (in seconds)
