@@ -141,8 +141,6 @@ as a fallback for all completions."
     "Merge common backends (e.g., dabbrev-code) into all company backends."
     (merge-backend-with-company-backends 'company-dabbrev-code))
 
-  ;; Enable company-mode globally for all buffers
-  (global-company-mode 1)
   :custom
   ;; Delay before suggestions popup (in seconds)
   (company-idle-delay 0.1)
@@ -180,7 +178,8 @@ as a fallback for all completions."
   ;; Prefer candidates that match the case of your input
   (add-to-list 'company-transformers 'company-sort-prefer-same-case-prefix)
   ;; Merge dabbrev-code into all backends by default for fallback completions
-  (nh/company-merge-backends))
+  (nh/company-merge-backends)
+  (global-company-mode 1))
 
 ;; Company-Box: Modern company popup with icons and documentation
 ;; https://github.com/sebastiencs/company-box

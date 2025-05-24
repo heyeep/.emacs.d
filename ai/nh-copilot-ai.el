@@ -12,10 +12,11 @@
   :hook (prog-mode . copilot-mode)
   :custom
   (copilot-idle-delay 0.2)
+  (copilot-server-executable "/Users/hiep/.asdf/shims/copilot-language-server")
   :config
   ;; Accept Copilot suggestion with TAB
   (define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
   (define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion))
 
 (provide 'nh-copilot-ai)
-;;; nh-copilot-ai.el ends here 
+;;; nh-copilot-ai.el ends here
