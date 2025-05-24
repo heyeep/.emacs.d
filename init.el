@@ -20,6 +20,13 @@
 ;; Run garbage collection when Emacs loses focus
 (add-hook 'focus-out-hook #'garbage-collect)
 
+;; Ensure our submodule version of transient is loaded FIRST.
+;; This must go before normal-top-level-add-subdirs-to-load-path,
+;; because that function prepends all subdirectories (including elpa, site-lisp, etc.)
+;; to the load-path. If we add our submodule after, it will be at the end and Emacs
+;; will find the built-in or ELPA version first, causing version mismatches.
+(add-to-list 'load-path (expand-file-name "submodules/transient/lisp" user-emacs-directory))
+
 ;;; Add all subdirectories of ~/.emacs.d/ to the load-path
 (let ((default-directory "~/.emacs.d/"))
   (normal-top-level-add-subdirs-to-load-path))
@@ -108,7 +115,7 @@
  '(package-selected-packages
    '(all-the-icons-ivy-rich circadian counsel diminish
                             find-file-in-project ivy-prescient keycast
-                            magit)))
+                            magit multi-vterm vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

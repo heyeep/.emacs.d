@@ -5,18 +5,20 @@
 
 ;;; Code:
 
-(use-package transient
-  :ensure t)
+;; We use (require 'transient) here instead of (use-package transient)
+;; because we are loading transient from a git submodule, not from ELPA/MELPA.
+;; Using use-package with :ensure t would try to install it from the package archives,
+;; which we do not want. This ensures we always use our submodule version.
+(require 'transient)
 
 ;; Magit: A Git porcelain inside Emacs
 (use-package magit
   :ensure t
+  :after transient
   :commands (magit-toplevel   ; Show the top-level directory of the current Git repo
                magit-status     ; Open the Magit status buffer for the current repo
                magit-blame      ; Annotate lines in a file with commit info
                magit-log)      ; Show the Git log for the current repo or file
-  :config
-  (setq magit-rlefresh-status-buffer nil) ; Disable auto-refresh of status buffer
   :bind (("C-x g"   . magit-status)
          ("C-x C-g" . magit-status))
   :custom
@@ -24,16 +26,16 @@
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   ;; Highlight word-level changes in diffs
   (magit-diff-refine-hunk 'all)
-  ;; Show more detailed logs
-  (magit-log-section-arguments '("--graph" "--color" "--decorate" "-n256"))
-  ;; Set default push behavior
-  (magit-push-current-set-remote-if-missing t)
-  (magit-push-always-verify nil)
-  ;; Refresh and performance tweaks
-  (magit-refresh-status-buffer nil)
-  (magit-process-connection-type nil)
-  ;; Show unpulled commits in status buffer
-  (add-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream))
+   ;; Show more detailed logs
+  (magit-log-section-arguments '("--graph" "--color" "--decorate" "-n256")))
+  ;; ;; Set default push behavior
+  ;; (magit-push-current-set-remote-if-missing t)
+  ;; (magit-push-always-verify nil)
+  ;; ;; Refresh and performance tweaks
+  ;; (magit-refresh-status-buffer nil)
+  ;; (magit-process-connection-type nil)
+  ;; ;; Show unpulled commits in status buffer
+  ;; (add-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream))
 
 ;; Show Git blame info as a tooltip for the current line using blamer.el
 ;; (use-package blamer

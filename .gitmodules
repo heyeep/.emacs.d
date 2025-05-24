@@ -1,0 +1,3 @@
+[submodule "submodules/transient"]
+	path = submodules/transient
+	url = https://github.com/magit/transient.git
