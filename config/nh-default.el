@@ -12,6 +12,7 @@
  indent-tabs-mode nil   ; Use spaces instead of tabs
  tab-width 4            ; Display tab characters as 4 spaces wide
  c-basic-offset 4)      ; Indent C-like languages with 4 spaces per level
+(setq-default truncate-lines t)
 
 ;;; Automatically reload buffers when files change on disk
 (global-auto-revert-mode 1)

@@ -23,14 +23,6 @@
 (let ((default-directory "~/.emacs.d/"))
   (normal-top-level-add-subdirs-to-load-path))
 
-;; Load helpers first to get utility functions
-(require 'nh-helpers)
-
-;; Load all configuration files
-
-(nh-load-directory (expand-file-name "config" user-emacs-directory))
-(nh-load-directory (expand-file-name "lang" user-emacs-directory))
-
 ;;; Set up package repositories (GNU, MELPA, MELPA Stable, Org)
 (require 'package)
 (setq package-archives
@@ -81,12 +73,26 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-;;; Start Emacs server automatically after init, if not already running
+;; Load helpers first to get utility functions
+(require 'nh-helpers)
+
 (add-hook 'after-init-hook
           (lambda ()
             (load "server") ;; server-running-p is not autoloaded.
             (unless (server-running-p)
-              (server-start))))
+              (server-start))
+            ;; Load configuration files in explicit order
+            (require 'nh-env)
+            (require 'nh-default)
+            (require 'nh-theme)
+            (require 'nh-autocompletion)
+            (require 'nh-git)
+            (require 'nh-terminal)
+            (require 'nh-keybindings)
+            (require 'nh-mouse)
+            (require 'nh-org)
+            ;; Load all language-specific configuration files
+            (nh-load-directory (expand-file-name "lang" user-emacs-directory))))
 
 (provide 'init)
 ;;; init.el ends here
@@ -95,7 +101,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(diminish magit vterm)))
+ '(package-selected-packages '(circadian counsel diminish ivy magit multi-vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
