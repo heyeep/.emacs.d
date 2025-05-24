@@ -91,8 +91,10 @@
               (server-start))
             ;; Load configuration files in explicit order
             (require 'nh-env)
+            (require 'nh-helpers)
             (require 'nh-default)
             (require 'nh-theme)
+            (require 'nh-dired)
             (require 'nh-autocompletion)
             (require 'nh-copilot-ai)
             (require 'nh-git)
@@ -119,8 +121,9 @@
      default))
  '(package-selected-packages
    '(ag all-the-icons-ivy-rich circadian company-box copilot counsel
-        diminish enh-ruby-mode geiser graphviz-dot-mode htmlize
-        ivy-prescient keycast magit multi-vterm org-bullets
+        diminish enh-ruby-mode exec-path-from-shell geiser
+        graphviz-dot-mode highlight-parentheses highlight-symbol
+        htmlize ivy-prescient keycast magit multi-vterm org-bullets
         org-download org-modern paredit prettier-js rainbow-delimiters
         rainbow-mode rjsx-mode robe slime solarized-theme tide
         typescript-mode web-mode)))

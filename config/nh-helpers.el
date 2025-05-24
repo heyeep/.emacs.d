@@ -35,5 +35,30 @@
         (nh/indent-buffer)
         (message "Indented buffer.")))))
 
+;; Helper: Return a list of major modes for various Lisp dialects and REPLs
+(defun nh/lisp-modes ()
+  "Return a list of major mode symbols for common Lisp dialects and REPLs. Useful for batch operations on all Lisp modes."
+  '(lisp-mode
+    lisp-interaction-mode
+    emacs-lisp-mode
+    common-lisp-mode
+    slime-mode
+    clojure-mode
+    cider-mode
+    cider-repl-mode
+    scheme-mode
+    geiser-mode
+    geiser-repl-mode))
+
+;; Helper: Given a mode symbol, return its hook symbol
+(defun nh/mode-hook (mode)
+  "Return the hook symbol for a given MODE symbol."
+  (intern (concat (symbol-name mode) "-hook")))
+
+;; Helper: Return a list of all Lisp mode hook symbols
+(defun nh/lisp-hooks ()
+  "Return a list of hook symbols for all Lisp-related modes."
+  (mapcar #'nh/mode-hook (nh/lisp-modes)))
+
 (provide 'nh-helpers)
 ;;; nh-helpers.el ends here 

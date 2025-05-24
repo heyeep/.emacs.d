@@ -5,7 +5,7 @@
 
 ;;; Code:
 
-(provide 'nh-theme)
+(require 'nh-helpers)
 
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
@@ -49,10 +49,41 @@
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
-;; Rainbow delimiters for all Lisp modes
+;; Rainbow Delimiters: Colorful and bold parentheses for all Lisp modes
 (use-package rainbow-delimiters
   :ensure t
-  :hook ((emacs-lisp-mode lisp-mode lisp-interaction-mode scheme-mode) . rainbow-delimiters-mode))
+  :commands (rainbow-delimiters-mode)
+  :init
+  ;; Bold the parens for all depths
+  (defun nh/bold-rainbow-parens ()
+    "Make rainbow delimiters bold for all depths that exist."
+    (let ((colors '("#7f8c8d" "#e74c3c" "#f1c40f" "#2ecc71" "#3498db" "#9b59b6" "#1abc9c" "#e67e22" "#e84393" "#636e72" "#fdcb6e" "#00b894")))
+      (dotimes (i (length colors))
+        (let ((face (intern (format "rainbow-delimiters-depth-%d-face" (1+ i)))))
+          (when (facep face)
+            (set-face-attribute face nil :bold t :foreground (nth i colors)))))))
+  ;; Customize unmatched delimiter face to be very obvious
+  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
+                      :foreground "red"
+                      :background nil
+                      :weight 'bold
+                      :underline t)
+  ;; Ensure bolding and colors are applied after theme changes
+  (add-hook 'after-load-theme-hook #'nh/bold-rainbow-parens)
+  ;; Enable rainbow-delimiters-mode in all Lisp-related modes
+  (dolist (hook (nh/lisp-hooks))
+    (add-hook hook #'rainbow-delimiters-mode))
+  :config
+  (nh/bold-rainbow-parens))
+
+;; highlight-parentheses: Highlight all levels of parentheses around point for extra visual feedback
+(use-package highlight-parentheses
+  :ensure t
+  :commands (highlight-parentheses-mode)
+  :init
+  ;; Enable highlight-parentheses-mode in all Lisp-related modes
+  (dolist (hook (nh/lisp-hooks))
+    (add-hook hook #'highlight-parentheses-mode)))
 
 ;; Diminish modeline clutter.
 (when (require 'diminish nil 'noerror)
@@ -101,5 +132,8 @@
       (highlight-symbol-mode 1)))
   :hook
   (prog-mode . nh/enable-highlight-symbol-mode))
+
+(provide 'nh-theme)
+
 
 ;;; nh-theme.el ends here 

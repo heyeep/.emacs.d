@@ -78,9 +78,9 @@
 (use-package all-the-icons-ivy-rich
   :ensure t
   :after (ivy-rich all-the-icons)
-  :init
-  (all-the-icons-ivy-rich-mode 1))
-
+  ;;:init
+  ;;(all-the-icons-ivy-rich-mode 1))
+)
 ;; Company Mode: Modular text completion framework
 ;; https://github.com/company-mode/company-mode
 ;;
