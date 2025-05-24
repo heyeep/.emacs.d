@@ -94,6 +94,7 @@
             (require 'nh-default)
             (require 'nh-theme)
             (require 'nh-autocompletion)
+            (require 'nh-copilot-ai)
             (require 'nh-git)
             (require 'nh-terminal)
             (require 'nh-keybindings)
@@ -101,6 +102,8 @@
             (require 'nh-org)
             ;; Load all language-specific configuration files
             (nh-load-directory (expand-file-name "lang" user-emacs-directory))))
+
+(setq native-comp-async-report-warnings-errors nil)
 
 (provide 'init)
 ;;; init.el ends here
@@ -113,9 +116,11 @@
    '("7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
  '(package-selected-packages
-   '(all-the-icons-ivy-rich circadian counsel diminish
-                            find-file-in-project ivy-prescient keycast
-                            magit multi-vterm vterm)))
+   '(all-the-icons-ivy-rich circadian counsel diminish enh-ruby-mode
+                            geiser ivy-prescient js2-mode keycast
+                            magit multi-vterm paredit prettier-js
+                            rainbow-delimiters rainbow-mode rjsx-mode
+                            robe slime tide typescript-mode web-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
