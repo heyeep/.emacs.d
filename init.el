@@ -113,14 +113,18 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
+   '("2b0fcc7cc9be4c09ec5c75405260a85e41691abb1ee28d29fcd5521e4fca575b"
+     "b49f66a2e1724db880692485a5d5bcb9baf28ed2a3a05c7a799fa091f24321da"
+     "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
  '(package-selected-packages
-   '(all-the-icons-ivy-rich circadian counsel diminish enh-ruby-mode
-                            geiser ivy-prescient js2-mode keycast
-                            magit multi-vterm paredit prettier-js
+   '(all-the-icons-ivy-rich circadian company company-box counsel
+                            diminish enh-ruby-mode geiser
+                            ivy-prescient js2-mode keycast magit
+                            multi-vterm paredit prettier-js
                             rainbow-delimiters rainbow-mode rjsx-mode
-                            robe slime tide typescript-mode web-mode)))
+                            robe slime solarized-theme tide
+                            typescript-mode web-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
