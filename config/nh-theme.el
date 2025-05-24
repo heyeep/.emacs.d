@@ -25,6 +25,10 @@
   (eval-after-load "autorevert"
     '(diminish 'auto-revert-mode)))
 
+;; Solarized Theme: Required for Circadian theme switching
+(use-package solarized-theme
+  :ensure t)
+
 ;; Circadian: Switch Solarized theme based on sunrise/sunset
 (use-package circadian
   :ensure t
