@@ -2,6 +2,7 @@
 
 ;;; Prevent package.el from automatically loading packages at startup
 (setq package-enable-at-startup nil)
+(setq load-prefer-newer t)
 
 ;;; Store installed packages in a versioned elpa directory for each Emacs major version
 (setq package-user-dir
@@ -101,7 +102,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(circadian counsel diminish ivy magit multi-vterm)))
+ '(custom-safe-themes
+   '("7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
+     default))
+ '(package-selected-packages
+   '(all-the-icons-ivy-rich circadian counsel diminish
+                            find-file-in-project ivy-prescient keycast
+                            magit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

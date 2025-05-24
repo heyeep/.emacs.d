@@ -15,7 +15,6 @@
   (ivy-count-format "(%d/%d) ")
   :config
   (ivy-mode 1)
-  (setq ivy-format-function #'ivy-format-function-fancy)
   (setq ivy-display-style 'fancy)
   (setq ivy-count-format "")      ;; Hide candidate count
   (setq ivy-height 15)             ;; Show up to 15 candidates
@@ -49,6 +48,32 @@
   (setq ivy-count-format "")      ;; Hide candidate count
   (setq counsel-ag-base-command "ag -U --nocolor --nogroup %s -- .")
   (setq swiper-goto-start-of-match t)) ;; Highlight line number in Swiper
+
+;; Ensure find-file-in-project is installed for ivy-rich integration
+(use-package find-file-in-project
+  :ensure t)
+
+;; Ivy-rich: Add extra info to Ivy candidates
+(use-package ivy-rich
+  :ensure t
+  :after (ivy find-file-in-project)
+  :config
+  (ivy-rich-mode 1))
+
+;; Ivy-prescient: Smarter sorting and filtering
+(use-package ivy-prescient
+  :ensure t
+  :after ivy
+  :config
+  (ivy-prescient-mode 1)
+  (prescient-persist-mode 1))
+
+;; All-the-icons-ivy-rich: Pretty icons in Ivy
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :after (ivy-rich all-the-icons)
+  :init
+  (all-the-icons-ivy-rich-mode 1))
 
 (provide 'nh-autocompletion)
 ;;; nh-autocompletion.el ends here
