@@ -1,0 +1,104 @@
+;;; init.el --- Emacs configuration -*- lexical-binding: t; -*-
+
+;;; Prevent package.el from automatically loading packages at startup
+(setq package-enable-at-startup nil)
+
+;;; Store installed packages in a versioned elpa directory for each Emacs major version
+(setq package-user-dir
+      (format "%selpa/%s/" user-emacs-directory emacs-major-version))
+
+;;; Optimize garbage collection for faster startup and efficient runtime
+(setq gc-cons-threshold (* 128 1024 1024))  ; 128MB during startup
+(setq gc-cons-percentage 0.6)
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold 100000000) ; 100MB after startup
+            (setq gc-cons-percentage 0.1)))
+
+;; Run garbage collection when Emacs loses focus
+(add-hook 'focus-out-hook #'garbage-collect)
+
+;;; Add all subdirectories of ~/.emacs.d/ to the load-path
+(let ((default-directory "~/.emacs.d/"))
+  (normal-top-level-add-subdirs-to-load-path))
+
+;; Load helpers first to get utility functions
+(require 'nh-helpers)
+
+;; Load all configuration files
+
+(nh-load-directory (expand-file-name "config" user-emacs-directory))
+(nh-load-directory (expand-file-name "lang" user-emacs-directory))
+
+;;; Set up package repositories (GNU, MELPA, MELPA Stable, Org)
+(require 'package)
+(setq package-archives
+      '(("gnu"          . "https://elpa.gnu.org/packages/")
+        ("melpa"        . "https://melpa.org/packages/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("org"          . "https://orgmode.org/elpa/")))
+
+;;; Set package archive priorities: org > melpa/melpa-stable > gnu
+(setq package-archive-priorities
+      '(("org"          . 20)
+        ("melpa"        . 10)
+        ("melpa-stable" . 10)
+        ("gnu"          . 5)))
+
+;;; Bootstrap use-package and diminish
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+;;; Ensure diminish is installed for use-package :diminish and runtime use
+(unless (package-installed-p 'diminish)
+  (package-refresh-contents)
+  (package-install 'diminish))
+
+;;; Require diminish at compile time so :diminish works in use-package declarations
+(eval-when-compile
+  (require 'use-package)
+  (require 'bind-key)
+  (require 'diminish))
+
+;;; Require diminish at runtime in case it is used outside of use-package
+(require 'diminish)
+
+(setq use-package-always-ensure t)
+
+;;; Show use-package loading times for profiling
+(setq use-package-verbose t)
+
+;;; Fetch the list of packages when unavailable
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+;;; Install any missing packages from package-list
+(defvar package-list nil
+  "List of packages to ensure are installed at startup.")
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
+
+;;; Start Emacs server automatically after init, if not already running
+(add-hook 'after-init-hook
+          (lambda ()
+            (load "server") ;; server-running-p is not autoloaded.
+            (unless (server-running-p)
+              (server-start))))
+
+(provide 'init)
+;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages '(diminish magit vterm)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
