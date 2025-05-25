@@ -118,46 +118,46 @@
 
 ;; Tide: TypeScript Interactive Development Environment (also works for JS)
 ;; https://github.com/ananthakumaran/tide
-(use-package tide
-  :ensure t
-  :commands (tide-setup)
-  :init
-  (defun nh/setup-tide-mode ()
-    "Setup Tide in the current buffer, with project and file checks."
-    (interactive)
-    (when (locate-dominating-file default-directory "tsfmt.json")
-      (add-hook 'before-save-hook #'tide-format-before-save nil t))
-    ;; Disable linting for Typescript Definition files.
-    (when (and (buffer-file-name)
-               (string-match-p ".d.ts$" (buffer-file-name)))
-      (flycheck-mode -1))
-    (tide-setup)
-    (tide-hl-identifier-mode +1))
+;; (use-package tide
+;;   :ensure t
+;;   :commands (tide-setup)
+;;   :init
+;;   (defun nh/setup-tide-mode ()
+;;     "Setup Tide in the current buffer, with project and file checks."
+;;     (interactive)
+;;     (when (locate-dominating-file default-directory "tsfmt.json")
+;;       (add-hook 'before-save-hook #'tide-format-before-save nil t))
+;;     ;; Disable linting for Typescript Definition files.
+;;     (when (and (buffer-file-name)
+;;                (string-match-p ".d.ts$" (buffer-file-name)))
+;;       (flycheck-mode -1))
+;;     (tide-setup)
+;;     (tide-hl-identifier-mode +1))
 
-  (defun nh/js2-tide-setup ()
-    (when (or (locate-dominating-file default-directory "tsconfig.json")
-              (locate-dominating-file default-directory "jsconfig.json"))
-      (nh/setup-tide-mode)))
+;;   (defun nh/js2-tide-setup ()
+;;     (when (or (locate-dominating-file default-directory "tsconfig.json")
+;;               (locate-dominating-file default-directory "jsconfig.json"))
+;;       (nh/setup-tide-mode)))
 
-  (defun nh/web-tide-setup ()
-    (when (and buffer-file-name
-               (string-equal "tsx" (file-name-extension buffer-file-name)))
-      (setq-local web-mode-enable-auto-quoting nil)
-      (when (fboundp 'yas-activate-extra-mode)
-        (yas-activate-extra-mode 'typescript-mode))
-      (nh/setup-tide-mode)))
-  :hook
-  (typescript-mode . nh/setup-tide-mode)
-  (js2-mode . nh/js2-tide-setup)
-  (web-mode . nh/web-tide-setup)
-  :config
-  ;; Set up Typescript linting with `web-mode'.
-  (with-eval-after-load 'flycheck
-    (flycheck-add-mode 'typescript-tslint 'web-mode))
-  ;; Fix eldoc warnings
-  (setq eldoc-documentation-functions '(tide-eldoc-function))
-  ;; Fix point-at-eol warnings
-  (defalias 'tide-point-at-eol 'line-end-position))
+;;   (defun nh/web-tide-setup ()
+;;     (when (and buffer-file-name
+;;                (string-equal "tsx" (file-name-extension buffer-file-name)))
+;;       (setq-local web-mode-enable-auto-quoting nil)
+;;       (when (fboundp 'yas-activate-extra-mode)
+;;         (yas-activate-extra-mode 'typescript-mode))
+;;       (nh/setup-tide-mode)))
+;;   :hook
+;;   (typescript-mode . nh/setup-tide-mode)
+;;   (js2-mode . nh/js2-tide-setup)
+;;   (web-mode . nh/web-tide-setup)
+;;   :config
+;;   ;; Set up Typescript linting with `web-mode'.
+;;   (with-eval-after-load 'flycheck
+;;     (flycheck-add-mode 'typescript-tslint 'web-mode))
+;;   ;; Fix eldoc warnings
+;;   (setq eldoc-documentation-functions '(tide-eldoc-function))
+;;   ;; Fix point-at-eol warnings
+;;   (defalias 'tide-point-at-eol 'line-end-position))
 
 ;; Prettier-js: Format JS/TS/JSON/HTML/CSS using Prettier
 ;; https://github.com/prettier/prettier-emacs

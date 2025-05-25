@@ -167,7 +167,10 @@
   ;; (corfu-candidate-history-mode 1) ;; Optional: Enable candidate history
   :config
   (global-corfu-mode)            ;; Enable Corfu globally
-  )
+  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
+  (add-hook 'emacs-lisp-mode-hook
+            (lambda ()
+              (add-to-list 'completion-at-point-functions #'cape-symbol))))
 
 ;; Provides completion backends (sources) for Corfu by extending Emacs's
 ;; built-in completion-at-point-functions (CAPF).
@@ -216,8 +219,8 @@
   (add-to-list 'lsp-language-id-configuration '(typescript-mode . "typescript"))
 
   ;; Only use these LSP clients
-  ;; elisp-ls: Emacs Lisp LSP (install with `npm install -g emacs-lisp-language-server`)
   (setq lsp-enabled-clients '(ruby-lsp-ls ts-ls graphql-lsp eslint))
+  (setq lsp-warn-no-matched-clients nil)
   )
 
 ;; Provides richer UI elements like sidelines, documentation popups, etc.
