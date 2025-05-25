@@ -6,11 +6,6 @@
 
 ;;; Code:
 
-;; Expand Region: Quickly expand the selected region by semantic units
-(use-package expand-region
-  :ensure t
-  :bind ("C-;" . er/expand-region))
-
 ;; Dired Sidebar: File explorer sidebar for Dired
 (use-package dired-sidebar
   :ensure t
@@ -26,7 +21,6 @@
           '(:family "Times New Roman" :height 150))
          (:default
           '(:family "Arial" :height 150))))
-  )
 
 ;; Pretty icons in Dired buffers
 (use-package all-the-icons-dired

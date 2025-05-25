@@ -83,6 +83,7 @@
 
 ;; Load helpers first to get utility functions
 (require 'nh-helpers)
+(require 'nh-commands)
 
 (add-hook 'after-init-hook
           (lambda ()
@@ -93,6 +94,7 @@
             (require 'nh-env)
             (require 'nh-helpers)
             (require 'nh-default)
+            (require 'nh-commands)
             (require 'nh-theme)
             (require 'nh-dired)
             (require 'nh-autocompletion)
@@ -119,14 +121,18 @@
      "b49f66a2e1724db880692485a5d5bcb9baf28ed2a3a05c7a799fa091f24321da"
      "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
+ '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
  '(package-selected-packages
-   '(ag all-the-icons-ivy-rich circadian company-box copilot counsel
-        diminish enh-ruby-mode exec-path-from-shell geiser
-        graphviz-dot-mode highlight-parentheses highlight-symbol
-        htmlize ivy-prescient keycast magit multi-vterm org-bullets
-        org-download org-modern paredit prettier-js rainbow-delimiters
-        rainbow-mode rjsx-mode robe slime solarized-theme tide
-        typescript-mode web-mode)))
+   '(ace-window ag all-the-icons-dired all-the-icons-ivy-rich circadian
+                company-box copilot counsel diminish dired-collapse
+                dired-sidebar enh-ruby-mode eproject evil
+                exec-path-from-shell expand-region geiser
+                graphviz-dot-mode highlight-parentheses
+                highlight-symbol htmlize ivy-prescient keycast magit
+                multi-vterm org-bullets org-download org-modern
+                paredit prettier-js projectile rainbow-delimiters
+                rainbow-mode reveal-in-osx-finder rjsx-mode robe slime
+                solarized-theme tide typescript-mode vundo web-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -67,13 +67,25 @@
         org-export-backends '(ascii html icalendar latex md))
   ;; Enable more languages for code blocks (babel)
   (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (shell . t)
-     (ruby . t)
-     (dot . t)
-     (js . t)
-     (lisp . t)))
+ 'org-babel-load-languages '(
+       (awk . t)
+       (calc .t)
+       (C . t)
+       (emacs-lisp . t)
+       (haskell . t)
+       (gnuplot . t)
+       (latex . t)
+       (java . t)
+       (js . t)
+       (haskell . t)
+       (perl . t)
+       (python . t)
+       (R . t)
+       (ruby . t)
+       (scheme . t)
+       (shell . t)
+       (sql . t)
+       ))
   ;; For React, use js or typescript blocks, e.g. #+BEGIN_SRC js or #+BEGIN_SRC typescript
   )
 

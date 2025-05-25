@@ -6,11 +6,14 @@
 ;;; Code:
 
 (require 'nh-env)
+(require 'nh-helpers)
+
+(global-set-key (kbd "C-x |") #'nh/toggle-window-split)
 
 ;; On macOS, set the Command key to act as Meta and Option key to act as Super
 (when nh-env/is-mac
-  (setq ns-command-modifier 'meta)   ; Remap Command to Meta on macOS
-  (setq ns-option-modifier 'super)   ; Remap Option to Super on macOS
+  (setq ns-command-modifier 'meta)    ; Remap Command to Meta on macOS
+  (setq ns-option-modifier 'super)    ; Remap Option to Super on macOS
   (setq ns-right-option-modifier 'control) ; Right Option as Control on macOS
   (setq mac-pass-command-to-system nil)) ; Let Emacs handle Command key, not macOS
 

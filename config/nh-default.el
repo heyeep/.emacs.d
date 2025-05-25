@@ -102,5 +102,38 @@
 
 (setq native-comp-async-report-warnings-errors nil)
 
+;; Expand Region: Quickly expand the selected region by semantic units
+(use-package expand-region
+  :ensure t
+  :bind ("C-;" . er/expand-region))
+
+;; Ace Window: Fast window switching and management
+(use-package ace-window
+  :ensure t
+  :commands (ace-delete-window
+             ace-swap-window
+             ace-delete-other-windows
+             ace-window
+             aw-select)
+  :bind (("M-o" . ace-window)))
+
+;; Vundo: Modern visual undo tree (C-x u to launch)
+(use-package vundo
+  :ensure t
+  :bind (("C-x u" . vundo))
+  :config
+  ;; Use a more compact character set for the tree
+  (setq vundo-glyph-alist vundo-unicode-symbols)
+  ;; Optionally, set the window size
+  (setq vundo-window-max-height 20))
+
+;; Increase undo limits for a more robust undo experience
+(setq undo-limit 160000)
+(setq undo-strong-limit 240000)
+(setq undo-outer-limit 24000000)
+
+(use-package reveal-in-osx-finder
+    :ensure t)
+
 (provide 'nh-default)
 ;;; nh-default.el ends here 
