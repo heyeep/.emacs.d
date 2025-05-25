@@ -13,13 +13,14 @@
 
 (set-face-attribute 'default nil :font "Inconsolata for Powerline" :height 128)
 
-;; Solarized Theme: Required for Circadian theme switching
-(use-package solarized-theme :defer :ensure t
-  :config
+;; Required for Circadian theme switching
+(use-package solarized-theme
+  :ensure t
+  :init
   (setq solarized-distinct-fringe-background t)
   (setq solarized-use-less-bold t))
 
-;; Circadian: Switch Solarized theme based on sunrise/sunset
+;; Switch Solarized theme based on sunrise/sunset
 (use-package circadian
   :ensure t
   :config
@@ -31,25 +32,27 @@
 
 (defun nh/update-theme ()
   "Update various UI elements when theme changes."
-  ;; Make modeline taller
+  ;; Make modeline taller, use a modern font, and add a subtle border.
   (dolist (sym '(mode-line mode-line-inactive))
     (set-face-attribute
      sym nil
-     :box `(:line-width 5 :color ,(face-attribute sym :background))))
+     :height 120
+     :font "Inconsolata for Powerline"
+     :box `(:line-width 4 :color ,(face-attribute sym :background))))
   ;; Org-mode tweaks
   (with-eval-after-load 'org-faces
     (set-face-background 'org-hide (face-attribute 'default :background))
     (set-face-foreground 'org-hide (face-attribute 'default :background)))
-  ;; Company-mode tweaks
-  (with-eval-after-load 'company
-    (set-face-attribute
-     'company-preview
-     nil
-     :background (face-attribute 'company-preview-common :background))))
+  (set-face-attribute 'fringe nil
+                      :background (face-attribute 'default :background))
+  ;; Modernize line numbers (if using display-line-numbers-mode)
+  (when (boundp 'line-number-current-line)
+    (set-face-attribute 'line-number nil :inherit 'default :foreground 'unspecified :background 'unspecified)
+    (set-face-attribute 'line-number-current-line nil :inherit 'default :foreground 'unspecified :background 'unspecified :weight 'bold)))
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
-;; Rainbow Delimiters: Colorful and bold parentheses for all Lisp modes
+;; Colorful and bold parentheses for all Lisp modes
 (use-package rainbow-delimiters
   :ensure t
   :commands (rainbow-delimiters-mode)
@@ -62,21 +65,26 @@
         (let ((face (intern (format "rainbow-delimiters-depth-%d-face" (1+ i)))))
           (when (facep face)
             (set-face-attribute face nil :bold t :foreground (nth i colors)))))))
-  ;; Customize unmatched delimiter face to be very obvious
-  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
-                      :foreground "red"
-                      :background nil
-                      :weight 'bold
-                      :underline t)
   ;; Ensure bolding and colors are applied after theme changes
   (add-hook 'after-load-theme-hook #'nh/bold-rainbow-parens)
   ;; Enable rainbow-delimiters-mode in all Lisp-related modes
   (dolist (hook (nh/lisp-hooks))
     (add-hook hook #'rainbow-delimiters-mode))
   :config
+  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
+                      :foreground "red"
+                      :background nil
+                      :weight 'bold
+                      :underline t)
   (nh/bold-rainbow-parens))
 
-;; highlight-parentheses: Highlight all levels of parentheses around point for extra visual feedback
+;; Emacs default
+(use-package paren
+  :ensure nil
+  :config
+  (show-paren-mode t))
+
+;; Highlight all levels of parentheses around point for extra visual feedback
 (use-package highlight-parentheses
   :ensure t
   :commands (highlight-parentheses-mode)
@@ -84,6 +92,39 @@
   ;; Enable highlight-parentheses-mode in all Lisp-related modes
   (dolist (hook (nh/lisp-hooks))
     (add-hook hook #'highlight-parentheses-mode)))
+
+;;  Structural editing for parentheses and more
+(use-package smartparens
+  :ensure t
+  :config
+  ;; Load the default smartparens config
+  (require 'smartparens-config)
+  ;; Enable Smartparens globally
+  (smartparens-global-mode 1)
+  ;; Highlight matching pairs
+  (show-smartparens-global-mode 1)
+  ;; Don't autopair single quotes (common in Lisp, Python, etc.)
+  (sp-pair "'" nil :actions :rem)
+  ;; Recommended: strict mode in Lisp modes for structural editing
+  (dolist (hook (nh/lisp-hooks))
+    (add-hook hook #'smartparens-strict-mode))
+  ;; Keybindings for common structural editing actions
+  (define-key smartparens-mode-map (kbd "C-M-f") 'sp-forward-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-b") 'sp-backward-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-d") 'sp-down-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-a") 'sp-backward-down-sexp)
+  (define-key smartparens-mode-map (kbd "C-S-d") 'sp-beginning-of-sexp)
+  (define-key smartparens-mode-map (kbd "C-S-a") 'sp-end-of-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-e") 'sp-up-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-u") 'sp-backward-up-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-t") 'sp-transpose-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-n") 'sp-next-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-p") 'sp-previous-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-k") 'sp-kill-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-w") 'sp-copy-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-<delete>") 'sp-splice-sexp-killing-forward)
+  (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp-killing-backward))
 
 ;; Diminish modeline clutter.
 (when (require 'diminish nil 'noerror)
@@ -97,7 +138,7 @@
   (eval-after-load "autorevert"
     '(diminish 'auto-revert-mode)))
 
-;; Uniquify: Make buffer names unique by appending directory names
+;; Make buffer names unique by appending directory names
 (use-package uniquify
   :ensure nil  ;; Built-in package, no need to install
   :config
@@ -107,7 +148,7 @@
   (setq uniquify-ignore-buffers-re "^\\*")   ;; Ignore special buffers
 )
 
-;; highlight-symbol: Highlight occurrences of the symbol at point in code
+;; Highlight occurrences of the symbol at point in code
 (use-package highlight-symbol
   :ensure t
   :diminish highlight-symbol-mode
@@ -133,7 +174,9 @@
   :hook
   (prog-mode . nh/enable-highlight-symbol-mode))
 
-(provide 'nh-theme)
+(use-package gotham-theme :defer :ensure t)
+(use-package spacemacs-theme :defer :ensure t)
 
+(provide 'nh-theme)
 
 ;;; nh-theme.el ends here 

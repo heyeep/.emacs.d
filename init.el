@@ -116,23 +116,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-show-quick-access t nil nil "Customized with use-package company")
  '(custom-safe-themes
-   '("2b0fcc7cc9be4c09ec5c75405260a85e41691abb1ee28d29fcd5521e4fca575b"
+   '("7fd8b914e340283c189980cd1883dbdef67080ad1a3a9cc3df864ca53bdc89cf"
+     "53a4efdca4c9fb870c3f92e4cfca0fbb638bb29b168a26a363298f9b1d9b9bcf"
+     "2b0fcc7cc9be4c09ec5c75405260a85e41691abb1ee28d29fcd5521e4fca575b"
      "b49f66a2e1724db880692485a5d5bcb9baf28ed2a3a05c7a799fa091f24321da"
      "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
- '(package-selected-packages
-   '(ace-window ag all-the-icons-dired all-the-icons-ivy-rich circadian
-                company-box copilot counsel diminish dired-collapse
-                dired-sidebar enh-ruby-mode eproject evil
-                exec-path-from-shell expand-region geiser
-                graphviz-dot-mode highlight-parentheses
-                highlight-symbol htmlize ivy-prescient keycast magit
-                multi-vterm org-bullets org-download org-modern
-                paredit prettier-js projectile rainbow-delimiters
-                rainbow-mode reveal-in-osx-finder rjsx-mode robe slime
-                solarized-theme tide typescript-mode vundo web-mode)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

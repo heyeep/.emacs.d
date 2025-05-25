@@ -20,7 +20,7 @@
          ((eq system-type 'windows-nt)
           '(:family "Times New Roman" :height 150))
          (:default
-          '(:family "Arial" :height 150))))
+          '(:family "Arial" :height 150)))))
 
 ;; Pretty icons in Dired buffers
 (use-package all-the-icons-dired

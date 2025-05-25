@@ -198,22 +198,33 @@ If Evil mode is active, use register 0; otherwise, use the most recent kill."
   (when (fboundp 'ibuffer-sidebar-toggle-sidebar)
     (ibuffer-sidebar-toggle-sidebar)))
 
-(defvar nh/newline-or-indent-new-comment-line
-  `(menu-item
-    "" nil :filter
-    ,(lambda (_cmd)
-       (when (and
-              ;; Is point in a comment?
-              (nth 4 (syntax-ppss))
-              ;; Is the entire line a comment?
-              (save-excursion
-                (beginning-of-line-text)
-                (nth 4 (syntax-ppss))))
-         (key-binding (kbd "M-j")))))
-  "Context-sensitive binding for M-j: if in a comment line, call the function bound to M-j (usually `c-indent-new-comment-line`); otherwise, fall through to the next binding.")
+;; Context-sensitive RET binding for comments in programming modes
+(defun nh/newline-or-indent-new-comment-line ()
+  "If in a comment line, call the function bound to M-j, else insert a newline."
+  (interactive)
+  ;; Check if point is inside a comment (nth 4 from syntax-ppss is non-nil)
+  (if (and (nth 4 (syntax-ppss))
+           ;; Also check if the beginning of the line is inside a comment
+           (save-excursion
+             (beginning-of-line-text)
+             (nth 4 (syntax-ppss))))
+      (let ((fn (key-binding (kbd "M-j"))))
+        ;; If M-j is bound to a function (usually c-indent-new-comment-line), call it
+        (if fn
+            (call-interactively fn)
+          ;; If not, just insert a newline
+          (newline)))
+    ;; If not in a comment line, insert a newline as usual
+    (newline)))
 
-(add-hook 'prog-mode-hook
-          #'nh/newline-or-indent-new-comment-line)
+(defun nh/bind-newline-or-indent-new-comment-line ()
+  "Bind RET to `nh/newline-or-indent-new-comment-line' in the current buffer."
+  ;; This makes RET context-sensitive for comments in this buffer only.
+  ;; Use local-set-key so the binding is buffer-local and doesn't affect other buffers.
+  (local-set-key (kbd "RET") #'nh/newline-or-indent-new-comment-line))
+
+;; Add the context-sensitive RET binding to all programming modes.
+(add-hook 'prog-mode-hook #'nh/bind-newline-or-indent-new-comment-line)
 
 ;; DWIM: Get the active region as a string, or the symbol at point if no region is active
 (defun nh/symbol-at-point ()

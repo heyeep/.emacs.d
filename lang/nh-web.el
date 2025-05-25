@@ -10,24 +10,20 @@
 (use-package web-mode
   :ensure t
   :mode
-  (("\\.html?\\'" . web-mode)
-   ("\\.phtml\\'" . web-mode)
-   ("\\.tpl\\.php\\'" . web-mode)
-   ("\\.blade\\.php\\'" . web-mode)
-   ("/\\(views\\|html\\|theme\\|templates\\)/.*\\.php\\'" . web-mode)
-   ("\\.[agj]sp\\'" . web-mode)
-   ("\\.as[cp]x\\'" . web-mode)
-   ("\\.erb\\'" . web-mode)
-   ("\\.mustache\\'" . web-mode)
-   ("\\.djhtml\\'" . web-mode)
-   ("\\.jsp\\'" . web-mode)
-   ("\\.eex\\'" . web-mode)
-   ("\\.tsx\\'" . web-mode)
-   ("\\.ejs\\'" . web-mode)
-   ("\\.jsx\\'" . web-mode)
-   ("\\.ts\\'" . web-mode)
-   ("\\.css\\'" . web-mode)
-   ("\\.vue\\'" . web-mode))
+  (("\\.html\\'" . web-mode)
+  ("\\.phtml\\'" . web-mode)
+  ("\\.tpl\\.php\\'" . web-mode)
+  ("\\.blade\\.php\\'" . web-mode)
+  ("/\\(views\\|html\\|theme\\|templates\\)/.*\\.php\\'" . web-mode)
+  ("\\.[agj]sp\\'" . web-mode)
+  ("\\.as[cp]x\\'" . web-mode)
+  ("\\.erb\\'" . web-mode)
+  ("\\.mustache\\'" . web-mode)
+  ("\\.djhtml\\'" . web-mode)
+  ("\\.jsp\\'" . web-mode)
+  ("\\.eex\\'" . web-mode)
+  ("\\.tsx\\'" . web-mode)
+  ("\\.ejs\\'" . web-mode))
   :hook (web-mode . nh/web-mode-setup)
   :init
   (defun nh/web-mode-setup ()
@@ -171,5 +167,150 @@
          (typescript-mode . prettier-js-mode)
          (rjsx-mode . prettier-js-mode)))
 
+
+;; Nodes Path
+;; (use-package add-node-modules-path
+;;   :ensure t
+;;   :commands (add-node-modules-path)
+;;   :init
+;;   (mapcar
+;;    (lambda (x)
+;;      (add-hook x #'add-node-modules-path))
+;;    '(js-mode-hook
+;;      js2-mode-hook
+;;      rjsx-mode-hook
+;;      typescript-mode-hook
+;;      web-mode-hook)))
+
+;;;; JS Identation
+;; Leaving Javascript indentation code outside of package block so other
+;; packages can use the same indentation settings.
+
+;; https://emacs.stackexchange.com/questions/29973/stop-javascript-mode-from-lining-up-function-parameters-after-newline/29975#29975
+(defun +js--proper-indentation (parse-status)
+  "Return the proper indentation for the current line."
+  (save-excursion
+    (back-to-indentation)
+    (cond ((nth 4 parse-status)    ; inside comment
+           (js--get-c-offset 'c (nth 8 parse-status)))
+          ((nth 3 parse-status) 0) ; inside string
+          ((eq (char-after) ?#) 0)
+          ((save-excursion (js--beginning-of-macro)) 4)
+          ;; Indent array comprehension continuation lines specially.
+          ((let ((bracket (nth 1 parse-status))
+                 beg)
+             (and bracket
+                  (not (js--same-line bracket))
+                  (setq beg (js--indent-in-array-comp bracket))
+                  ;; At or after the first loop?
+                  (>= (point) beg)
+                  (js--array-comp-indentation bracket beg))))
+          ((js--chained-expression-p))
+          ((js--ctrl-statement-indentation))
+          ((js--multi-line-declaration-indentation))
+          ((nth 1 parse-status)
+           ;; A single closing paren/bracket should be indented at the
+           ;; same level as the opening statement. Same goes for
+           ;; "case" and "default".
+           (let ((same-indent-p (looking-at "[]})]"))
+                 (switch-keyword-p (looking-at "default\\_>\\|case\\_>[^:]"))
+                 (continued-expr-p (js--continued-expression-p)))
+             (goto-char (nth 1 parse-status)) ; go to the opening char
+             (progn ; nothing following the opening paren/bracket
+               (skip-syntax-backward " ")
+               (when (eq (char-before) ?\)) (backward-list))
+               (back-to-indentation)
+               (js--maybe-goto-declaration-keyword-end parse-status)
+               (let* ((in-switch-p (unless same-indent-p
+                                     (looking-at "\\_<switch\\_>")))
+                      (same-indent-p (or same-indent-p
+                                         (and switch-keyword-p
+                                              in-switch-p)))
+                      (indent
+                       (cond (same-indent-p
+                              (current-column))
+                             (continued-expr-p
+                              (+ (current-column) (* 2 js-indent-level)
+                                 js-expr-indent-offset))
+                             (t
+                              (+ (current-column) js-indent-level
+                                 (pcase (char-after (nth 1 parse-status))
+                                   (?\( js-paren-indent-offset)
+                                   (?\[ js-square-indent-offset)
+                                   (?\{ js-curly-indent-offset)))))))
+                 (if in-switch-p
+                     (+ indent js-switch-indent-offset)
+                   indent)))))
+
+          ((js--continued-expression-p)
+           (+ js-indent-level js-expr-indent-offset))
+          (t (prog-first-column)))))
+
+(defun +25-js--proper-indentation (parse-status)
+  "Return the proper indentation for the current line."
+  (save-excursion
+    (back-to-indentation)
+    (cond ((nth 4 parse-status)    ; inside comment
+           (js--get-c-offset 'c (nth 8 parse-status)))
+          ((nth 3 parse-status) 0) ; inside string
+          ((eq (char-after) ?#) 0)
+          ((save-excursion (js--beginning-of-macro)) 4)
+          ;; Indent array comprehension continuation lines specially.
+          ((let ((bracket (nth 1 parse-status))
+                 beg)
+             (and bracket
+                  (not (js--same-line bracket))
+                  (setq beg (js--indent-in-array-comp bracket))
+                  ;; At or after the first loop?
+                  (>= (point) beg)
+                  (js--array-comp-indentation bracket beg))))
+          ((js--ctrl-statement-indentation))
+          ((js--multi-line-declaration-indentation))
+          ((nth 1 parse-status)
+           ;; A single closing paren/bracket should be indented at the
+           ;; same level as the opening statement. Same goes for
+           ;; "case" and "default".
+           (let ((same-indent-p (looking-at "[]})]"))
+                 (switch-keyword-p (looking-at "default\\_>\\|case\\_>[^:]"))
+                 (continued-expr-p (js--continued-expression-p)))
+             (goto-char (nth 1 parse-status)) ; go to the opening char
+             (progn ; nothing following the opening paren/bracket
+               (skip-syntax-backward " ")
+               (when (eq (char-before) ?\)) (backward-list))
+               (back-to-indentation)
+               (js--maybe-goto-declaration-keyword-end parse-status)
+               (let* ((in-switch-p (unless same-indent-p
+                                     (looking-at "\\_<switch\\_>")))
+                      (same-indent-p (or same-indent-p
+                                         (and switch-keyword-p
+                                              in-switch-p)))
+                      (indent
+                       (cond (same-indent-p
+                              (current-column))
+                             (continued-expr-p
+                              (+ (current-column) (* 2 js-indent-level)
+                                 js-expr-indent-offset))
+                             (t
+                              (+ (current-column) js-indent-level
+                                 (pcase (char-after (nth 1 parse-status))
+                                   (?\( js-paren-indent-offset)
+                                   (?\[ js-square-indent-offset)
+                                   (?\{ js-curly-indent-offset)))))))
+                 (if in-switch-p
+                     (+ indent js-switch-indent-offset)
+                   indent)))))
+
+          ((js--continued-expression-p)
+           (+ js-indent-level js-expr-indent-offset))
+          (t 0))))
+
+;; When Emacs 26 is released, parts of this can be removed.
+(cond
+ ((boundp 'js-indent-align-list-continuation)
+  (setq js-indent-align-list-continuation nil))
+ ((>= emacs-major-version 26)
+  (advice-add 'js--proper-indentation :override '+js--proper-indentation))
+ (:else
+  (advice-add 'js--proper-indentation :override '+25-js--proper-indentation)))
 (provide 'nh-web)
 ;;; nh-web.el ends here 

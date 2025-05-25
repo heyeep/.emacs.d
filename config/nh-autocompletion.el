@@ -56,6 +56,39 @@
   (setq counsel-ag-base-command "ag -U --nocolor --nogroup %s -- .")
   (setq swiper-goto-start-of-match t)) ;; Highlight line number in Swiper
 
+(use-package ag
+  :ensure t)
+
+;; Modern project management and navigation
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode
+  ;; Enable Projectile globally after Emacs starts (eager loading, not lazy)
+  ;; This makes all project features and commands available everywhere.
+  :commands (projectile-find-file projectile-switch-project projectile-ag projectile-mode)
+  :hook (after-init . projectile-mode)
+  :init
+  ;; Track known projects automatically when switching projects or opening files
+  (setq projectile-track-known-projects-automatically t)
+  ;; Use Ivy for completion (change to 'vertico or 'helm if you use those)
+  (setq projectile-completion-system 'ivy)
+  ;; Enable caching for faster project file lookups
+  (setq projectile-enable-caching t)
+  ;; Use the fastest available indexing method
+  (setq projectile-indexing-method 'alien)
+  ;; Use fd or rg for file discovery if available (much faster than find)
+  (when (executable-find "fd")
+    (setq projectile-generic-command "fd . --type f --color=never"))
+  (when (and (not (executable-find "fd")) (executable-find "rg"))
+    (setq projectile-generic-command "rg --files --color=never"))
+  :config
+  ;; Ignore bulky directories globally for all projects
+  (add-to-list 'projectile-globally-ignored-directories "node_modules")
+  (add-to-list 'projectile-globally-ignored-directories "dist")
+  ;; Warn if the external 'ag' tool is missing (needed for projectile-ag)
+  (unless (executable-find "ag")
+    (message "[Projectile] Warning: 'ag' (The Silver Searcher) is not installed. Install it for projectile-ag to work.")))
+
 ;; Add extra info to Ivy candidates
 (use-package ivy-rich
   :ensure t
@@ -78,121 +111,158 @@
 (use-package all-the-icons-ivy-rich
   :ensure t
   :after (ivy-rich all-the-icons)
-  ;;:init
-  ;;(all-the-icons-ivy-rich-mode 1))
 )
-;; Company Mode: Modular text completion framework
-;; https://github.com/company-mode/company-mode
-;;
-;; This block sets up company-mode for global autocompletion, with modern defaults
-;; and advanced helpers for dynamic backend management. The helpers allow you to
-;; add, merge, and set company backends per buffer or mode, which is useful for
-;; language-specific or project-specific completion sources.
-(use-package company
+
+;; On-the-fly syntax checking for programming modes
+(use-package flycheck
   :ensure t
-  :diminish company-mode
-  :init
-  ;; === Dynamic Backend Helpers ===
-  ;; These functions let you add or merge company backends globally or buffer-locally.
-  ;; Useful for language-specific or context-specific completion tweaks.
-  (defun nh/company-backend-in-backends (b)
-    "Check if backend B is already in `company-backends`."
-    (cl-some (lambda (backend)
-               (if (listp backend)
-                   (member b backend)
-                 (eq b backend)))
-             company-backends))
-
-  (defun nh/company-push-backend (b &optional no-merge)
-    "Add backend B to `company-backends` if not present.
-If NO-MERGE is non-nil, don't merge additional backends."
-    (unless (nh/company-backend-in-backends b)
-      (add-to-list 'company-backends b))
-    (unless no-merge
-      (nh/company-merge-backends)))
-
-  (defun nh/company-push-backend-local (b &optional no-merge)
-    "Add backend B to buffer-local `company-backends`."
-    (setq-local company-backends (copy-sequence company-backends))
-    (nh/company-push-backend b no-merge))
-
-  (defun nh/company-set-local-backends (backends &optional no-merge)
-    "Set buffer-local `company-backends` to BACKENDS."
-    (setq-local company-backends backends)
-    (unless no-merge
-      (nh/company-merge-backends)))
-
-  (defun nh/company-merge-backend-with-company-backends (backend-to-merge)
-    "Merge BACKEND-TO-MERGE with every backend in `company-backends`.
-This ensures the merged backend (e.g., company-dabbrev-code) is always available
-as a fallback for all completions."
-    (let ((blist (make-list (length company-backends) backend-to-merge)))
-      (setq company-backends
-            (cl-mapcar (lambda (backend b)
-                         (if (and (listp backend) (member b backend))
-                             backend
-                           (append (if (consp backend) backend (list backend))
-                                   (if (and (listp backend) (member :with backend))
-                                       `(,b)
-                                     `(:with ,b)))))
-                       company-backends blist))))
-
-  (defun nh/company-merge-backends ()
-    "Merge common backends (e.g., dabbrev-code) into all company backends."
-    (nh/company-merge-backend-with-company-backends 'company-dabbrev-code))
-
+  :diminish flycheck-mode
+  :hook ((prog-mode . flycheck-mode)
+         (emacs-lisp-mode . flycheck-mode)) ; Also enable in Emacs Lisp buffers
   :custom
-  ;; Delay before suggestions popup (in seconds)
-  (company-idle-delay 0.1)
-  ;; Minimum prefix length before popup
-  (company-minimum-prefix-length 1)
-  ;; Align annotations to the right edge
-  (company-tooltip-align-annotations t)
-  ;; Show numbers for quick selection (M-1, M-2, ...)
-  (company-show-numbers t)
-  ;; Wrap around when cycling candidates
-  (company-selection-wrap-around t)
-  ;; Don't downcase dabbrev completions
-  (company-dabbrev-downcase nil)
-  ;; Ignore case for dabbrev completions
-  (company-dabbrev-ignore-case t)
-  ;; Only use dabbrev from same major mode
-  (company-dabbrev-other-buffers nil)
-  ;; Delay before echoing candidate info
-  (company-echo-delay 1)
-  ;; Use the default frontends (popup and echo area)
-  (company-frontends
-    '(company-pseudo-tooltip-frontend
-      company-echo-metadata-frontend))
-  :bind
-  ;; Keybindings for company popup navigation and selection
-  (:map company-active-map
-        ([tab] . company-complete-common-or-cycle)
-        ("TAB" . company-complete-common-or-cycle)
-        ("<backtab>" . company-select-previous)
-        ("C-n" . company-select-next)
-        ("C-p" . company-select-previous)
-        ("RET" . company-complete-selection)
-        ("<return>" . company-complete-selection))
+  (flycheck-idle-change-delay 1)
+  (flycheck-emacs-lisp-load-path 'inherit)
+  (flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+  (flycheck-display-errors-delay 0.5)
+  :bind (:map flycheck-mode-map
+              ("M-n" . flycheck-next-error)
+              ("M-p" . flycheck-previous-error)
+              ("C-c ! l" . flycheck-list-errors))
   :config
-  ;; Prefer candidates that match the case of your input
-  (add-to-list 'company-transformers 'company-sort-prefer-same-case-prefix)
-  ;; Merge dabbrev-code into all backends by default for fallback completions
-  (nh/company-merge-backends)
-  (global-company-mode 1))
+  ;; Always pop up the Flycheck errors buffer when there are errors
+  (add-to-list 'display-buffer-alist
+               '("\\*Flycheck errors\\*" (display-buffer-pop-up-window)))
+  ;; Always pop up the Warnings buffer when there are warnings
+  (add-to-list 'display-buffer-alist
+               '("\\*Warnings\\*" (display-buffer-pop-up-window))))
 
-;; Company-Box: Modern company popup with icons and documentation
-;; https://github.com/sebastiencs/company-box
-(use-package company-box
-  :hook (company-mode . company-box-mode)
+;; Show Flycheck errors in tooltips (GUI only)
+(use-package flycheck-pos-tip
+  :ensure t
+  :after flycheck
+  :if (display-graphic-p)
+  :config
+  (flycheck-pos-tip-mode))
+
+(use-package flycheck-inline
+  :ensure t
+  :after flycheck
+  :hook (flycheck-mode . flycheck-inline-mode))
+
+;; Provides the in-buffer completion UI. Lightweight, fast, and overlays
+;; completion candidates directly near your cursor.
+(use-package corfu
+  :ensure t
   :custom
-  ;; Delay before showing documentation popup (seconds)
-  (company-box-doc-delay 0.2)
-  (company-box-icons-alist 'company-box-icons-all-the-icons) ; Use all-the-icons set
-  (company-box-scrollbar nil) ; Hide the scrollbar
-  (company-box-show-single-candidate t) ; Show box even for one candidate
-  (company-box-max-candidates 50) ; Limit number of candidates
+  (corfu-cycle t)                ;; TAB cycles, M-TAB for indent-for-tab-command
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto-prefix 2)          ;; Auto complete after 2 chars typed
+  (corfu-preview-delay 0.2)      ;; Delay before showing preview of current candidate
+  (corfu-popupinfo-mode 1)       ;; Show detailed candidate info in a child frame/popup
+  (corfu-popupinfo-delay '(0.5 . 0.2)) ;; Delay for full doc popup (if corfu-popupinfo-mode is on)
+  (corfu-separator ?\s)          ;; Orderless field separator (for Orderless completion style)
+  ;; (corfu-quit-at-boundary 'separator) ;; Automatically quit at word boundary (e.g., space)
+  ;; (corfu-scroll-margin 5)        ;; Number of lines at top/bottom before scrolling popup
+  :init
+  ;; (corfu-candidate-history-mode 1) ;; Optional: Enable candidate history
+  :config
+  (global-corfu-mode)            ;; Enable Corfu globally
   )
 
+;; Provides completion backends (sources) for Corfu by extending Emacs's
+;; built-in completion-at-point-functions (CAPF).
+(use-package cape
+  :ensure t
+  :init
+  ;; Add desired completion sources to `completion-at-point-functions`
+  ;; Order can matter for priority if multiple backends provide completions.
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev) ; Dynamic abbreviations
+  (add-to-list 'completion-at-point-functions #'cape-file)    ; File paths
+  ;; (add-to-list 'completion-at-point-functions #'cape-keyword)  ; Keywords for current mode
+  ;; (add-to-list 'completion-at-point-functions #'cape-elisp-block) ; Elisp symbols
+  ;; Consider adding other cape functions based on your needs:
+  ;; cape-ispell, cape-tex, cape-sgml, cape-rfc1345, cape-abbrev, cape-dict, cape-symbol
+  )
+
+(use-package yasnippet
+  :ensure t
+  :config
+  (yas-global-mode 1)
+  ;; Load snippets from a community collection
+  (use-package yasnippet-snippets
+    :ensure t
+    :after yasnippet
+    :config
+    (yasnippet-snippets-initialize)))
+
+(use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-deferred) ; Autoload lsp and lsp-deferred commands
+  ;; Hook LSP to start in programming modes. Use lsp-deferred for better startup performance.
+  :hook ((prog-mode . lsp-deferred)
+      ;;   (lsp-mode . lsp-lens-mode)
+         )
+  :custom
+  (lsp-completion-provider :capf) ; Use completion-at-point-functions for completions
+  (lsp-eldoc-render-all nil)      ; Only show eldoc for symbol at point
+  (lsp-idle-delay 0.500)          ; Delay before sending changes to server (in seconds)
+  (lsp-signature-render-documentation t) ; Show function signature help with docs
+  (lsp-headerline-breadcrumb-enable t)   ; Show file path and symbols in header line
+;;  (lsp-lens-enable t)
+  :config
+  ;; Map major modes to LSP language IDs for correct server selection
+  (add-to-list 'lsp-language-id-configuration '(enh-ruby-mode . "ruby"))
+  (add-to-list 'lsp-language-id-configuration '(ruby-mode . "ruby"))
+  (add-to-list 'lsp-language-id-configuration '(typescript-mode . "typescript"))
+
+  ;; Only use these LSP clients
+  ;; elisp-ls: Emacs Lisp LSP (install with `npm install -g emacs-lisp-language-server`)
+  (setq lsp-enabled-clients '(ruby-lsp-ls ts-ls graphql-lsp eslint))
+  )
+
+;; Provides richer UI elements like sidelines, documentation popups, etc.
+;; Can be resource-intensive for some or visually busy; enable if you like it.
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :after lsp-mode
+  :hook (lsp-mode . lsp-ui-mode) ; Hook to lsp-mode to enable automatically
+  :custom
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-position 'at-point)       ; or 'top, 'bottom, 'window
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-peek-enable t)              ; For peek definition/references
+  (lsp-ui-imenu-enable t)             ; For imenu integration
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-include-signature t)
+  (lsp-enable-markdown t)
+  (lsp-markdown-renderer 'markdown)
+  )
+
+(use-package markdown-mode :ensure t)
+
+;; Highlight trailing whitespace, tabs, and long lines in programming modes
+(use-package whitespace
+  :ensure nil
+  :init
+  (add-hook 'prog-mode-hook #'whitespace-mode)
+  :config
+  (setq whitespace-style '(face trailing tabs lines-tail)))
+
+;; Only trims trailing whitespace on lines you edit, not the whole file
+(use-package ws-butler
+  :diminish ws-butler-mode
+  :ensure t
+  :config
+  (setq ws-butler-keep-whitespace-before-point nil)
+  (ws-butler-global-mode))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic)) ; Add orderless to completion styles
+  (orderless-matching-styles '(orderless-regexp))) ; or orderless-literal, orderless-flex
+
 (provide 'nh-autocompletion)
-;;; nh-autocompletion.el ends here
