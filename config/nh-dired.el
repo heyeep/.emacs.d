@@ -6,6 +6,32 @@
 
 ;;; Code:
 
+(use-package dired
+  :ensure nil ; dired is built-in, no need to ensure
+  :config
+  ;; Enable dired-omit-mode globally to hide unwanted files
+  (add-hook 'dired-mode-hook 'dired-omit-mode)
+
+  ;; Configure the regex for files to omit.
+  ;; This regex hides Emacs backup files (~), auto-save files (#),
+  ;; Emacs lock files (.#), and common ignored files.
+  (setq dired-omit-files (rx
+                          (or
+                           "#" ; Emacs auto-save files (e.g., #filename#)
+                           "~" ; Emacs backup files (e.g., filename~)
+                           ".#" ; Emacs lock files (e.g., .#filename)
+                           ".DS_Store" ; macOS directory metadata
+                           ".git" ; Git directory
+                           ".gitignore" ; Git ignore file
+                           ".gitmodules" ; Git submodules file
+                           ".projectile" ; Projectile file
+                           ".dir-locals.el" ; Directory local variables
+                           ".elc" ; Compiled Emacs Lisp files
+                           ".aider*" ; Aider related files/dirs
+                           "eln-*" ; Native compilation files
+                           )))
+  )
+
 ;; Dired Sidebar: File explorer sidebar for Dired
 (use-package dired-sidebar
   :ensure t
@@ -46,4 +72,4 @@
 
 (provide 'nh-dired)
 
-;;; nh-dired.el ends here 
+;;; nh-dired.el ends here
