@@ -232,64 +232,76 @@ If not in a Projectile project, defaults to 4."
    ((not (and (fboundp 'projectile-project-p) (projectile-project-p))) 4)
    ;; Default to 4
    (t 4)))
+
 (setq-local js-indent-level (nh/indent-offset))
 (setq-local css-indent-offset (nh/indent-offset))
 
-;; Open an Emacs shell appropriate for the OS and available packages
-(defun nh/open-shell ()
-  "Open an Emacs shell appropriate for the OS and available packages.
-Prefers vterm, then multi-term, then ansi-term, then eshell."
+;; Helper: Return a list of major modes for common brace-using languages
+(defun nh/standard-modes ()
+  "Return a list of major mode symbols for languages that use braces (C-like, JS, etc)."
+  '(c++-mode
+    c-mode
+    csharp-mode
+    css-mode
+    elixir-mode
+    go-mode
+    groovy-mode
+    java-mode
+    js-mode
+    js2-mode
+    json-mode
+    kotlin-mode
+    lua-mode
+    mhtml-mode
+    objc-mode
+    php-mode
+    protobuf-mode
+    python-mode
+    rjsx-mode
+    ruby-mode
+    rust-mode
+    sh-mode
+    swift-mode
+    typescript-mode
+    web-mode))
+
+;; Helper: Add a new entry to c-default-style after cc-vars is loaded
+(defun nh/c-set-c-style (alist)
+  "Add ALIST to `c-default-style` after `cc-vars` is loaded.
+ALIST should be a cons cell like (major-mode-symbol . \"style-name\")."
+  ;; Use eval-after-load to ensure cc-vars is loaded before modifying c-default-style
+  (eval-after-load 'cc-vars
+    (lambda () (push alist c-default-style))))
+
+;; Usage example:
+;; (nh/c-set-c-style '(java-mode . "java"))
+;; (nh/c-set-c-style '(c-mode . "linux"))
+
+;; Context-aware file opener: DWIM for Dired, Magit, and everywhere else
+(defun nh/find-file-dwim ()
+  "Open a file in a context-aware way.
+- In Dired or Dired Sidebar, opens file prompt in the current directory.
+- In Magit, opens file prompt in the directory of the file at point (if any).
+- Otherwise, just calls `find-file` as usual."
   (interactive)
   (cond
-   ;; On macOS or Linux, prefer vterm, then multi-term, then ansi-term
-   ((or (eq system-type 'darwin) (eq system-type 'gnu/linux))
-    (cond
-     ((fboundp 'vterm) (vterm))
-     ((fboundp 'multi-term) (multi-term))
-     ((fboundp 'ansi-term) (ansi-term (getenv "SHELL")))
-     (t (eshell))))
-   ;; On Windows, use eshell
-   ((eq system-type 'windows-nt)
-    (eshell))
+   ;; If in Dired or Dired Sidebar, open file prompt in the current Dired directory
+   ((or (eq major-mode 'dired-mode)
+        (eq major-mode 'dired-sidebar-mode))
+    (let ((default-directory (dired-current-directory)))
+      (call-interactively #'find-file)))
+   ;; If in a Magit buffer, open file prompt in the directory of the file at point (if any)
+   ((derived-mode-p 'magit-mode)
+    (if-let ((magit-file (magit-file-at-point)))
+        (let ((default-directory
+                (file-name-directory
+                 (concat (magit-toplevel) magit-file))))
+          (call-interactively #'find-file))
+      ;; If not on a file, just call find-file
+      (call-interactively #'find-file)))
+   ;; In all other cases, just call find-file
    (t
-    (message "Implement `nh/open-shell' for this OS!"))))
-
-;; Open the system terminal in the current directory, preferring iTerm2 on macOS
-(defun nh/open-terminal ()
-  "Open the system terminal in the current directory.
-On macOS, prefers iTerm2, then Terminal.app. On Linux, tries common terminal emulators. On Windows, opens cmd.exe."
-  (interactive)
-  (cond
-   ;; macOS: Try iTerm2, then Terminal.app
-   ((eq system-type 'darwin)
-    (let ((dir (shell-quote-argument default-directory)))
-      (cond
-       ;; Try iTerm2
-       ((eq 0 (call-process "open" nil nil nil "-b" "com.googlecode.iterm2" dir)))
-       ;; Fallback to Terminal.app
-       ((eq 0 (call-process "open" nil nil nil "-b" "com.apple.terminal" dir)))
-       (t (message "Could not open iTerm2 or Terminal.app.")))))
-   ;; Windows: Open cmd.exe
-   ((eq system-type 'windows-nt)
-    (let ((proc (start-process "cmd" nil "cmd.exe" "/C" "start" "cmd.exe")))
-      (set-process-query-on-exit-flag proc nil)))
-   ;; Linux: Try common terminal emulators
-   ((eq system-type 'gnu/linux)
-    (let ((term (or (executable-find "gnome-terminal")
-                    (executable-find "konsole")
-                    (executable-find "x-terminal-emulator")
-                    (executable-find "xterm"))))
-      (if term
-          (start-process "terminal" nil term "--working-directory" default-directory)
-        (message "No known terminal emulator found!"))))
-   (t
-    (message "Implement `nh/open-terminal' for this OS!"))))
-
-;; defalias creates an alternative name for nh/open-terminal
-(defalias 'terminal 'nh/open-terminal)
-
-;; defalias creates an alternative name for nh/open-shell
-(defalias 'zterm 'nh/open-shell)
+    (call-interactively #'find-file))))
 
 (provide 'nh-helpers)
 ;;; nh-helpers.el ends here 

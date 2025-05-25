@@ -9,6 +9,7 @@
 (require 'nh-helpers)
 
 (global-set-key (kbd "C-x |") #'nh/toggle-window-split)
+(global-set-key (kbd "<f8>") #'nh/sidebar-toggle)
 
 ;; On macOS, set the Command key to act as Meta and Option key to act as Super
 (when nh-env/is-mac
