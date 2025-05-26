@@ -4,8 +4,6 @@
 (setq package-enable-at-startup nil)
 (setq load-prefer-newer t)
 
-;; Ensure Emacs inherits the correct PATH and environment variables from the user's shell
-;; This is especially important for GUI Emacs and for tools managed by asdf, nvm, pyenv, etc.
 ;; (use-package exec-path-from-shell
 ;;   :init
 ;;   (setq exec-path-from-shell-check-startup-files nil)
@@ -18,6 +16,7 @@
 ;;   (exec-path-from-shell-initialize)
 ;;   )
 ;;; Store installed packages in a versioned elpa directory for each Emacs major version
+
 (setq package-user-dir
       (format "%selpa/%s/" user-emacs-directory emacs-major-version))
 
@@ -88,7 +87,7 @@
   (package-refresh-contents))
 
 ;;; Install any missing packages from package-list
-(defvar package-list '(aidermacs)
+(defvar package-list nil
   "List of packages to ensure are installed at startup.")
 (dolist (package package-list)
   (unless (package-installed-p package)
@@ -111,13 +110,13 @@
             (require 'nh-theme)
             (require 'nh-dired)
             (require 'nh-autocompletion)
-            (require 'nh-copilot-ai)
-            (require 'nh-aider) ; Added for Aidermacs configuration
             (require 'nh-git)
             (require 'nh-terminal)
             (require 'nh-keybindings)
             (require 'nh-mouse)
             (require 'nh-org)
+            (require 'nh-copilot-ai)
+            (require 'nh-aider) ; Added for Aidermacs configuration
             ;; Load all language-specific configuration files
             (nh/load-directory (expand-file-name "lang" user-emacs-directory))))
 
@@ -140,20 +139,19 @@
      default))
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
  '(package-selected-packages
-   '(ace-window ag aidermacs all-the-icons-dired all-the-icons-ivy-rich
-                cape circadian copilot corfu counsel diminish
+   '(ace-window ag all-the-icons-dired all-the-icons-ivy-rich cape
+                circadian copilot corfu counsel diminish
                 dired-collapse dired-sidebar enh-ruby-mode
-                exec-path-from-shell expand-region flycheck
-                flycheck-inline flycheck-pos-tip geiser gfm-mode
-                gotham-theme graphviz-dot-mode highlight-parentheses
-                highlight-symbol htmlize ivy ivy-prescient ivy-rich
-                keycast lsp-mode lsp-ui magit markdown-preview-mode
-                multi-vterm orderless org-bullets org-download
-                org-modern paredit prettier-js projectile
-                rainbow-delimiters rainbow-mode reveal-in-osx-finder
-                rjsx-mode robe slime smartparens solarized-theme
-                spacemacs-theme tide typescript-mode vundo web-mode
-                ws-butler yasnippet yasnippet-snippets)))
+                exec-path-from-shell expand-region flycheck-inline
+                flycheck-pos-tip geiser gotham-theme graphviz-dot-mode
+                highlight-parentheses highlight-symbol htmlize
+                ivy-prescient keycast lsp-ui magit
+                markdown-preview-mode multi-vterm orderless
+                org-bullets org-download org-modern paredit
+                prettier-js projectile rainbow-delimiters rainbow-mode
+                reveal-in-osx-finder rjsx-mode robe slime smartparens
+                solarized-theme spacemacs-theme typescript-mode vterm
+                vundo web-mode ws-butler yasnippet-snippets)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

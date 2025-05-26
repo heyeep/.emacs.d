@@ -244,8 +244,6 @@
   (lsp-markdown-renderer 'markdown)
   )
 
-(use-package markdown-mode :ensure t)
-
 ;; Highlight trailing whitespace, tabs, and long lines in programming modes
 (use-package whitespace
   :ensure nil
