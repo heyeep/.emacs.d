@@ -24,27 +24,54 @@
   ;; Auto-fill mode for wrapping text
   (add-hook 'markdown-mode-hook 'auto-fill-mode)
 
-  ;; Enable visual line mode for soft wrapping
-  (add-hook 'markdown-mode-hook 'visual-line-mode)
+  ;; Function to toggle between raw markdown and preview
+  (defun nh/markdown-toggle-preview ()
+    "Toggle between raw markdown and preview mode."
+    (interactive)
+    (if markdown-preview-mode
+        (progn
+          (markdown-preview-mode -1)
+          (message "Showing raw markdown"))
+      (progn
+        (markdown-preview-mode 1)
+        (message "Showing preview"))))
 
-  ;; Set up keybindings for markdown-mode (optional, customize as needed)
-  ;; (with-eval-after-load 'markdown-mode
-  ;;   (define-key markdown-mode-map (kbd "C-c C-p") 'markdown-preview-mode))
+  ;; Function to toggle markup hiding
+  (defun nh/markdown-toggle-markup-hiding ()
+    "Toggle hiding of markdown markup characters."
+    (interactive)
+    (if markdown-hide-markup
+        (progn
+          (setq markdown-hide-markup nil)
+          (markdown-toggle-markup-hiding 0)
+          (message "Markup visible"))
+      (progn
+        (setq markdown-hide-markup t)
+        (markdown-toggle-markup-hiding 1)
+        (message "Markup hidden"))))
+
+  ;; Set up keybindings for markdown-mode
+  (with-eval-after-load 'markdown-mode
+    (define-key markdown-mode-map (kbd "C-c C-p") 'nh/markdown-toggle-preview)
+    (define-key markdown-mode-map (kbd "C-c C-m") 'nh/markdown-toggle-markup-hiding))
+
+  ;; Enable markup hiding by default after mode is fully initialized
+  (add-hook 'markdown-mode-hook
+            (lambda ()
+              (run-with-idle-timer 0.1 nil
+                                  (lambda ()
+                                    (when (derived-mode-p 'markdown-mode)
+                                      (markdown-toggle-markup-hiding 1))))))
   )
 
 (use-package markdown-preview-mode
   :ensure t
-  :hook ((markdown-mode . markdown-preview-mode)
-         (gfm-mode . markdown-preview-mode))
   :config
   ;; Set the browser command for preview (optional, defaults to system default)
-  ;; (setq markdown-preview-mode-browser-command "firefox")
+  (setq markdown-preview-mode-browser-command "firefox")
 
   ;; Automatically refresh preview on buffer save
   (setq markdown-preview-mode-auto-refresh t)
-
-  ;; Set the port for the local server
-  ;; (setq markdown-preview-mode-port 8080)
   )
 
 (provide 'nh-markdown)
