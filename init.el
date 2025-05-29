@@ -1,22 +1,14 @@
 ;;; init.el --- Emacs configuration -*- lexical-binding: t; -*-
 
+;; Set up environment variables early
+;; (setenv "PATH" (concat "/opt/homebrew/bin:/opt/homebrew/sbin:" (getenv "PATH")))
+;; (setenv "SHELL" "/bin/zsh")
+
 ;;; Prevent package.el from automatically loading packages at startup
 (setq package-enable-at-startup nil)
 (setq load-prefer-newer t)
 
-;; (use-package exec-path-from-shell
-;;   :init
-;;   (setq exec-path-from-shell-check-startup-files nil)
-;;   (setq exec-path-from-shell-debug t)
-;;   (setq exec-path-from-shell-variables '(
-;;                                          "PATH"
-;;                                          "MANPATH"
-;;                                          "GEMINI_API_KEY"
-;;                                          ))
-;;   (exec-path-from-shell-initialize)
-;;   )
 ;;; Store installed packages in a versioned elpa directory for each Emacs major version
-
 (setq package-user-dir
       (format "%selpa/%s/" user-emacs-directory emacs-major-version))
 
@@ -30,7 +22,7 @@
             (setq gc-cons-percentage 0.1)))
 
 ;; Run garbage collection when Emacs loses focus
-(add-hook 'focus-out-hook #'garbage-collect)
+(add-hook 'focus-out-hooks #'garbage-collect-maybe)
 
 ;; Ensure our submodule version of transient is loaded FIRST.
 ;; This must go before normal-top-level-add-subdirs-to-load-path,
@@ -93,10 +85,6 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-;; Load helpers first to get utility functions
-(require 'nh-helpers)
-(require 'nh-commands)
-
 (add-hook 'after-init-hook
           (lambda ()
             (load "server") ;; server-running-p is not autoloaded.
@@ -104,8 +92,8 @@
               (server-start))
             ;; Load configuration files in explicit order
             (require 'nh-env)
-            (require 'nh-helpers)
             (require 'nh-default)
+            (require 'nh-helpers)
             (require 'nh-commands)
             (require 'nh-theme)
             (require 'nh-dired)
@@ -115,7 +103,7 @@
             (require 'nh-keybindings)
             (require 'nh-mouse)
             (require 'nh-org)
-            (require 'nh-copilot-ai)
+            ;;(require 'nh-copilot-ai)
             (require 'nh-aider) ; Added for Aidermacs configuration
             ;; Load all language-specific configuration files
             (nh/load-directory (expand-file-name "lang" user-emacs-directory))))
@@ -129,7 +117,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(company-show-quick-access t nil nil "Customized with use-package company")
+ '(company-show-quick-access t)
  '(custom-safe-themes
    '("7fd8b914e340283c189980cd1883dbdef67080ad1a3a9cc3df864ca53bdc89cf"
      "53a4efdca4c9fb870c3f92e4cfca0fbb638bb29b168a26a363298f9b1d9b9bcf"
@@ -140,18 +128,25 @@
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
  '(package-selected-packages
    '(ace-window ag all-the-icons-dired all-the-icons-ivy-rich cape
-                circadian copilot corfu counsel diminish
+                circadian copilot corfu counsel dape dape-chrome
+                dape-node dape-python dape-ruby diminish
                 dired-collapse dired-sidebar enh-ruby-mode
-                exec-path-from-shell expand-region flycheck-inline
-                flycheck-pos-tip geiser gotham-theme graphviz-dot-mode
-                highlight-parentheses highlight-symbol htmlize
-                ivy-prescient keycast lsp-ui magit
-                markdown-preview-mode multi-vterm orderless
-                org-bullets org-download org-modern paredit
-                prettier-js projectile rainbow-delimiters rainbow-mode
-                reveal-in-osx-finder rjsx-mode robe slime smartparens
-                solarized-theme spacemacs-theme typescript-mode vterm
-                vundo web-mode ws-butler yasnippet-snippets)))
+                exec-path-from-shell expand-region flycheck
+                flycheck-inline flycheck-pos-tip geiser gotham-theme
+                graphviz-dot-mode highlight-parentheses
+                highlight-symbol htmlize ivy ivy-prescient ivy-rich
+                js2-mode keycast lsp-mode lsp-ui magit
+                markdown-preview-mode multi-vterm ob orderless
+                org-bullets org-download org-modern org-roam
+                org-roam-bibtex org-roam-dailies org-roam-db
+                org-roam-export org-roam-migrate org-roam-protocol
+                org-roam-timestamps org-roam-ui org-tempo ox-latex
+                paredit pdf-tools prettier-js projectile
+                rainbow-delimiters rainbow-mode reveal-in-osx-finder
+                rjsx-mode robe slime smartparens solarized-theme
+                spacemacs-theme typescript-mode vterm vundo web-mode
+                ws-butler yasnippet yasnippet-snippets))
+ '(warning-suppress-types '((use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

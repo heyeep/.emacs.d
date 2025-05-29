@@ -202,16 +202,13 @@
   :ensure t
   :commands (lsp lsp-deferred) ; Autoload lsp and lsp-deferred commands
   ;; Hook LSP to start in programming modes. Use lsp-deferred for better startup performance.
-  :hook ((prog-mode . lsp-deferred)
-      ;;   (lsp-mode . lsp-lens-mode)
-         )
+  :hook ((prog-mode . lsp-deferred))
   :custom
   (lsp-completion-provider :capf) ; Use completion-at-point-functions for completions
   (lsp-eldoc-render-all nil)      ; Only show eldoc for symbol at point
   (lsp-idle-delay 0.500)          ; Delay before sending changes to server (in seconds)
   (lsp-signature-render-documentation t) ; Show function signature help with docs
   (lsp-headerline-breadcrumb-enable t)   ; Show file path and symbols in header line
-;;  (lsp-lens-enable t)
   :config
   ;; Map major modes to LSP language IDs for correct server selection
   (add-to-list 'lsp-language-id-configuration '(enh-ruby-mode . "ruby"))

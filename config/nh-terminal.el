@@ -5,6 +5,13 @@
 
 ;;; Code:
 
+;; Set up shell environment for vterm compilation
+(setenv "PATH" (concat "/opt/homebrew/bin:/opt/homebrew/sbin:" (getenv "PATH")))
+(setenv "SHELL" "/bin/zsh")
+
+;; Ensure CMake is available for vterm
+(setq vterm-cmake-path "/opt/homebrew/bin/cmake")
+
 (use-package vterm
   :ensure t
   :commands vterm

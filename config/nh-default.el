@@ -77,6 +77,7 @@
 
 ;;; Show line numbers in most buffers
 (global-display-line-numbers-mode 1)
+(setq display-line-numbers-type 'absolute)
 
 ;;; Disable line numbers in terminal and shell modes
 (dolist (mode '(term-mode shell-mode eshell-mode vterm-mode))
