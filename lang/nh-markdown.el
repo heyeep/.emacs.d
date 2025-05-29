@@ -38,17 +38,45 @@
 
   ;; Function to toggle markup hiding
   (defun nh/markdown-toggle-markup-hiding ()
-    "Toggle hiding of markdown markup characters."
+    "Toggle hiding of markdown markup characters.
+    This function switches between showing and hiding markdown syntax characters
+    like #, *, _, `, etc. When markup is hidden, you see the formatted text.
+    When markup is visible, you see the raw markdown syntax."
     (interactive)
+    ;; Check current state of markup hiding
     (if markdown-hide-markup
+        ;; If markup is currently hidden, show it
         (progn
           (setq markdown-hide-markup nil)
           (markdown-toggle-markup-hiding 0)
           (message "Markup visible"))
+      ;; If markup is currently visible, hide it
       (progn
         (setq markdown-hide-markup t)
         (markdown-toggle-markup-hiding 1)
         (message "Markup hidden"))))
+
+  ;; Function to show raw markdown when cursor is on a markdown block
+  (defun nh/markdown-show-raw-on-markup ()
+    "Show raw markdown when cursor is on a markdown block."
+    (when (derived-mode-p 'markdown-mode)
+      (let ((pos (point))
+            ;; Regexp to match markdown syntax characters, ensuring they're not escaped
+            ;; Matches: # (headers), * and _ (emphasis), ` (code), ~ (strikethrough), [] and () (links)
+            (markup-regexp "\\(^\\|[^\\]\\)\\([#*_`~]\\|\\[\\|\\]\\|(\\|)\\)"))
+        (save-excursion
+          ;; Move to start of current line to search from there
+          (beginning-of-line)
+          ;; Check if current line contains any markdown syntax
+          (if (re-search-forward markup-regexp (line-end-position) t)
+              ;; If we found markup on this line, show the raw markdown
+              (when markdown-hide-markup
+                (setq markdown-hide-markup nil)
+                (markdown-toggle-markup-hiding 0))
+            ;; If no markup found, hide the raw markdown to show formatted text
+            (unless markdown-hide-markup
+              (setq markdown-hide-markup t)
+              (markdown-toggle-markup-hiding 1)))))))
 
   ;; Set up keybindings for markdown-mode
   (with-eval-after-load 'markdown-mode
@@ -58,10 +86,15 @@
   ;; Enable markup hiding by default after mode is fully initialized
   (add-hook 'markdown-mode-hook
             (lambda ()
+              ;; Initialize with markup hidden by default
+              ;; Use idle timer to ensure mode is fully initialized
               (run-with-idle-timer 0.1 nil
                                   (lambda ()
                                     (when (derived-mode-p 'markdown-mode)
-                                      (markdown-toggle-markup-hiding 1))))))
+                                      (markdown-toggle-markup-hiding 1))))
+              ;; Add cursor movement hook to dynamically show/hide markup
+              ;; The 't' at the end makes this hook buffer-local (only affects current buffer)
+              (add-hook 'post-command-hook 'nh/markdown-show-raw-on-markup nil t)))
   )
 
 (use-package markdown-preview-mode
@@ -71,8 +104,7 @@
   (setq markdown-preview-mode-browser-command "firefox")
 
   ;; Automatically refresh preview on buffer save
-  (setq markdown-preview-mode-auto-refresh t)
-  )
+  (setq markdown-preview-mode-auto-refresh t))
 
 (provide 'nh-markdown)
 
