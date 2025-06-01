@@ -214,9 +214,10 @@
   (add-to-list 'lsp-language-id-configuration '(enh-ruby-mode . "ruby"))
   (add-to-list 'lsp-language-id-configuration '(ruby-mode . "ruby"))
   (add-to-list 'lsp-language-id-configuration '(typescript-mode . "typescript"))
+  (add-to-list 'lsp-language-id-configuration '(swift-mode . "swift"))
 
   ;; Only use these LSP clients
-  (setq lsp-enabled-clients '(ruby-lsp-ls ts-ls graphql-lsp eslint))
+  (setq lsp-enabled-clients '(ruby-lsp-ls ts-ls graphql-lsp eslint sourcekit-lsp))
   (setq lsp-warn-no-matched-clients nil)
   )
 

@@ -13,13 +13,27 @@
   :custom
   (copilot-idle-delay 0.2)
   (copilot-server-executable "/Users/hiep/.asdf/shims/copilot-language-server")
+  (copilot-enable-predicates '(copilot--buffer-changed))
+  (copilot-disable-predicates '(copilot--current-line-empty-p))
   :config
+  ;; Add error handling for server crashes
+  (defun nh/copilot-handle-server-error (err)
+    "Handle Copilot server errors gracefully."
+    (message "Copilot server error: %s" (error-message-string err))
+    (when (and (eq (car err) 'jsonrpc-error)
+               (string-match-p "Server died" (error-message-string err)))
+      (message "Attempting to restart Copilot server...")
+      (copilot--start-server)))
+  
+  (advice-add 'copilot--start-server :around
+              (lambda (orig-fun &rest args)
+                (condition-case err
+                    (apply orig-fun args)
+                  (error (nh/copilot-handle-server-error err)))))
+  
   ;; Accept Copilot suggestion with TAB
-  ;; (define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
-  ;; (define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion))
-  )
+  (define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion))
 
-
-
-  (provide 'nh-copilot-ai)
+(provide 'nh-copilot-ai)
 ;;; nh-copilot-ai.el ends here

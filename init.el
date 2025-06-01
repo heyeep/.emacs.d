@@ -103,8 +103,8 @@
             (require 'nh-keybindings)
             (require 'nh-mouse)
             (require 'nh-org)
-            ;;(require 'nh-copilot-ai)
-            (require 'nh-aider) ; Added for Aidermacs configuration
+            (require 'nh-copilot-ai)
+            (require 'nh-aider)
             ;; Load all language-specific configuration files
             (nh/load-directory (expand-file-name "lang" user-emacs-directory))))
 
@@ -127,24 +127,26 @@
      default))
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
  '(package-selected-packages
-   '(ace-window ag all-the-icons-dired all-the-icons-ivy-rich cape
-                circadian copilot corfu counsel dape dape-chrome
+   '(ace-window ag aidermacs all-the-icons-dired all-the-icons-ivy-rich
+                cape circadian copilot corfu counsel dape dape-chrome
                 dape-node dape-python dape-ruby diminish
                 dired-collapse dired-sidebar enh-ruby-mode
                 exec-path-from-shell expand-region flycheck
-                flycheck-inline flycheck-pos-tip geiser gotham-theme
-                graphviz-dot-mode highlight-parentheses
-                highlight-symbol htmlize ivy ivy-prescient ivy-rich
-                js2-mode keycast lsp-mode lsp-ui magit
-                markdown-preview-mode multi-vterm ob orderless
-                org-bullets org-download org-modern org-roam
-                org-roam-bibtex org-roam-dailies org-roam-db
-                org-roam-export org-roam-migrate org-roam-protocol
-                org-roam-timestamps org-roam-ui org-tempo ox-latex
-                paredit pdf-tools prettier-js projectile
-                rainbow-delimiters rainbow-mode reveal-in-osx-finder
-                rjsx-mode robe slime smartparens solarized-theme
-                spacemacs-theme typescript-mode vterm vundo web-mode
+                flycheck-inline flycheck-pos-tip format-all geiser
+                gotham-theme graphviz-dot-mode grip-mode
+                highlight-parentheses highlight-symbol htmlize ivy
+                ivy-prescient ivy-rich js2-mode keycast lsp-mode
+                lsp-ui magit markdown-live-preview-mode
+                markdown-preview-eww markdown-preview-mode mixed-pitch
+                multi-vterm ob orderless org-bullets org-download
+                org-modern org-roam org-roam-bibtex org-roam-dailies
+                org-roam-db org-roam-export org-roam-migrate
+                org-roam-protocol org-roam-timestamps org-roam-ui
+                org-tempo ox-latex paredit pdf-tools prettier-js
+                projectile rainbow-delimiters rainbow-mode
+                reveal-in-osx-finder rjsx-mode robe slime smartparens
+                solarized-theme spacemacs-theme swift-package-manager
+                swift-repl typescript-mode vterm vundo web-mode
                 ws-butler yasnippet yasnippet-snippets))
  '(warning-suppress-types '((use-package))))
 (custom-set-faces
@@ -152,4 +154,17 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(markdown-blockquote-face ((t (:inherit font-lock-comment-face :slant italic))))
+ '(markdown-bold-face ((t (:weight bold))))
+ '(markdown-code-face ((t (:inherit fixed-pitch :background "#f6f8fa"))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.8 :weight extra-bold))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.4 :weight bold))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.2 :weight bold))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :weight semi-bold))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 0.9))))
+ '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 0.8))))
+ '(markdown-inline-code-face ((t (:inherit fixed-pitch :background "#f6f8fa" :foreground "#e36209"))))
+ '(markdown-italic-face ((t (:slant italic))))
+ '(markdown-link-face ((t (:foreground "#0366d6" :underline t))))
+ '(markdown-pre-face ((t (:inherit fixed-pitch :background "#f6f8fa"))))
+ '(markdown-url-face ((t (:foreground "#6a737d" :height 0.8)))))

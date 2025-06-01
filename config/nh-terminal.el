@@ -25,7 +25,6 @@
 (use-package multi-vterm
   :ensure nil
   :after vterm
-  :defer t
   :config
   ;; Keybindings for multi-vterm navigation and creation
   (define-key vterm-mode-map (kbd "C-c n") 'multi-vterm-next)

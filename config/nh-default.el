@@ -45,6 +45,8 @@
   (setq exec-path-from-shell-check-startup-files nil)
   (exec-path-from-shell-initialize))
 
+(exec-path-from-shell-copy-envs '("PATH" "AIDER_API_KEY" "OPENAI_API_KEY"))
+
 ;;; Show pressed keys and commands in the header line using keycast
 (use-package keycast
   :ensure t

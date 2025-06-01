@@ -4,7 +4,6 @@
 (use-package aidermacs
   :ensure nil
   :defer t
-  :after (vterm multi-vterm)
   :bind (("C-c a" . aidermacs-transient-menu))
   :config
   :custom
@@ -14,7 +13,7 @@
 
   ;; Set the default model to use when Architect mode is not active,
   ;; or as the editor model if aidermacs-editor-model is not explicitly set.
-  (aidermacs-default-model "gemini/gemini-2.5-flash-preview-05-20")
+  (aidermacs-default-model "openai/gpt-4o")
 
   ;; Choose your preferred terminal backend. 'vterm' offers better compatibility.
   ;; Ensure 'vterm' is installed if you choose it.
