@@ -149,6 +149,16 @@
   :after flycheck
   :hook (flycheck-mode . flycheck-inline-mode))
 
+
+(use-package orderless
+  :ensure t
+  :custom
+  ;; Use orderless, with basic as a fallback. Basic is important for file paths.
+  (completion-styles '(orderless basic))
+  ;; For file paths, allow partial completion (e.g., "/u/s/b" for "/usr/share/bin")
+  ;; and don't use orderless for files, as it can be confusing.
+  (completion-category-overrides '((file (styles . (basic partial-completion))))))
+
 ;; Provides the in-buffer completion UI. Lightweight, fast, and overlays
 ;; completion candidates directly near your cursor.
 (use-package corfu
@@ -161,12 +171,18 @@
   (corfu-popupinfo-mode 1)       ;; Show detailed candidate info in a child frame/popup
   (corfu-popupinfo-delay '(0.5 . 0.2)) ;; Delay for full doc popup (if corfu-popupinfo-mode is on)
   (corfu-separator ?\s)          ;; Orderless field separator (for Orderless completion style)
-  ;; (corfu-quit-at-boundary 'separator) ;; Automatically quit at word boundary (e.g., space)
-  ;; (corfu-scroll-margin 5)        ;; Number of lines at top/bottom before scrolling popup
+  (corfu-quit-at-boundary 'separator) ;; Automatically quit at word boundary (e.g., space)
+  (corfu-scroll-margin 5)        ;; Number of lines at top/bottom before scrolling popup
   :init
   ;; (corfu-candidate-history-mode 1) ;; Optional: Enable candidate history
   :config
   (global-corfu-mode)            ;; Enable Corfu globally
+
+  ;; For tab completion, use corfu-complete
+  ;; (setq corfu-map (let ((map (make-sparse-keymap)))
+  ;;                   (define-key map (kbd "TAB") #'corfu-complete)
+  ;;                   (define-key map (kbd "<tab>") #'corfu-complete)
+  ;;                   map))
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook
             (lambda ()
@@ -179,13 +195,38 @@
   :init
   ;; Add desired completion sources to `completion-at-point-functions`
   ;; Order can matter for priority if multiple backends provide completions.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev) ; Dynamic abbreviations
-  (add-to-list 'completion-at-point-functions #'cape-file)    ; File paths
-  ;; (add-to-list 'completion-at-point-functions #'cape-keyword)  ; Keywords for current mode
+
+  ;; File paths
+  (add-to-list 'completion-at-point-functions #'cape-file)
+
+  ;; Dynamic abbreviations
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+
+  ;; Keywords for current mode
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+
+  ;; (add-to-list 'completion-at-point-functions (cape-super-capf #'cape-dabbrev #'cape-keyword))
   ;; (add-to-list 'completion-at-point-functions #'cape-elisp-block) ; Elisp symbols
   ;; Consider adding other cape functions based on your needs:
   ;; cape-ispell, cape-tex, cape-sgml, cape-rfc1345, cape-abbrev, cape-dict, cape-symbol
+  :config
+   (add-hook 'emacs-lisp-mode-hook
+            (lambda ()
+              ;; `cape-elisp-symbol` completes Elisp symbols from current buffer & loaded libs.
+              ;; `cape-elisp-block` completes Elisp code blocks.
+              ;; `cape-symbol` completes symbols from all buffers matching the current mode.
+              (add-to-list 'completion-at-point-functions #'cape-elisp-symbol t)
+              ;; The 't' appends it to the local completion-at-point-functions,
+              ;; which is often preferred for mode-specific additions.
+              ))
   )
+
+;; For better icons in Corfu and Cape completions
+(use-package kind-icon
+  :ensure t
+  :after corfu ; Or :after cape, if cape initializes things kind-icon might use
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package yasnippet
   :ensure t
@@ -202,7 +243,9 @@
   :ensure t
   :commands (lsp lsp-deferred) ; Autoload lsp and lsp-deferred commands
   ;; Hook LSP to start in programming modes. Use lsp-deferred for better startup performance.
-  :hook ((prog-mode . lsp-deferred))
+  :hook ((prog-mode . (lambda ()
+                        (unless (derived-mode-p 'emacs-lisp-mode)
+                          (lsp-deferred)))))
   :custom
   (lsp-completion-provider :capf) ; Use completion-at-point-functions for completions
   (lsp-eldoc-render-all nil)      ; Only show eldoc for symbol at point
@@ -210,37 +253,38 @@
   (lsp-signature-render-documentation t) ; Show function signature help with docs
   (lsp-headerline-breadcrumb-enable t)   ; Show file path and symbols in header line
   :config
-  ;; Map major modes to LSP language IDs for correct server selection
-  (add-to-list 'lsp-language-id-configuration '(enh-ruby-mode . "ruby"))
-  (add-to-list 'lsp-language-id-configuration '(ruby-mode . "ruby"))
-  (add-to-list 'lsp-language-id-configuration '(typescript-mode . "typescript"))
-  (add-to-list 'lsp-language-id-configuration '(swift-mode . "swift"))
 
-  ;; Only use these LSP clients
-  (setq lsp-enabled-clients '(ruby-lsp-ls ts-ls graphql-lsp eslint sourcekit-lsp))
-  (setq lsp-warn-no-matched-clients nil)
-  )
+  (add-to-list 'lsp-language-id-configuration '(enh-ruby-mode . "ruby"))
+  (add-to-list 'lsp-disabled-clients 'rubocop-ls) ; Disable the standalone rubocop-ls
+;;  (setq lsp-enabled-clients listp t)
+  (setq lsp-warn-no-matched-clients t)
+
+  (require 'lsp-headerline)
+  (require 'lsp-modeline)
+  (require 'lsp-lens)
+  (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+  (add-hook 'lsp-mode-hook #'lsp-modeline-workspace-status-mode)
+  (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode))
 
 ;; Provides richer UI elements like sidelines, documentation popups, etc.
 ;; Can be resource-intensive for some or visually busy; enable if you like it.
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode
-  :after lsp-mode
-  :hook (lsp-mode . lsp-ui-mode) ; Hook to lsp-mode to enable automatically
-  :custom
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-position 'at-point)       ; or 'top, 'bottom, 'window
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-peek-enable t)              ; For peek definition/references
-  (lsp-ui-imenu-enable t)             ; For imenu integration
-  (lsp-ui-doc-header t)
-  (lsp-ui-doc-include-signature t)
-  (lsp-enable-markdown t)
-  (lsp-markdown-renderer 'markdown)
-  )
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :commands lsp-ui-mode
+;;   :after lsp-mode
+;;   :hook (lsp-mode . lsp-ui-mode) ; Hook to lsp-mode to enable automatically
+;;   :custom
+;;   (lsp-ui-doc-enable t)
+;;   (lsp-ui-doc-position 'at-point)       ; or 'top, 'bottom, 'window
+;;   (lsp-ui-sideline-show-diagnostics t)
+;;   (lsp-ui-sideline-show-hover t)
+;;   (lsp-ui-sideline-show-code-actions t)
+;;   (lsp-ui-peek-enable t)              ; For peek definition/references
+;;   (lsp-ui-imenu-enable t)             ; For imenu integration
+;;   (lsp-ui-doc-header t)
+;;   (lsp-ui-doc-include-signature t)
+;;   (lsp-enable-markdown t)
+;;   (lsp-markdown-renderer 'markdown))
 
 ;; Highlight trailing whitespace, tabs, and long lines in programming modes
 (use-package whitespace
@@ -257,11 +301,5 @@
   :config
   (setq ws-butler-keep-whitespace-before-point nil)
   (ws-butler-global-mode))
-
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic)) ; Add orderless to completion styles
-  (orderless-matching-styles '(orderless-regexp))) ; or orderless-literal, orderless-flex
 
 (provide 'nh-autocompletion)

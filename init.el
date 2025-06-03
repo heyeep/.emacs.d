@@ -104,7 +104,7 @@
             (require 'nh-mouse)
             (require 'nh-org)
             (require 'nh-copilot-ai)
-            (require 'nh-aider)
+            (require 'nh-aider-ai)
             ;; Load all language-specific configuration files
             (nh/load-directory (expand-file-name "lang" user-emacs-directory))))
 
@@ -145,9 +145,10 @@
                 org-tempo ox-latex paredit pdf-tools prettier-js
                 projectile rainbow-delimiters rainbow-mode
                 reveal-in-osx-finder rjsx-mode robe slime smartparens
-                solarized-theme spacemacs-theme swift-package-manager
-                swift-repl typescript-mode vterm vundo web-mode
-                ws-butler yasnippet yasnippet-snippets))
+                solarized-theme spacemacs-theme swift-mode
+                swift-package-manager swift-repl typescript-mode vterm
+                vundo web-mode ws-butler yasnippet yasnippet-snippets))
+ '(warning-suppress-log-types '((copilot copilot-no-mode-indent)))
  '(warning-suppress-types '((use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

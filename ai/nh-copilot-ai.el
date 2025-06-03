@@ -24,16 +24,23 @@
                (string-match-p "Server died" (error-message-string err)))
       (message "Attempting to restart Copilot server...")
       (copilot--start-server)))
-  
+
   (advice-add 'copilot--start-server :around
               (lambda (orig-fun &rest args)
                 (condition-case err
                     (apply orig-fun args)
                   (error (nh/copilot-handle-server-error err)))))
-  
+
+  (advice-add 'copilot--infer-indentation-offset :around
+              (lambda (orig-fn &rest args)
+                (ignore-errors
+                  (apply orig-fn args))))
+
   ;; Accept Copilot suggestion with TAB
   (define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
   (define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion))
 
+(setq copilot-indent-offset nil)
+(defun copilot--infer-indentation-offset () nil)
 (provide 'nh-copilot-ai)
 ;;; nh-copilot-ai.el ends here
