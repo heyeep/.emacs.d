@@ -126,28 +126,7 @@
      "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
- '(package-selected-packages
-   '(ace-window ag aidermacs all-the-icons-dired all-the-icons-ivy-rich
-                cape circadian copilot corfu counsel dape dape-chrome
-                dape-node dape-python dape-ruby diminish
-                dired-collapse dired-sidebar enh-ruby-mode
-                exec-path-from-shell expand-region flycheck
-                flycheck-inline flycheck-pos-tip format-all geiser
-                gotham-theme graphviz-dot-mode grip-mode
-                highlight-parentheses highlight-symbol htmlize ivy
-                ivy-prescient ivy-rich js2-mode keycast lsp-mode
-                lsp-ui magit markdown-live-preview-mode
-                markdown-preview-eww markdown-preview-mode mixed-pitch
-                multi-vterm ob orderless org-bullets org-download
-                org-modern org-roam org-roam-bibtex org-roam-dailies
-                org-roam-db org-roam-export org-roam-migrate
-                org-roam-protocol org-roam-timestamps org-roam-ui
-                org-tempo ox-latex paredit pdf-tools prettier-js
-                projectile rainbow-delimiters rainbow-mode
-                reveal-in-osx-finder rjsx-mode robe slime smartparens
-                solarized-theme spacemacs-theme swift-mode
-                swift-package-manager swift-repl typescript-mode vterm
-                vundo web-mode ws-butler yasnippet yasnippet-snippets))
+ '(package-selected-packages nil)
  '(warning-suppress-log-types '((copilot copilot-no-mode-indent)))
  '(warning-suppress-types '((use-package))))
 (custom-set-faces

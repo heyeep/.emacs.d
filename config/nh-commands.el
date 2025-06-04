@@ -100,8 +100,8 @@ Prefers Helm, then Ivy, then Ido, then vanilla Emacs."
    ((bound-and-true-p helm-mode)
     (helm-recentf))
    ;; If Ivy is active, use counsel-recentf
-   ((bound-and-true-p ivy-mode)
-    (counsel-recentf))
+   ;; ((bound-and-true-p ivy-mode)
+   ;;  (counsel-recentf))
    ;; If Ido is active, use ido-recentf-open
    ((bound-and-true-p ido-mode)
     (ido-recentf-open))
@@ -118,8 +118,8 @@ Prefers Helm, then Ivy, then Ido, then vanilla Emacs."
    ((bound-and-true-p helm-mode)
     (helm-buffers-list))
    ;; If Ivy is active, use ivy-switch-buffer
-   ((bound-and-true-p ivy-mode)
-    (ivy-switch-buffer))
+   ;; ((bound-and-true-p ivy-mode)
+   ;;  (ivy-switch-buffer))
    ;; If Ido is active, use ido-switch-buffer
    ((bound-and-true-p ido-mode)
     (ido-switch-buffer))

@@ -28,7 +28,9 @@
                            ".dir-locals.el" ; Directory local variables
                            ".elc" ; Compiled Emacs Lisp files
                            ".aider*" ; Aider related files/dirs
-                           "eln-*" ; Native compilation files
+                                                      ".smex-items"
+                                                      ".zcompdump" ;
+                                                      "eln-*" ; Native compilation files
                            )))
   )
 
