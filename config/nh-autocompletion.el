@@ -12,9 +12,7 @@
   :group 'convenience
   :prefix "nh-")
 
-;; ===== GLOBAL FILE EXCLUSION CONFIGURATION =====
-
-(defcustom nh-globally-ignored-directories
+(defcustom nh/globally-ignored-directories
   '("node_modules" "dist" "build" "target" "__pycache__")
   "Directories to exclude globally from all file operations in Emacs.
 These directories are excluded from:
@@ -24,8 +22,8 @@ These directories are excluded from:
   :type '(repeat string)
   :group 'nh-autocompletion)
 
-(defcustom nh-globally-ignored-file-extensions
-  '(".elc" ".pyc" ".min.js" ".min.css" ".bundle.js" ".chunk.js")
+(defcustom nh/globally-ignored-file-extensions
+  '(".elc" ".pyc" ".min.js" ".min.css" ".bunqdle.js" ".chunk.js")
   "File extensions to exclude globally from completion.
 These are added to `completion-ignored-extensions'."
   :type '(repeat string)
@@ -34,54 +32,52 @@ These are added to `completion-ignored-extensions'."
 ;; Command builders for different tools
 (defun nh--build-find-command ()
   "Build find command arguments as a list for consult-find."
-  (append 
+  (append
    '("find" "." "-type" "f")
-   (mapcan (lambda (dir) 
+   (mapcan (lambda (dir)
              (list "-not" "-path" (format "*/%s/*" dir)))
-           nh-globally-ignored-directories)))
+           nh/globally-ignored-directories)))
 
 (defun nh--build-fd-command ()
   "Build fd command arguments as a list for consult-fd."
-  (append 
+  (append
    '("fd" "--type" "f" "--hidden" "--follow" "--color=never")
    (mapcan (lambda (dir) (list "--exclude" dir))
-           nh-globally-ignored-directories)))
+           nh/globally-ignored-directories)))
 
 (defun nh--build-ripgrep-command ()
   "Build ripgrep command arguments as a list for consult-ripgrep."
   (append
-   '("rg" "--null" "--line-buffered" "--color=never" "--max-columns=1000" 
+   '("rg" "--null" "--line-buffered" "--color=never" "--max-columns=1000"
      "--path-separator=/" "--smart-case" "--no-heading" "--line-number")
    (mapcan (lambda (dir) (list "--glob" (format "!%s" dir)))
-           nh-globally-ignored-directories)))
+           nh/globally-ignored-directories)))
 
 ;; Apply global exclusions to completion systems
 (defun nh--configure-global-completion ()
   "Configure global file completion to respect our exclusion patterns."
   ;; Add file extensions to global ignore list
   (setq completion-ignored-extensions
-        (append completion-ignored-extensions nh-globally-ignored-file-extensions))
-  
+        (append completion-ignored-extensions nh/globally-ignored-file-extensions))
+
   ;; Configure ido if present
   (when (boundp 'ido-ignore-directories)
     (setq ido-ignore-directories
-          (append ido-ignore-directories nh-globally-ignored-directories))))
+          (append ido-ignore-directories nh/globally-ignored-directories))))
 
 ;; Helper function for building shell command strings (for projectile)
 (defun nh--build-fd-shell-command ()
   "Build fd shell command string for projectile."
   (mapconcat (lambda (dir) (format "--exclude %s" dir))
-             nh-globally-ignored-directories " "))
+             nh/globally-ignored-directories " "))
 
 (defun nh--build-ripgrep-shell-command ()
   "Build ripgrep shell command string for projectile."
   (mapconcat (lambda (dir) (format "--glob '!%s'" dir))
-             nh-globally-ignored-directories " "))
+             nh/globally-ignored-directories " "))
 
 ;; Initialize global completion configuration
 (nh--configure-global-completion)
-
-;; ===== VERTICO AND COMPLETION FRAMEWORK =====
 
 ;; Vertico: Vertical completion UI
 (use-package vertico
@@ -248,7 +244,7 @@ These are added to `completion-ignored-extensions'."
   (setq consult-find-args (nh--build-find-command))
   (setq consult-fd-args (nh--build-fd-command))
   (setq consult-ripgrep-args (nh--build-ripgrep-command))
-  
+
   ;; Make search results appear immediately (like Ivy/Swiper)
   (setq consult-async-min-input 0)           ;; Start searching immediately, no minimum input
   (setq consult-async-input-throttle 0.1)    ;; Very fast response time
@@ -278,8 +274,6 @@ These are added to `completion-ignored-extensions'."
 (use-package ag
   :ensure t)
 
-;; ===== PROJECT MANAGEMENT =====
-
 ;; Projectile: Project management and navigation
 (use-package projectile
   :ensure t
@@ -293,24 +287,22 @@ These are added to `completion-ignored-extensions'."
         projectile-indexing-method 'alien)
   :config
   ;; Apply global exclusions to projectile
-  (dolist (dir nh-globally-ignored-directories)
+  (dolist (dir nh/globally-ignored-directories)
     (add-to-list 'projectile-globally-ignored-directories dir))
-  (dolist (pattern nh-globally-ignored-file-extensions)
+  (dolist (pattern nh/globally-ignored-file-extensions)
     (add-to-list 'projectile-globally-ignored-files pattern))
-  
+
   ;; Configure projectile to use better tools with exclusions
   (when (executable-find "fd")
-    (setq projectile-generic-command 
+    (setq projectile-generic-command
           (concat "fd . --type f --color=never " (nh--build-fd-shell-command))))
   (when (and (not (executable-find "fd")) (executable-find "rg"))
-    (setq projectile-generic-command 
+    (setq projectile-generic-command
           (concat "rg --files --color=never " (nh--build-ripgrep-shell-command))))
-  
+
   ;; Warn if external 'ag' tool is missing
   (unless (executable-find "ag")
     (message "[Projectile] Warning: 'ag' (The Silver Searcher) is not installed.")))
-
-;; ===== CODE QUALITY AND SYNTAX CHECKING =====
 
 ;; On-the-fly syntax checking
 (use-package flycheck
@@ -333,14 +325,14 @@ These are added to `completion-ignored-extensions'."
   :config
   ;; Enable more comprehensive checking for Elisp
   (setq flycheck-emacs-lisp-check-declare t)          ;; Check declare-function statements
-  
+
   ;; Always pop up the Flycheck errors buffer when there are errors
   (add-to-list 'display-buffer-alist
                '("\\*Flycheck errors\\*" (display-buffer-pop-up-window)))
   ;; Always pop up the Warnings buffer when there are warnings
   (add-to-list 'display-buffer-alist
                '("\\*Warnings\\*" (display-buffer-pop-up-window)))
-               
+
   ;; Elisp-specific enhancements
   (add-hook 'emacs-lisp-mode-hook
             (lambda ()
@@ -376,7 +368,7 @@ These are added to `completion-ignored-extensions'."
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook
             (lambda ()
-              (add-to-list 'completion-at-point-functions #'cape-symbol))))
+              (add-to-list 'completion-at-point-functions #'cape-elisp-symbol))))
 
 ;; Provides completion backends (sources) for Corfu by extending Emacs's
 ;; built-in completion-at-point-functions (CAPF).
@@ -392,14 +384,14 @@ These are added to `completion-ignored-extensions'."
   ;; Dynamic abbreviations
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
 
-  ;; Keywords for current mode
+  :config
+  ;; Keywords for current mode (now safely available)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
 
   ;; (add-to-list 'completion-at-point-functions (cape-super-capf #'cape-dabbrev #'cape-keyword))
   ;; (add-to-list 'completion-at-point-functions #'cape-elisp-block) ; Elisp symbols
   ;; Consider adding other cape functions based on your needs:
   ;; cape-ispell, cape-tex, cape-sgml, cape-rfc1345, cape-abbrev, cape-dict, cape-symbol
-  :config
    (add-hook 'emacs-lisp-mode-hook
             (lambda ()
               ;; `cape-elisp-symbol` completes Elisp symbols from current buffer & loaded libs.
@@ -413,8 +405,6 @@ These are added to `completion-ignored-extensions'."
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-;; ===== SNIPPETS =====
-
 (use-package yasnippet
   :ensure t
   :config
@@ -425,8 +415,6 @@ These are added to `completion-ignored-extensions'."
     :after yasnippet
     :config
     (yasnippet-snippets-initialize)))
-
-;; ===== LANGUAGE SERVER PROTOCOL =====
 
 (use-package lsp-mode
   :ensure t
@@ -441,22 +429,79 @@ These are added to `completion-ignored-extensions'."
   (lsp-signature-render-documentation t)
   (lsp-headerline-breadcrumb-enable t)
   :config
-  (add-to-list 'lsp-language-id-configuration '(enh-ruby-mode . "ruby"))
-  (add-to-list 'lsp-disabled-clients 'rubocop-ls)
+
+  (setq lsp-disabled-clients '(rubocop-ls sorbet-ls typeprof-ls steep-ls ruby-syntax-tree-ls semgrep-ls))
   (setq lsp-warn-no-matched-clients t)
-  
+
   (require 'lsp-headerline)
   (require 'lsp-modeline)
   (require 'lsp-lens)
   (add-hook 'lsp-mode-hook #'lsp-lens-mode)
   (add-hook 'lsp-mode-hook #'lsp-modeline-workspace-status-mode)
-  (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode))
+  (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 
-;; ===== CODE FORMATTING AND CLEANUP =====
+  ;; Configure LSP UI features
+  (setq lsp-modeline-code-actions-enable t)
+  (setq lsp-modeline-diagnostics-enable t)
+  (setq lsp-signature-auto-activate t)
+  (setq lsp-signature-render-documentation t)
+  (setq lsp-hover-enable t)
+  (setq lsp-eldoc-enable-hover t))
+
+;; LSP UI: Enhanced UI for LSP diagnostics and other features
+(use-package lsp-ui
+  :ensure t
+  :after lsp-mode
+  :custom
+  ;; LSP UI Doc settings
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-cursor nil)
+  (lsp-ui-doc-show-with-mouse t)
+  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-max-width 120)
+  (lsp-ui-doc-max-height 15)
+  (lsp-ui-doc-use-childframe t)
+  (lsp-ui-doc-use-webkit nil)
+
+  ;; LSP UI Flycheck (diagnostics) settings
+  (lsp-ui-flycheck-enable t)
+  (lsp-ui-flycheck-list-position 'right)
+  (lsp-ui-flycheck-live-reporting t)
+
+  ;; LSP UI Sideline settings
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-symbol t)
+  (lsp-ui-sideline-ignore-duplicate t)
+  (lsp-ui-sideline-delay 0.5)
+
+  ;; LSP UI Peek settings
+  (lsp-ui-peek-enable t)
+  (lsp-ui-peek-peek-height 20)
+  (lsp-ui-peek-list-width 50)
+  (lsp-ui-peek-fontify 'on-demand)
+
+  ;; LSP UI Imenu settings
+  (lsp-ui-imenu-enable t)
+  (lsp-ui-imenu-kind-position 'top)
+
+  :bind (:map lsp-ui-mode-map
+              ("C-c l d" . lsp-ui-doc-show)
+              ("C-c l D" . lsp-ui-doc-hide)
+              ("C-c l f" . lsp-ui-flycheck-list)
+              ("C-c l i" . lsp-ui-imenu)
+              ("C-c l r" . lsp-ui-peek-find-references)
+              ("C-c l s" . lsp-ui-peek-find-workspace-symbol)
+              ("C-c l ." . lsp-ui-peek-find-definitions)
+              ("C-c l I" . lsp-ui-peek-find-implementation))
+
+  :hook (lsp-mode . lsp-ui-mode))
 
 ;; Highlight trailing whitespace, tabs, and long lines in programming modes
 (use-package whitespace
-  :ensure nil
+  :ensure nli
   :init
   (add-hook 'prog-mode-hook #'whitespace-mode)
   :config
@@ -470,10 +515,8 @@ These are added to `completion-ignored-extensions'."
   (setq ws-butler-keep-whitespace-before-point nil)
   (ws-butler-global-mode))
 
-;; ===== CUSTOM FUNCTIONS =====
-
 ;; Reverse search function
-(defun nh-consult-line-reverse ()
+(defun nh/consult-line-reverse ()
   "Search backwards using consult-line."
   (interactive)
   (let ((current-line (line-number-at-pos))
@@ -485,38 +528,33 @@ These are added to `completion-ignored-extensions'."
       (isearch-backward))))
 
 ;; Project-specific ripgrep function
-(defun nh-consult-ripgrep-project ()
+(defun nh/consult-ripgrep-project ()
   "Run `consult-ripgrep` in the project root, or current directory if no project."
   (interactive)
   (if-let ((project (project-current)))
       (consult-ripgrep (project-root project))
     (consult-ripgrep default-directory)))
 
-;; ===== GLOBAL KEYBINDINGS =====
-
 ;; Global keybindings
-(global-set-key (kbd "C-r") #'nh-consult-line-reverse)
-(global-set-key (kbd "C-c p s") #'nh-consult-ripgrep-project)
+(global-set-key (kbd "C-r") #'nh/consult-line-reverse)
+(global-set-key (kbd "C-c p s") #'nh/consult-ripgrep-project)
 
 ;; Add convenience bindings in isearch-mode for transitioning to consult
 (define-key isearch-mode-map (kbd "M-s l") #'consult-line)
 (define-key isearch-mode-map (kbd "M-s L") #'consult-line-multi)
 
 ;; Enhance minibuffer history
-(define-key minibuffer-local-map (kbd "M-s") #'consult-history)
 (define-key minibuffer-local-map (kbd "M-r") #'consult-history)
 
-;; ===== COMMAND HISTORY ENHANCEMENTS =====
-
 ;; Function to show M-x command history
-(defun nh-show-command-history ()
+(defun nh/show-command-history ()
   "Show the extended command history (M-x history)."
   (interactive)
   (let ((command (completing-read "Recent commands: " extended-command-history)))
     (command-execute (intern command))))
 
 ;; Function to clear specific histories
-(defun nh-clear-command-history ()
+(defun nh/clear-command-history ()
   "Clear the M-x command history."
   (interactive)
   (when (yes-or-no-p "Clear M-x command history? ")
@@ -524,28 +562,22 @@ These are added to `completion-ignored-extensions'."
     (message "M-x command history cleared")))
 
 ;; Better M-x that shows recent commands first
-(defun nh-execute-extended-command ()
+(defun nh/execute-extended-command ()
   "Execute extended command with history prioritized."
   (interactive)
-  (let* ((history-commands (seq-filter (lambda (cmd) 
+  (let* ((history-commands (seq-filter (lambda (cmd)
                                          (and (symbolp (intern-soft cmd))
                                               (commandp (intern-soft cmd))))
                                        extended-command-history))
          (all-commands (all-completions "" obarray 'commandp))
          ;; Put history commands first, then remaining commands
-         (sorted-commands (append history-commands 
+         (sorted-commands (append history-commands
                                   (seq-difference all-commands history-commands)))
          (command (completing-read "M-x " sorted-commands nil t nil 'extended-command-history)))
     (command-execute (intern command))))
 
-;; Keybindings for history functions
-(global-set-key (kbd "C-c x h") #'nh-show-command-history)
-(global-set-key (kbd "C-c x c") #'nh-clear-command-history)
-
 ;; Replace default M-x with enhanced version that shows history first
-(global-set-key (kbd "M-x") #'nh-execute-extended-command)
-
-;; ===== COMPLETION FRAMEWORK CONFIGURATION =====
+(global-set-key (kbd "M-x") #'nh/execute-extended-command)
 
 ;; Enable recursive minibuffers and depth indication
 (setq enable-recursive-minibuffers t)
@@ -553,7 +585,7 @@ These are added to `completion-ignored-extensions'."
 
 ;; Configure completion behavior for fast, responsive interaction
 (setq completion-show-inline-help nil      ;; Don't show help immediately
-      completion-auto-help t               ;; Show completions immediately  
+      completion-auto-help t               ;; Show completions immediately
       completion-cycle-threshold 1         ;; Enable TAB cycling with just 1 candidate
       completions-detailed t               ;; Show detailed completions when available
       completion-show-help t               ;; Show completions right away
@@ -562,7 +594,7 @@ These are added to `completion-ignored-extensions'."
       completion-ignore-case t
       completion-auto-select nil           ;; Don't auto-select first completion
       completions-format 'one-column       ;; Better display format
-      tab-always-indent 'complete)         ;; Make TAB always try completion
+      tab-always-indent t)                 ;; Make TAB indent first, then complete if already indented
 
 ;; NOTE: Elisp-specific development configuration is now in lang/nh-elisp.el
 
