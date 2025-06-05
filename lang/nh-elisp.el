@@ -6,15 +6,25 @@
 
 ;;; Code:
 
-;; Required for bind-keys macro
 (require 'bind-key)
 
-;; ===== ENHANCED ELISP MODE CONFIGURATION =====
-
+;; Built-in Emacs Lisp mode enhancements
+;; Provides syntax highlighting, indentation, and core editing features
 (use-package elisp-mode
   :ensure nil
   :config
-  ;; Auto-recompile .elc files when .el files are saved
+  ;; Enhanced evaluation and debugging settings for better development experience
+  (setq load-prefer-newer t                        ;; Prefer newer .el over .elc files
+        edebug-trace nil                           ;; Don't trace by default
+        edebug-print-length 80                     ;; Longer print length for debugging
+        eval-expression-print-length 50            ;; More generous printing in eval
+        eval-expression-print-level 10)            ;; Allow deeper nesting in eval output
+
+  ;; Enhanced debugger settings for Emacs 30.1
+  (when (boundp 'debugger-stack-frame-as-list)
+    (setq debugger-stack-frame-as-list t))
+
+  ;; Auto-recompile .elc files when .el files are saved for faster loading
   (defun nh/recompile-elc-on-save ()
     "If there is a corresponding elc file, recompile after save."
     (when (and buffer-file-name
@@ -23,30 +33,65 @@
       (byte-compile-file buffer-file-name)
       (message "Recompiled %s" (file-name-nondirectory buffer-file-name))))
 
-  ;; Better evaluation and debugging settings
-  (setq load-prefer-newer t)                        ;; Prefer newer .el over .elc
-  (setq edebug-trace nil)                           ;; Don't trace by default
-  (setq edebug-print-length 80)                     ;; Longer print length for debugging
-  (setq eval-expression-print-length 50)            ;; More generous printing
-  (setq eval-expression-print-level 10)             ;; Deeper nesting allowed
-  
-  ;; Enhanced debugger settings for Emacs 30.1
-  (when (boundp 'debugger-stack-frame-as-list)
-    (setq debugger-stack-frame-as-list t))
-  
-  ;; Add auto-recompile to emacs-lisp-mode
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda ()
-              (add-hook 'after-save-hook #'nh/recompile-elc-on-save nil t))))
+  :hook ((emacs-lisp-mode . (lambda ()
+                              ;; Enhanced indentation and formatting
+                              (setq-local indent-tabs-mode nil
+                                          tab-width 2)
 
-;; ===== VISUAL FEEDBACK FOR EVALUATION =====
+                              ;; Enhanced function signature display
+                              (when (fboundp 'eldoc-mode)
+                                (eldoc-mode 1)
+                                (setq-local eldoc-idle-delay 0.2))
 
-;; Visual feedback when evaluating expressions
+                              ;; Enable outline minor mode for better code navigation
+                              (outline-minor-mode 1)
+                              (setq-local outline-regexp ";;;\\(;* \\)")
+
+                              ;; Enhanced font-lock for development keywords
+                              (font-lock-add-keywords
+                               nil
+                               '(("\\<\\(FIXME\\|TODO\\|BUG\\|HACK\\|NOTE\\|XXX\\|TEMP\\|KLUDGE\\):"
+                                  1 'font-lock-warning-face t)
+                                 ("'\\(\\sw\\|\\s_\\)+" . 'font-lock-constant-face)))
+
+                              ;; Auto-recompile setup
+                              (add-hook 'after-save-hook #'nh/recompile-elc-on-save nil t)))
+
+         (lisp-interaction-mode . (lambda ()
+                                    ;; Enable eldoc in scratch buffer for function signatures
+                                    (when (fboundp 'eldoc-mode)
+                                      (eldoc-mode 1)))))
+
+  ;; Enhanced evaluation keybindings with better error handling
+  :bind (:map emacs-lisp-mode-map
+              ("C-c e e" . eval-last-sexp)
+              ("C-c e E" . nh/eval-last-sexp-with-error-display)
+              ("C-c e b" . nh/eval-buffer-with-feedback)
+              ("C-c e r" . eval-region)
+              ("C-c e R" . nh/eval-and-replace)
+              ("C-c e f" . eval-defun)
+              ("C-c e x" . edebug-defun)
+              ("C-c e u" . edebug-remove-instrumentation)
+              ("C-c e p" . pp-eval-last-sexp)
+              ("C-c e P" . pp-eval-expression)
+              ("C-c e l" . nh/elisp-find-library)
+              ("C-c e i" . nh/elisp-insert-header)
+              ("C-c e c" . nh/elisp-byte-compile-and-load)
+              :map lisp-interaction-mode-map
+              ("C-c e e" . eval-last-sexp)
+              ("C-c e E" . nh/eval-last-sexp-with-error-display)
+              ("C-c e b" . nh/eval-buffer-with-feedback)
+              ("C-c e R" . nh/eval-and-replace)))
+
+;; Eval Sexp Fu: Visual feedback when evaluating expressions
+;; Provides visual highlighting when evaluating Lisp expressions
+;; https://github.com/hchbaw/eval-sexp-fu.el
 (use-package eval-sexp-fu
   :ensure t
   :hook ((emacs-lisp-mode . eval-sexp-fu-flash-mode)
          (lisp-interaction-mode . eval-sexp-fu-flash-mode))
   :config
+  ;; Automatically adjust highlighting colors to match current theme
   (defun nh/eval-sexp-fu-set-face ()
     "Set `eval-sexp-fu' face to match current theme."
     (set-face-attribute 'eval-sexp-fu-flash nil
@@ -54,13 +99,14 @@
                         :foreground (face-attribute 'default :foreground)
                         :weight 'bold
                         :underline t))
-  
+
   (nh/eval-sexp-fu-set-face)
   (add-hook 'after-load-theme-hook #'nh/eval-sexp-fu-set-face))
 
-;; ===== ENHANCED NAVIGATION =====
-
-;; Enhanced navigation for Elisp symbols (like SLIME for Common Lisp)
+;; Elisp Slime Nav: Enhanced navigation for Elisp symbols
+;; Provides SLIME-like navigation features for Emacs Lisp development
+;; Jump to definitions and get documentation for symbols
+;; https://github.com/purcell/elisp-slime-nav
 (use-package elisp-slime-nav
   :ensure t
   :diminish elisp-slime-nav-mode
@@ -70,50 +116,49 @@
               ("C-c e d" . elisp-slime-nav-find-elisp-thing-at-point)
               ("C-c e h" . elisp-slime-nav-describe-elisp-thing-at-point))
   :config
-  ;; Auto-focus help window after opening documentation
+  ;; Auto-focus help window after opening documentation for better UX
   (advice-add 'elisp-slime-nav-describe-elisp-thing-at-point
               :after (lambda (&rest _)
                        (when (get-buffer "*Help*")
                          (pop-to-buffer "*Help*")))))
 
-;; Find references to Elisp symbols
+;; Elisp Refs: Find references to Elisp symbols
+;; Search for references to functions, variables, and other symbols
+;; Useful for understanding code dependencies and usage
+;; https://github.com/Wilfred/elisp-refs
 (use-package elisp-refs
   :ensure t
   :bind (:map emacs-lisp-mode-map
-              ("C-c e r f" . elisp-refs-function)
-              ("C-c e r v" . elisp-refs-variable)
-              ("C-c e r s" . elisp-refs-symbol)
-              ("C-c e r m" . elisp-refs-macro)
-              ("C-c e r S" . elisp-refs-special)))
+              ("C-c e r f" . elisp-refs-function)    ;; Find function references
+              ("C-c e r v" . elisp-refs-variable)    ;; Find variable references
+              ("C-c e r s" . elisp-refs-symbol)      ;; Find symbol references
+              ("C-c e r m" . elisp-refs-macro)       ;; Find macro references
+              ("C-c e r S" . elisp-refs-special)))   ;; Find special form references
 
-;; ===== DEBUGGING ENHANCEMENTS =====
-
-;; Enhanced debugging with edebug-x (additional edebug features)
+;; Edebug X: Enhanced debugging features for edebug
+;; Provides additional features and improvements for Emacs's built-in debugger
+;; https://github.com/ScottyB/edebug-x
 (use-package edebug-x
   :ensure t
   :after edebug)
 
-;; ===== CUSTOM EVALUATION FUNCTIONS =====
-
-;; Better error reporting for eval
+;; Custom evaluation functions with enhanced error handling and feedback
 (defun nh/eval-last-sexp-with-error-display ()
-  "Evaluate the last sexp and display errors clearly."
+  "Evaluate the last sexp and display errors clearly in minibuffer."
   (interactive)
   (condition-case err
       (eval-last-sexp nil)
     (error (message "Eval error: %s" (error-message-string err)))))
 
-;; Evaluate and replace expression
 (defun nh/eval-and-replace ()
-  "Replace the preceding sexp with its value."
+  "Replace the preceding sexp with its evaluated value."
   (interactive)
   (let ((value (eval (elisp--preceding-sexp))))
     (backward-kill-sexp)
     (insert (format "%S" value))))
 
-;; Evaluate buffer with feedback
 (defun nh/eval-buffer-with-feedback ()
-  "Evaluate buffer and show result in minibuffer."
+  "Evaluate entire buffer and show result in minibuffer."
   (interactive)
   (condition-case err
       (progn
@@ -121,37 +166,14 @@
         (message "Buffer evaluated successfully"))
     (error (message "Buffer eval error: %s" (error-message-string err)))))
 
-;; ===== ENHANCED KEYBINDINGS =====
-
-;; Enhanced Elisp evaluation and debugging keybindings
-(bind-keys :map emacs-lisp-mode-map
-           ("C-c e e" . eval-last-sexp)
-           ("C-c e E" . nh/eval-last-sexp-with-error-display)
-           ("C-c e b" . nh/eval-buffer-with-feedback)
-           ("C-c e r" . eval-region)
-           ("C-c e R" . nh/eval-and-replace)
-           ("C-c e f" . eval-defun)
-           ("C-c e x" . edebug-defun)
-           ("C-c e u" . edebug-remove-instrumentation)
-           ("C-c e p" . pp-eval-last-sexp)
-           ("C-c e P" . pp-eval-expression))
-
-;; Additional useful bindings for lisp-interaction-mode
-(bind-keys :map lisp-interaction-mode-map
-           ("C-c e e" . eval-last-sexp)
-           ("C-c e E" . nh/eval-last-sexp-with-error-display)
-           ("C-c e b" . nh/eval-buffer-with-feedback)
-           ("C-c e R" . nh/eval-and-replace))
-
-;; ===== ELISP DEVELOPMENT HELPERS =====
-
+;; Development utility functions for enhanced productivity
 (defun nh/elisp-find-library ()
-  "Find and open an Elisp library file."
+  "Find and open an Elisp library file using completion."
   (interactive)
   (find-library (completing-read "Library: " (mapcar #'car load-history))))
 
 (defun nh/elisp-insert-header ()
-  "Insert a proper Elisp file header."
+  "Insert a proper Elisp file header with standard format."
   (interactive)
   (let ((filename (file-name-nondirectory (buffer-file-name))))
     (save-excursion
@@ -165,7 +187,7 @@
       (insert (format ";;; %s ends here\n" filename)))))
 
 (defun nh/elisp-byte-compile-and-load ()
-  "Byte compile and load the current buffer."
+  "Byte compile and load the current buffer for testing."
   (interactive)
   (when (buffer-file-name)
     (let ((compiled-file (byte-compile-file (buffer-file-name))))
@@ -173,48 +195,5 @@
         (load-file compiled-file)
         (message "Compiled and loaded %s" (file-name-nondirectory compiled-file))))))
 
-;; Keybindings for development helpers
-(bind-keys :map emacs-lisp-mode-map
-           ("C-c e l" . nh/elisp-find-library)
-           ("C-c e i" . nh/elisp-insert-header)
-           ("C-c e c" . nh/elisp-byte-compile-and-load))
-
-;; ===== ADDITIONAL ELISP MODE ENHANCEMENTS =====
-
-(add-hook 'emacs-lisp-mode-hook
-          (lambda ()
-            ;; Enhanced indentation and formatting
-            (setq-local indent-tabs-mode nil)
-            (setq-local tab-width 2)
-            
-            ;; Show function signatures more aggressively
-            (when (fboundp 'eldoc-mode)
-              (eldoc-mode 1)
-              (setq-local eldoc-idle-delay 0.2))
-            
-            ;; Enable outline minor mode for better navigation
-            (outline-minor-mode 1)
-            (setq-local outline-regexp ";;;\\(;* \\)")
-            
-            ;; Enhanced font-lock for development
-            (font-lock-add-keywords
-             nil
-             '(("\\<\\(FIXME\\|TODO\\|BUG\\|HACK\\|NOTE\\):" 
-                1 'font-lock-warning-face t)
-               ("\\<\\(XXX\\|TEMP\\|KLUDGE\\):" 
-                1 'font-lock-warning-face t)))
-            
-            ;; Highlight quoted symbols and functions
-            (font-lock-add-keywords
-             nil
-             '(("'\\(\\sw\\|\\s_\\)+" . 'font-lock-constant-face)))))
-
-;; Make lisp-interaction-mode more useful
-(add-hook 'lisp-interaction-mode-hook
-          (lambda ()
-            (when (fboundp 'eldoc-mode)
-              (eldoc-mode 1))))
-
 (provide 'nh-elisp)
-
-;;; nh-elisp.el ends here 
+;;; nh-elisp.el ends here
