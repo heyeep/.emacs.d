@@ -37,36 +37,45 @@
                   (abbreviate-file-name (buffer-file-name))
                 "%b")))
 
-;; Ensure Emacs inherits the correct PATH and environment variables from the user's shell
-;; This is especially important for GUI Emacs and for tools managed by asdf, nvm, pyenv, etc.
+;; Exec Path From Shell: Make Emacs use the $PATH set up by the user's shell
+;; Ensures Emacs inherits the correct PATH and environment variables from your
+;; shell, crucial for GUI Emacs and tools managed by asdf, nvm, pyenv, etc.
+;; GitHub: https://github.com/purcell/exec-path-from-shell
 (use-package exec-path-from-shell
   :ensure t
+  :if (memq window-system '(mac ns x))
   :config
-  (setq exec-path-from-shell-check-startup-files nil)
   (exec-path-from-shell-initialize))
 
 (exec-path-from-shell-copy-envs '("PATH" "AIDER_API_KEY" "OPENAI_API_KEY"))
 
-;;; Show pressed keys and commands in the header line using keycast
+;; Keycast: Show current command and its key in the mode line
+;; Displays pressed keys and the corresponding commands in the mode line,
+;; useful for presentations, screen recordings, and learning key bindings.
+;; GitHub: https://github.com/tarsius/keycast
 (use-package keycast
   :ensure t
+  :diminish keycast-mode
   :config
-  (keycast-header-line-mode 1))
+  ;; Optionally enable keycast by default (can be toggled with keycast-mode)
+  ;; (keycast-mode-line-mode 1)
+  )
 
-;;; Show possible key combinations as you type using which-key
+;; Which Key: Show available keybindings in popup
+;; Displays available key combinations in a popup when you start typing a
+;; key sequence, helping discover and remember complex keybindings.
+;; GitHub: https://github.com/justbur/emacs-which-key
 (use-package which-key
   :ensure t
-  :diminish
+  :diminish which-key-mode
   :config
-  ;; Show completions in the minibuffer instead of a popup
-  (setq which-key-popup-type 'minibuffer)
-  ;; Decrease the delay before which-key shows completions
+  (which-key-mode 1)
   (setq which-key-idle-delay 0.3)
-  ;; Sort keybindings alphabetically by key
-  (setq which-key-sort-order 'which-key-key-order-alpha)
-  (which-key-mode)
-  (which-key-show-top-level))
-;;  (which-key-show-keymap 'org-mode-map))
+  (setq which-key-popup-type 'side-window)
+  (setq which-key-side-window-max-height 0.25)
+  (setq which-key-show-early-on-C-h t)
+  (setq which-key-max-description-length 25)
+  (setq which-key-sort-order #'which-key-key-order-alpha))
 
 ;;; Make C-k kill the whole line, including the newline
 (setq kill-whole-line t)
@@ -105,38 +114,64 @@
 
 (setq native-comp-async-report-warnings-errors nil)
 
-;; Expand Region: Quickly expand the selected region by semantic units
+;; Beacon: A light that follows your cursor around so you don't lose it
+;; Highlights the cursor position with a brief light flash whenever the window
+;; scrolls or you switch windows, making it easy to track cursor location.
+;; GitHub: https://github.com/Malabarba/beacon
+(use-package beacon
+  :ensure t
+  :diminish beacon-mode
+  :config
+  (beacon-mode 1)
+  ;; Configure beacon appearance
+  (setq beacon-size 40)
+  (setq beacon-blink-when-point-moves-vertically 10)
+  (setq beacon-blink-when-window-scrolls t)
+  (setq beacon-blink-when-window-changes t)
+  (setq beacon-blink-when-focused t))
+
+;; Expand Region: Increase selected region by semantic units
+;; Intelligently expands the selected region based on semantic units like
+;; words, sentences, expressions, and code blocks for efficient text selection.
+;; GitHub: https://github.com/magnars/expand-region.el
 (use-package expand-region
   :ensure t
-  :bind ("C-;" . er/expand-region))
+  :bind ("C-=" . er/expand-region))
 
-;; Ace Window: Fast window switching and management
+;; Ace Window: Navigate between windows using overlays
+;; Provides quick window switching by displaying overlay characters, making
+;; it easy to jump between multiple windows with a single key press.
+;; GitHub: https://github.com/abo-abo/ace-window
 (use-package ace-window
   :ensure t
-  :commands (ace-delete-window
-             ace-swap-window
-             ace-delete-other-windows
-             ace-window
-             aw-select)
-  :bind (("M-o" . ace-window)))
+  :bind ("M-o" . ace-window)
+  :config
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (setq aw-background nil))
 
-;; Vundo: Modern visual undo tree (C-x u to launch)
+;; Vundo: Visual undo tree navigation
+;; Provides a visual representation of undo history as a tree, allowing you
+;; to navigate complex edit histories and recover any previous buffer state.
+;; GitHub: https://github.com/casouri/vundo
 (use-package vundo
   :ensure t
   :bind (("C-x u" . vundo))
   :config
-  ;; Use a more compact character set for the tree
-  (setq vundo-glyph-alist vundo-unicode-symbols)
-  ;; Optionally, set the window size
-  (setq vundo-window-max-height 20))
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 ;; Increase undo limits for a more robust undo experience
 (setq undo-limit 160000)
 (setq undo-strong-limit 240000)
 (setq undo-outer-limit 24000000)
 
+;; Reveal in OSX Finder: Open current file or directory in Finder
+;; Provides commands to reveal the current file or directory in macOS Finder,
+;; useful for quick access to files in the native file manager.
+;; GitHub: https://github.com/kaz-yos/reveal-in-osx-finder
 (use-package reveal-in-osx-finder
-    :ensure t)
+  :ensure t
+  :if (eq system-type 'darwin)
+  :bind (("C-c z" . reveal-in-osx-finder)))
 
 (provide 'nh-default)
-;;; nh-default.el ends here 
+;;; nh-default.el ends here

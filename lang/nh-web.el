@@ -5,8 +5,10 @@
 
 ;;; Code:
 
-;; Web Mode: Major mode for editing web templates (HTML, CSS, JS, etc.)
-;; https://web-mode.org/
+;; Web Mode: Major mode for editing web templates
+;; Provides syntax highlighting and indentation for HTML, CSS, JavaScript, and
+;; various template languages like PHP, JSP, and ERB.
+;; GitHub: https://github.com/fxbois/web-mode
 (use-package web-mode
   :ensure t
   :mode
@@ -33,15 +35,18 @@
       (setq-local web-mode-css-indent-offset n)
       (setq-local web-mode-code-indent-offset n))))
 
+
 ;; Emmet Mode: Fast HTML and CSS writing using abbreviations
-;;  (e.g., 'ul>li*3' expands to a list)
-;; https://github.com/smihica/emmet-mode
+;; Allows rapid HTML and CSS development using shorthand syntax that expands
+;; into full markup (e.g., 'ul>li*3' becomes a list with three items).
+;; GitHub: https://github.com/smihica/emmet-mode
 ;; (use-package emmet-mode
 ;;   :ensure t
 ;;   :hook ((web-mode css-mode html-mode) . emmet-mode))
 
-;; mhtml-mode: Built-in mode for HTML with embedded JS and CSS
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/HTML-Mode.html
+;; Mhtml Mode: Built-in mode for HTML with embedded JS and CSS
+;; Provides multi-mode editing capabilities for HTML files containing embedded
+;; JavaScript and CSS with proper syntax highlighting for each language.
 (use-package mhtml-mode
   :ensure nil
   :mode ("\\.[sx]?html?\\(\\.[a-zA-Z_]+\\)?\\'" . mhtml-mode)
@@ -54,7 +59,9 @@
     (setq-local sgml-basic-offset 2)))
 
 ;; Rainbow Mode: Highlight color codes in CSS files
-;; https://elpa.gnu.org/packages/rainbow-mode.html
+;; Automatically displays color values (hex, RGB, HSL) with their actual colors
+;; as background, making it easy to visualize colors while editing stylesheets.
+;; GitHub: https://github.com/emacsmirror/rainbow-mode
 (use-package rainbow-mode
   :ensure t
   :commands (rainbow-mode)
@@ -67,7 +74,9 @@
     (rainbow-mode 1)))
 
 ;; JS2 Mode: Advanced JavaScript editing
-;; https://github.com/mooz/js2-mode
+;; Enhanced JavaScript major mode with better syntax highlighting, error
+;; detection, and support for modern JavaScript features including ES6+ syntax.
+;; GitHub: https://github.com/mooz/js2-mode
 (use-package js2-mode
   :ensure t
   :mode ("\\.js\\'" . js2-mode)
@@ -85,12 +94,17 @@
     "Custom setup for js2-mode."
     (setq mode-name "JS2")))
 
-;; JS2-JSX Mode: Fallback for mixed JS/HTML files
+;; JS2 JSX Mode: Fallback for mixed JS/HTML files
+;; Extends js2-mode to support JSX syntax for React development, providing
+;; proper highlighting and indentation for mixed JavaScript and XML markup.
 (use-package js2-jsx-mode
   :ensure nil ; it's part of js2-mode
   :mode ("\\.js\\'" . js2-jsx-mode))
 
-;; RJSX Mode: Best for React/JSX files
+;; RJSX Mode: React JSX syntax highlighting
+;; Specialized major mode for React JSX files with enhanced support for JSX
+;; syntax, automatic tag completion, and proper indentation for React components.
+;; GitHub: https://github.com/felipeochoa/rjsx-mode
 (use-package rjsx-mode
   :ensure t
   :mode (("\\.js[x]?\\'" . rjsx-mode))
@@ -110,57 +124,18 @@
     (define-key rjsx-mode-map (kbd "C-d") nil)))
 
 ;; TypeScript Mode: Major mode for TypeScript
-;; https://github.com/emacs-typescript/typescript.el
+;; Provides syntax highlighting, indentation, and basic editing support for
+;; TypeScript files with type annotations and modern JavaScript features.
+;; GitHub: https://github.com/emacs-typescript/typescript.el
 (use-package typescript-mode
   :ensure t
   :mode ("\\.ts\\'" . typescript-mode)
          ("\\.tsx\\'" . typescript-mode))
 
-;; Tide: TypeScript Interactive Development Environment (also works for JS)
-;; https://github.com/ananthakumaran/tide
-;; (use-package tide
-;;   :ensure t
-;;   :commands (tide-setup)
-;;   :init
-;;   (defun nh/setup-tide-mode ()
-;;     "Setup Tide in the current buffer, with project and file checks."
-;;     (interactive)
-;;     (when (locate-dominating-file default-directory "tsfmt.json")
-;;       (add-hook 'before-save-hook #'tide-format-before-save nil t))
-;;     ;; Disable linting for Typescript Definition files.
-;;     (when (and (buffer-file-name)
-;;                (string-match-p ".d.ts$" (buffer-file-name)))
-;;       (flycheck-mode -1))
-;;     (tide-setup)
-;;     (tide-hl-identifier-mode +1))
-
-;;   (defun nh/js2-tide-setup ()
-;;     (when (or (locate-dominating-file default-directory "tsconfig.json")
-;;               (locate-dominating-file default-directory "jsconfig.json"))
-;;       (nh/setup-tide-mode)))
-
-;;   (defun nh/web-tide-setup ()
-;;     (when (and buffer-file-name
-;;                (string-equal "tsx" (file-name-extension buffer-file-name)))
-;;       (setq-local web-mode-enable-auto-quoting nil)
-;;       (when (fboundp 'yas-activate-extra-mode)
-;;         (yas-activate-extra-mode 'typescript-mode))
-;;       (nh/setup-tide-mode)))
-;;   :hook
-;;   (typescript-mode . nh/setup-tide-mode)
-;;   (js2-mode . nh/js2-tide-setup)
-;;   (web-mode . nh/web-tide-setup)
-;;   :config
-;;   ;; Set up Typescript linting with `web-mode'.
-;;   (with-eval-after-load 'flycheck
-;;     (flycheck-add-mode 'typescript-tslint 'web-mode))
-;;   ;; Fix eldoc warnings
-;;   (setq eldoc-documentation-functions '(tide-eldoc-function))
-;;   ;; Fix point-at-eol warnings
-;;   (defalias 'tide-point-at-eol 'line-end-position))
-
-;; Prettier-js: Format JS/TS/JSON/HTML/CSS using Prettier
-;; https://github.com/prettier/prettier-emacs
+;; Prettier JS: Format JavaScript code using Prettier
+;; Automatically formats JavaScript, TypeScript, and JSX code on save using the
+;; Prettier code formatter for consistent code style across projects.
+;; GitHub: https://github.com/prettier/prettier-emacs
 (use-package prettier-js
   :ensure t
   :hook ((js2-mode . prettier-js-mode)

@@ -2,6 +2,10 @@
 
 ;; This file configures Emacs for working with Markdown files.
 
+;; Markdown Mode: Major mode for editing Markdown files
+;; Provides syntax highlighting, live preview, and editing features for
+;; Markdown with support for various flavors including GitHub Flavored Markdown.
+;; GitHub: https://github.com/jrblevin/markdown-mode
 (use-package markdown-mode
   :ensure t
   :mode (("\\.md\\'" . markdown-mode)
@@ -97,6 +101,10 @@
               (add-hook 'post-command-hook 'nh/markdown-show-raw-on-markup nil t)))
   )
 
+;; Markdown Preview Mode: Live preview for Markdown files
+;; Provides real-time HTML preview of Markdown files in a web browser with
+;; automatic refresh on save and customizable browser selection.
+;; GitHub: https://github.com/ancane/markdown-preview-mode
 (use-package markdown-preview-mode
   :ensure t
   :config

@@ -32,6 +32,10 @@
     (async-shell-command
      (format "xcodebuild -scheme %s -destination 'platform=iOS Simulator,name=iPhone 14' build" scheme))))
 
+;; Swift Mode: Major mode for editing Swift files
+;; Provides syntax highlighting, indentation, and basic editing support for
+;; Swift programming with Xcode integration and LSP server configuration.
+;; GitHub: https://github.com/swift-emacs/swift-mode
 (use-package swift-mode
   :ensure t
   :mode (("\\.swift\\'" . swift-mode)
@@ -61,7 +65,10 @@
   ;; Configure sourcekit-lsp path
   (setq lsp-swift-server-path (nh/sourcekit-lsp-path)))
 
-;; Format on save
+;; Format All: Universal code formatter
+;; Provides automatic code formatting for multiple languages including Swift
+;; with format-on-save functionality and support for various formatters.
+;; GitHub: https://github.com/lassik/emacs-format-all-the-code
 (use-package format-all
   :ensure t
   :config

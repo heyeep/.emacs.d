@@ -85,4 +85,4 @@ Checks for Windows, known desktop hostnames, or very wide monitors."
         auto-window-vscroll nil))
 
 (provide 'nh-env)
-;;; nh-env.el ends here 
+;;; nh-env.el ends here

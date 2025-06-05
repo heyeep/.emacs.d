@@ -6,6 +6,9 @@
 
 ;;; Code:
 
+;; Dired: Built-in directory editor
+;; Emacs built-in file manager providing directory navigation, file operations,
+;; and batch processing capabilities with extensive customization options.
 (use-package dired
   :ensure nil ; dired is built-in, no need to ensure
   :config
@@ -19,22 +22,13 @@
                           (or
                            "#" ; Emacs auto-save files (e.g., #filename#)
                            "~" ; Emacs backup files (e.g., filename~)
-                           ".#" ; Emacs lock files (e.g., .#filename)
-                           ".DS_Store" ; macOS directory metadata
-                           ".git" ; Git directory
-                           ".gitignore" ; Git ignore file
-                           ".gitmodules" ; Git submodules file
-                           ".projectile" ; Projectile file
-                           ".dir-locals.el" ; Directory local variables
-                           ".elc" ; Compiled Emacs Lisp files
-                           ".aider*" ; Aider related files/dirs
-                                                      ".smex-items"
-                                                      ".zcompdump" ;
-                                                      "eln-*" ; Native compilation files
-                           )))
+                           ".#"))) ; Emacs lock files (e.g., .#filename)
   )
 
-;; Dired Sidebar: File explorer sidebar for Dired
+;; Dired Sidebar: Tree-style directory sidebar
+;; Provides a collapsible tree-style directory browser in a dedicated sidebar,
+;; similar to modern IDEs, for convenient project navigation and file management.
+;; GitHub: https://github.com/jojojames/dired-sidebar
 (use-package dired-sidebar
   :ensure t
   :commands (dired-sidebar-toggle-sidebar)
@@ -50,18 +44,25 @@
          (:default
           '(:family "Arial" :height 150)))))
 
-;; Pretty icons in Dired buffers
+;; All The Icons Dired: File type icons for dired
+;; Adds beautiful file type icons to dired buffers based on file extensions,
+;; making it easier to identify different file types at a glance.
+;; GitHub: https://github.com/jtbm37/all-the-icons-dired
 (use-package all-the-icons-dired
   :ensure t
   :commands (all-the-icons-dired-mode)
   :hook (dired-mode . all-the-icons-dired-mode))
 
 ;; Dired Collapse: Collapse single-child directories in Dired
+;; GitHub: https://github.com/Fuco1/dired-hacks
 (use-package dired-collapse
   :ensure t
   :hook (dired-mode . dired-collapse-mode))
 
-;; Dired Subtree: Expand/collapse directories inline in Dired
+;; Dired Subtree: Tree-style directory expansion
+;; Allows expanding directories inline within dired buffers to create a tree
+;; view, enabling hierarchical navigation without opening separate buffers.
+;; GitHub: https://github.com/Fuco1/dired-hacks
 (use-package dired-subtree
   :ensure t
   :commands (dired-subtree-toggle dired-subtree-cycle)

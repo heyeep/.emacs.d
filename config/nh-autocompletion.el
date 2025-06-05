@@ -79,7 +79,10 @@ These are added to `completion-ignored-extensions'."
 ;; Initialize global completion configuration
 (nh--configure-global-completion)
 
-;; Vertico: Vertical completion UI
+;; Vertico: Vertical interactive completion
+;; A performant and minimalist vertical completion UI based on the default
+;; completion system with support for cycling, grouping, and directory navigation.
+;; GitHub: https://github.com/minad/vertico
 (use-package vertico
   :ensure t
   :demand
@@ -119,6 +122,9 @@ These are added to `completion-ignored-extensions'."
               ("M-n" . #'vertico-next)))     ;; Explicit next for history navigation
 
 ;; Orderless: Advanced completion style
+;; Provides flexible completion matching with support for multiple patterns,
+;; regular expressions, and smart case sensitivity for enhanced search experience.
+;; GitHub: https://github.com/oantolin/orderless
 (use-package orderless
   :ensure t
   :custom
@@ -128,7 +134,10 @@ These are added to `completion-ignored-extensions'."
   (orderless-smart-case t)
   (orderless-component-separator #'orderless-escapable-split-on-space))
 
-;; Marginalia for annotations
+;; Marginalia: Rich annotations in the minibuffer
+;; Adds informative annotations to minibuffer completions showing file sizes,
+;; modification dates, documentation strings, and other contextual information.
+;; GitHub: https://github.com/minad/marginalia
 (use-package marginalia
   :ensure t
   :config
@@ -162,7 +171,9 @@ These are added to `completion-ignored-extensions'."
 ;; Force enable savehist-mode
 (savehist-mode 1)
 
-;; Track recent files
+;; Recent F: Track recently opened files
+;; Maintains a list of recently opened files for quick access, with customizable
+;; cleanup and size limits to improve file navigation workflow.
 (use-package recentf
   :init
   (recentf-mode 1)
@@ -170,6 +181,9 @@ These are added to `completion-ignored-extensions'."
         recentf-auto-cleanup 'never))
 
 ;; Embark: Context menu and actions
+;; Provides context-aware actions and menus for completion candidates, allowing
+;; you to perform operations on selected items with customizable action sets.
+;; GitHub: https://github.com/oantolin/embark
 (use-package embark
   :ensure t
   :bind
@@ -190,14 +204,20 @@ These are added to `completion-ignored-extensions'."
           #'which-key--hide-popup-ignore-command))
   (setq embark-become-indicator embark-action-indicator))
 
-;; Enable consult integration with embark
+;; Embark Consult: Consult integration for Embark
+;; Integrates Embark with Consult to provide enhanced actions for search results
+;; and completion candidates, enabling seamless workflow between the two packages.
+;; GitHub: https://github.com/oantolin/embark
 (use-package embark-consult
   :ensure t
   :after (embark consult)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; Consult for commands - replaces Counsel functionality
+;; Consult: Useful search and navigation commands
+;; Provides a comprehensive set of search and navigation commands with live
+;; preview, enhanced with filtering, grouping, and integration with completion systems.
+;; GitHub: https://github.com/minad/consult
 (use-package consult
   :ensure t
   :bind (
@@ -263,18 +283,27 @@ These are added to `completion-ignored-extensions'."
   ;; Make consult-line start from current position (more like swiper)
   (setq consult-line-start-from-top nil))
 
-;; Configure consult-dir for directory jumping
+;; Consult Dir: Directory jumping with Consult
+;; Provides quick directory navigation and switching with consult integration,
+;; allowing you to jump between frequently used directories with preview support.
+;; GitHub: https://github.com/karthink/consult-dir
 (use-package consult-dir
   :ensure t
   :bind (("C-x C-d" . consult-dir)
          :map vertico-map
          ("C-x C-j" . consult-dir-jump-file)))
 
-;; Enhanced search with ag (still used by projectile-ag)
+;; Ag: The Silver Searcher for Emacs
+;; Fast text search tool integration providing high-performance full-text
+;; search across project files with support for various file types and patterns.
+;; GitHub: https://github.com/Wilfred/ag.el
 (use-package ag
   :ensure t)
 
 ;; Projectile: Project management and navigation
+;; Comprehensive project management package providing file navigation, search,
+;; compilation, and testing commands with support for multiple project types.
+;; GitHub: https://github.com/bbatsov/projectile
 (use-package projectile
   :ensure t
   :diminish projectile-mode
@@ -304,7 +333,10 @@ These are added to `completion-ignored-extensions'."
   (unless (executable-find "ag")
     (message "[Projectile] Warning: 'ag' (The Silver Searcher) is not installed.")))
 
-;; On-the-fly syntax checking
+;; Flycheck: On-the-fly syntax checking
+;; Real-time syntax checking and error reporting with support for multiple
+;; programming languages and customizable checker configurations.
+;; GitHub: https://github.com/flycheck/flycheck
 (use-package flycheck
   :ensure t
   :diminish flycheck-mode
@@ -341,7 +373,10 @@ These are added to `completion-ignored-extensions'."
               ;; More aggressive checking for development
               (setq-local flycheck-idle-change-delay 0.5))))
 
-;; Show Flycheck errors in tooltips (GUI only)
+;; Flycheck Pos Tip: Show Flycheck errors in tooltips
+;; Displays Flycheck error messages in graphical tooltips instead of the
+;; echo area, providing better visibility and context for syntax errors.
+;; GitHub: https://github.com/flycheck/flycheck-pos-tip
 (use-package flycheck-pos-tip
   :ensure t
   :after flycheck
@@ -350,6 +385,9 @@ These are added to `completion-ignored-extensions'."
   (flycheck-pos-tip-mode))
 
 ;; Corfu: In-buffer completion
+;; Modern completion UI that displays candidates directly in the buffer with
+;; automatic triggering, preview support, and integration with completion backends.
+;; GitHub: https://github.com/minad/corfu
 (use-package corfu
   :ensure t
   :custom
@@ -370,8 +408,10 @@ These are added to `completion-ignored-extensions'."
             (lambda ()
               (add-to-list 'completion-at-point-functions #'cape-elisp-symbol))))
 
-;; Provides completion backends (sources) for Corfu by extending Emacs's
-;; built-in completion-at-point-functions (CAPF).
+;; Cape: Completion at point extensions
+;; Provides additional completion backends for various content types including
+;; files, keywords, symbols, and dynamic abbreviations with modular design.
+;; GitHub: https://github.com/minad/cape
 (use-package cape
   :ensure t
   :init
@@ -398,24 +438,39 @@ These are added to `completion-ignored-extensions'."
               ;; `cape-elisp-block`
               (add-to-list 'completion-at-point-functions #'cape-elisp-symbol t))))
 
-;; For better icons in Corfu and Cape completions
+;; Kind Icon: Icons for Corfu and Cape completions
+;; Adds VSCode-style icons to completion candidates in Corfu, providing visual
+;; distinction between different types of completions like functions and variables.
+;; GitHub: https://github.com/jdtsmith/kind-icon
 (use-package kind-icon
   :ensure t
   :after corfu
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
+;; Yasnippet: Template system for Emacs
+;; Powerful template expansion system allowing you to insert code snippets with
+;; placeholders, transformations, and dynamic content for faster coding.
+;; GitHub: https://github.com/joaotavora/yasnippet
 (use-package yasnippet
   :ensure t
   :config
   (yas-global-mode 1)
   ;; Load snippets from a community collection
+  ;; Yasnippet Snippets: Collection of yasnippet snippets
+  ;; Community-maintained collection of snippet templates for various programming
+  ;; languages and frameworks, providing ready-to-use code templates.
+  ;; GitHub: https://github.com/AndreaCrotti/yasnippet-snippets
   (use-package yasnippet-snippets
     :ensure t
     :after yasnippet
     :config
     (yasnippet-snippets-initialize)))
 
+;; LSP Mode: Language Server Protocol client
+;; Comprehensive LSP client providing IDE-like features including code completion,
+;; diagnostics, navigation, and refactoring for multiple programming languages.
+;; GitHub: https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
@@ -448,7 +503,10 @@ These are added to `completion-ignored-extensions'."
   (setq lsp-hover-enable t)
   (setq lsp-eldoc-enable-hover t))
 
-;; LSP UI: Enhanced UI for LSP diagnostics and other features
+;; LSP UI: Enhanced UI for LSP diagnostics and features
+;; Provides rich UI components for LSP including documentation popups, diagnostic
+;; overlays, code actions, and peek functionality for definitions and references.
+;; GitHub: https://github.com/emacs-lsp/lsp-ui
 (use-package lsp-ui
   :ensure t
   :after lsp-mode
@@ -499,15 +557,20 @@ These are added to `completion-ignored-extensions'."
 
   :hook (lsp-mode . lsp-ui-mode))
 
-;; Highlight trailing whitespace, tabs, and long lines in programming modes
+;; Whitespace: Highlight trailing whitespace and long lines
+;; Built-in package for visualizing whitespace issues including trailing spaces,
+;; tabs, and lines exceeding length limits to maintain code quality standards.
 (use-package whitespace
-  :ensure nli
+  :ensure nil
   :init
   (add-hook 'prog-mode-hook #'whitespace-mode)
   :config
   (setq whitespace-style '(face trailing tabs lines-tail)))
 
-;; Only trims trailing whitespace on lines you edit, not the whole file
+;; WS Butler: Intelligently trim whitespace
+;; Automatically removes trailing whitespace only from lines you've edited,
+;; avoiding unnecessary changes to files while maintaining clean code style.
+;; GitHub: https://github.com/lewang/ws-butler
 (use-package ws-butler
   :diminish ws-butler-mode
   :ensure t

@@ -8,8 +8,9 @@
 
 (require 'bind-key)
 
-;; Built-in Emacs Lisp mode enhancements
-;; Provides syntax highlighting, indentation, and core editing features
+;; Elisp Mode: Built-in Emacs Lisp mode enhancements
+;; Provides syntax highlighting, indentation, and core editing features for
+;; Emacs Lisp development with enhanced debugging and evaluation capabilities.
 (use-package elisp-mode
   :ensure nil
   :config
@@ -84,8 +85,9 @@
               ("C-c e R" . nh/eval-and-replace)))
 
 ;; Eval Sexp Fu: Visual feedback when evaluating expressions
-;; Provides visual highlighting when evaluating Lisp expressions
-;; https://github.com/hchbaw/eval-sexp-fu.el
+;; Provides visual highlighting when evaluating Lisp expressions, making it
+;; easy to see what code was just executed with customizable flash effects.
+;; GitHub: https://github.com/hchbaw/eval-sexp-fu.el
 (use-package eval-sexp-fu
   :ensure t
   :hook ((emacs-lisp-mode . eval-sexp-fu-flash-mode)
@@ -104,9 +106,9 @@
   (add-hook 'after-load-theme-hook #'nh/eval-sexp-fu-set-face))
 
 ;; Elisp Slime Nav: Enhanced navigation for Elisp symbols
-;; Provides SLIME-like navigation features for Emacs Lisp development
-;; Jump to definitions and get documentation for symbols
-;; https://github.com/purcell/elisp-slime-nav
+;; Provides SLIME-like navigation features for Emacs Lisp development, allowing
+;; you to jump to definitions and get documentation for symbols at point.
+;; GitHub: https://github.com/purcell/elisp-slime-nav
 (use-package elisp-slime-nav
   :ensure t
   :diminish elisp-slime-nav-mode
@@ -123,21 +125,22 @@
                          (pop-to-buffer "*Help*")))))
 
 ;; Elisp Refs: Find references to Elisp symbols
-;; Search for references to functions, variables, and other symbols
-;; Useful for understanding code dependencies and usage
-;; https://github.com/Wilfred/elisp-refs
+;; Search for references to functions, variables, and other symbols across your
+;; Emacs configuration and packages to understand code dependencies.
+;; GitHub: https://github.com/Wilfred/elisp-refs
 (use-package elisp-refs
   :ensure t
   :bind (:map emacs-lisp-mode-map
-              ("C-c e r f" . elisp-refs-function)    ;; Find function references
-              ("C-c e r v" . elisp-refs-variable)    ;; Find variable references
-              ("C-c e r s" . elisp-refs-symbol)      ;; Find symbol references
-              ("C-c e r m" . elisp-refs-macro)       ;; Find macro references
-              ("C-c e r S" . elisp-refs-special)))   ;; Find special form references
+              ("C-c f f" . elisp-refs-function)    ;; Find function references
+              ("C-c f v" . elisp-refs-variable)    ;; Find variable references
+              ("C-c f s" . elisp-refs-symbol)      ;; Find symbol references
+              ("C-c f m" . elisp-refs-macro)       ;; Find macro references
+              ("C-c f S" . elisp-refs-special)))   ;; Find special form references
 
 ;; Edebug X: Enhanced debugging features for edebug
-;; Provides additional features and improvements for Emacs's built-in debugger
-;; https://github.com/ScottyB/edebug-x
+;; Provides additional features and improvements for Emacs's built-in debugger,
+;; including better breakpoint management and enhanced debugging UI.
+;; GitHub: https://github.com/ScottyB/edebug-x
 (use-package edebug-x
   :ensure t
   :after edebug)

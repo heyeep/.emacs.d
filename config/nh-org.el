@@ -4,7 +4,10 @@
 ;; Org mode and related tools configuration.
 
 
-;; htmlize: Used for exporting Org buffers to HTML with syntax highlighting
+;; Htmlize: Export Org buffers to HTML with syntax highlighting
+;; Enables syntax highlighting preservation when exporting Org mode content
+;; to HTML, maintaining code block formatting and colors in the output.
+;; GitHub: https://github.com/hniksic/emacs-htmlize
 (use-package htmlize
   :ensure t
   :commands (htmlize-buffer htmlize-region htmlize-file htmlize-many-files htmlize-many-files-dired)
@@ -14,10 +17,13 @@
   (htmlize-generate-hyperlinks t)
   (htmlize-generate-anchors t))
 
-;; --- Org mode configuration ---
-
+;; Org: Outline-based notes management and organizer
+;; Powerful plain-text organization system for note-taking, project planning,
+;; task management, and document authoring with extensive export capabilities.
+;; GitHub: https://github.com/bzg/org-mode
 (use-package org
-  :ensure t
+  :ensure nil ; org is built-in with Emacs
+  :pin gnu
   :mode ("\\.org\\'" . org-mode)
   :init
   ;; Set up writing enhancements for encrypted org files (like M.org.gpg)
@@ -178,12 +184,18 @@
   (define-key org-mode-map (kbd "C-c C-n") 'org-babel-next-src-block)  ;; Next block
   (define-key org-mode-map (kbd "C-c C-p") 'org-babel-previous-src-block))  ;; Previous block
 
-;; Visual enhancement: Prettify Org bullets
+;; Org Bullets: Show Org heading bullets as UTF-8 characters
+;; Replaces standard asterisk bullets in Org headings with attractive UTF-8
+;; characters, providing a cleaner and more visually appealing document structure.
+;; GitHub: https://github.com/emacsorphanage/org-bullets
 (use-package org-bullets
   :ensure t
   :hook (org-mode . org-bullets-mode))
 
-;; Modern Org appearance: borders, checkboxes, etc.
+;; Org Modern: Modern Org appearance with better styling
+;; Provides modern visual enhancements for Org mode including better borders,
+;; checkboxes, tags, and overall typography for an improved reading experience.
+;; GitHub: https://github.com/minad/org-modern
 (use-package org-modern
   :ensure t
   :hook (org-mode . org-modern-mode))
@@ -191,7 +203,10 @@
 ;; Make Org text more readable with variable-pitch font for prose
 (add-hook 'org-mode-hook #'variable-pitch-mode)
 
-;; Drag-and-drop and paste images directly into Org files
+;; Org Download: Drag and drop images to Org mode files
+;; Simplifies image insertion into Org documents by allowing drag-and-drop
+;; functionality and automatic image downloading from URLs with proper linking.
+;; GitHub: https://github.com/abo-abo/org-download
 (use-package org-download
   :ensure t
   :hook (org-mode . org-download-enable))

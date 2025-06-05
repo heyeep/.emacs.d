@@ -40,7 +40,9 @@
     ;; Enable ruby-lsp
     (setq-local lsp-enabled-clients '(ruby-lsp-ls))))
 
-;; Ruby Mode: Major mode for editing Ruby files (built-in)
+;; Ruby Mode: Major mode for editing Ruby files
+;; Built-in Ruby major mode providing syntax highlighting, indentation, and
+;; basic editing features for Ruby programming with support for various Ruby file types.
 (use-package ruby-mode
   :ensure t
   :mode (("\\.rb\\'" . ruby-mode)
@@ -87,6 +89,9 @@
   (setq ruby-align-chained-calls t))
 
 ;; Enhanced Ruby Mode: More features for Ruby editing
+;; Advanced Ruby major mode with enhanced syntax highlighting, better
+;; indentation, and additional features beyond the built-in ruby-mode.
+;; GitHub: https://github.com/zenspider/enhanced-ruby-mode
 (use-package enh-ruby-mode
   :ensure t
   :mode (("\\.rb\\'" . enh-ruby-mode)
@@ -138,7 +143,10 @@
    ((file-exists-p "Gemfile") (inf-ruby-console-auto))
    (t (inf-ruby))))
 
-;; Inf-Ruby: Interactive Ruby REPL
+;; Inf Ruby: Interactive Ruby REPL
+;; Provides an interactive Ruby REPL within Emacs, supporting various Ruby
+;; implementations and automatic detection of Rails projects for console access.
+;; GitHub: https://github.com/nonsequitur/inf-ruby
 (use-package inf-ruby
   :ensure t
   :hook ((ruby-mode enh-ruby-mode) . inf-ruby-minor-mode)
@@ -155,6 +163,9 @@
               ("C-c r R" . ruby-send-region)))
 
 ;; Robe: IDE-like code navigation and documentation for Ruby
+;; Provides intelligent code completion, navigation, and documentation for Ruby
+;; development with REPL-based introspection and method lookup capabilities.
+;; GitHub: https://github.com/dgutov/robe
 (use-package robe
   :ensure t
   :hook ((ruby-mode enh-ruby-mode) . robe-mode)
@@ -174,6 +185,9 @@
               ("C-c r J" . robe-jump-to-module)))
 
 ;; Projectile Rails: Rails-specific project navigation
+;; Enhances Projectile with Rails-specific navigation commands for quickly
+;; jumping between models, views, controllers, and other Rails components.
+;; GitHub: https://github.com/asok/projectile-rails
 (use-package projectile-rails
   :ensure t
   :diminish projectile-rails-mode

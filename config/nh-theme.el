@@ -13,21 +13,45 @@
 
 (set-face-attribute 'default nil :font "Inconsolata for Powerline" :height 128)
 
-;; Required for Circadian theme switching
+
+;; Gotham Theme: A very dark Emacs theme
+;; Dark theme inspired by Batman's Gotham City with muted colors and excellent
+;; contrast for comfortable coding in low-light environments.
+;; GitHub: https://github.com/wasamasa/gotham-theme
+(use-package gotham-theme :defer :ensure t)
+
+;; Spacemacs Theme: Color themes megapack for Emacs
+;; Collection of beautiful themes inspired by Spacemacs with both dark and light
+;; variants, providing modern aesthetics and excellent syntax highlighting.
+;; GitHub: https://github.com/nashamri/spacemacs-theme
+(use-package spacemacs-theme :defer :ensure t)
+
+;; Solarized Theme: The Solarized colour theme
+;; Precision color scheme with carefully balanced colors for both dark and light
+;; backgrounds, designed to reduce eye strain and improve readability.
+;; GitHub: https://github.com/bbatsov/solarized-emacs
 (use-package solarized-theme
   :ensure t
-  :init
-  (setq solarized-distinct-fringe-background t)
-  (setq solarized-use-less-bold t))
+  :defer t)
 
-;; Switch Solarized theme based on sunrise/sunset
+
+;; Circadian: Theme-switching based on daytime
+;; Automatically switches between light and dark themes based on sunrise and
+;; sunset times for your location, providing optimal viewing comfort throughout the day.
+;; GitHub: https://github.com/guidoschmidt/circadian.el
 (use-package circadian
   :ensure t
+  :after solarized-theme
   :config
-  (setq circadian-themes '((:sunrise . solarized-light)
-                           (:sunset  . solarized-dark)))
-  (setq calendar-latitude 37.8044)
-  (setq calendar-longitude -122.2711)
+  ;; Set your location for sunrise/sunset calculations
+  (setq calendar-location-name "San Francisco, CA")
+  (setq calendar-latitude 37.7749)
+  (setq calendar-longitude -122.4194)
+
+  ;; Configure themes for day/night
+  (setq circadian-themes '(("8:00" . solarized-light)
+                           ("19:30" . solarized-dark)))
+  ;; Enable circadian mode
   (circadian-setup))
 
 (defun nh/update-theme ()
@@ -52,79 +76,43 @@
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
-;; Colorful and bold parentheses for all Lisp modes
+;; Rainbow Delimiters: Color-coding for parentheses and brackets
+;; Highlights matching parentheses, brackets, and braces with different colors
+;; based on nesting depth, making code structure more visually apparent.
+;; GitHub: https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
   :ensure t
-  :commands (rainbow-delimiters-mode)
-  :init
-  ;; Bold the parens for all depths
-  (defun nh/bold-rainbow-parens ()
-    "Make rainbow delimiters bold for all depths that exist."
-    (let ((colors '("#7f8c8d" "#e74c3c" "#f1c40f" "#2ecc71" "#3498db" "#9b59b6" "#1abc9c" "#e67e22" "#e84393" "#636e72" "#fdcb6e" "#00b894")))
-      (dotimes (i (length colors))
-        (let ((face (intern (format "rainbow-delimiters-depth-%d-face" (1+ i)))))
-          (when (facep face)
-            (set-face-attribute face nil :bold t :foreground (nth i colors)))))))
-  ;; Ensure bolding and colors are applied after theme changes
-  (add-hook 'after-load-theme-hook #'nh/bold-rainbow-parens)
-  ;; Enable rainbow-delimiters-mode in all Lisp-related modes
-  (dolist (hook (nh/lisp-hooks))
-    (add-hook hook #'rainbow-delimiters-mode))
-  :config
-  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
-                      :foreground "red"
-                      :background nil
-                      :weight 'bold
-                      :underline t)
-  (nh/bold-rainbow-parens))
+  :hook (prog-mode . rainbow-delimiters-mode))
 
-;; Emacs default
+;; Paren: Built-in parentheses highlighting
+;; Built-in package for highlighting matching parentheses with customizable
+;; styles and colors to improve code readability and bracket matching.
 (use-package paren
   :ensure nil
   :config
-  (show-paren-mode t))
+  (show-paren-mode 1)
+  (setq show-paren-delay 0)
+  (setq show-paren-style 'expression))
 
-;; Highlight all levels of parentheses around point for extra visual feedback
+;; Highlight Parentheses: Highlight surrounding parentheses
+;; Highlights all levels of parentheses around point with different colors,
+;; providing continuous visual feedback about code structure and nesting.
+;; GitHub: https://github.com/tsdh/highlight-parentheses.el
 (use-package highlight-parentheses
   :ensure t
-  :commands (highlight-parentheses-mode)
-  :init
-  ;; Enable highlight-parentheses-mode in all Lisp-related modes
-  (dolist (hook (nh/lisp-hooks))
-    (add-hook hook #'highlight-parentheses-mode)))
+  :hook (prog-mode . highlight-parentheses-mode))
 
-;;  Structural editing for parentheses and more
+;; Smartparens: Minor mode for dealing with pairs in Emacs
+;; Intelligent handling of parentheses, brackets, quotes, and other paired
+;; characters with automatic insertion, deletion, and navigation commands.
+;; GitHub: https://github.com/Fuco1/smartparens
 (use-package smartparens
   :ensure t
+  :diminish smartparens-mode
+  :hook (prog-mode . smartparens-mode)
   :config
-  ;; Load the default smartparens config
   (require 'smartparens-config)
-  ;; Enable Smartparens globally
-  (smartparens-global-mode 1)
-  ;; Highlight matching pairs
-  (show-smartparens-global-mode 1)
-  ;; Don't autopair single quotes (common in Lisp, Python, etc.)
-  (sp-pair "'" nil :actions :rem)
-  ;; Recommended: strict mode in Lisp modes for structural editing
-  (dolist (hook (nh/lisp-hooks))
-    (add-hook hook #'smartparens-strict-mode))
-  ;; Keybindings for common structural editing actions
-  (define-key smartparens-mode-map (kbd "C-M-f") 'sp-forward-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-b") 'sp-backward-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-d") 'sp-down-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-a") 'sp-backward-down-sexp)
-  (define-key smartparens-mode-map (kbd "C-S-d") 'sp-beginning-of-sexp)
-  (define-key smartparens-mode-map (kbd "C-S-a") 'sp-end-of-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-e") 'sp-up-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-u") 'sp-backward-up-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-t") 'sp-transpose-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-n") 'sp-next-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-p") 'sp-previous-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-k") 'sp-kill-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-w") 'sp-copy-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-<delete>") 'sp-splice-sexp-killing-forward)
-  (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp-killing-backward))
+  (sp-use-paredit-bindings))
 
 ;; Diminish modeline clutter.
 (when (require 'diminish nil 'noerror)
@@ -138,45 +126,35 @@
   (eval-after-load "autorevert"
     '(diminish 'auto-revert-mode)))
 
-;; Make buffer names unique by appending directory names
+;; Uniquify: Unique buffer names by directory
+;; Built-in package that makes buffer names unique by appending directory names
+;; when multiple files with the same name are open, improving buffer identification.
 (use-package uniquify
-  :ensure nil  ;; Built-in package, no need to install
+  :ensure nil
   :config
-  (setq uniquify-buffer-name-style 'reverse)  ;; Show directory after filename
-  (setq uniquify-separator "|")              ;; Use | as separator
-  (setq uniquify-after-kill-buffer-p t)       ;; Rename buffers after killing
-  (setq uniquify-ignore-buffers-re "^\\*")   ;; Ignore special buffers
-)
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)
+  (setq uniquify-ignore-buffers-re "^\\*"))
 
-;; Highlight occurrences of the symbol at point in code
+;; Highlight Symbol: Automatic highlighting of symbol at point
+;; Automatically highlights all occurrences of the symbol at point throughout
+;; the buffer, helping to track variable usage and code flow.
+;; GitHub: https://github.com/nschum/highlight-symbol.el
 (use-package highlight-symbol
   :ensure t
   :diminish highlight-symbol-mode
-  :defer 5
-  :custom
-  (highlight-symbol-idle-delay 0.5)
   :config
-  ;; Make highlight-symbol-face look like the standard highlight face
-  (defun nh/highlight-symbol-face ()
-    (set-face-attribute 'highlight-symbol-face nil
-                        :background nil
-                        :foreground nil
-                        :inherit 'highlight))
+  (setq highlight-symbol-idle-delay 0.5)
+  (setq highlight-symbol-on-navigation-p t)
 
-  ;; Set face after theme changes
-  (add-hook 'after-load-theme-hook #'nh/highlight-symbol-face)
-
-  ;; Enable highlight-symbol-mode in all programming modes except typescript
   (defun nh/enable-highlight-symbol-mode ()
-    (unless (member major-mode '(typescript-mode))
-      (nh/highlight-symbol-face)
-      (highlight-symbol-mode 1)))
+    "Enable highlight-symbol-mode in programming modes."
+    (highlight-symbol-mode 1))
+
   :hook
   (prog-mode . nh/enable-highlight-symbol-mode))
 
-(use-package gotham-theme :defer :ensure t)
-(use-package spacemacs-theme :defer :ensure t)
-
 (provide 'nh-theme)
 
-;;; nh-theme.el ends here 
+;;; nh-theme.el ends here

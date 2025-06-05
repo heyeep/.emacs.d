@@ -27,8 +27,9 @@
     (or (cl-find-if #'executable-find paths)
         "sbcl")))  ;; Final fallback
 
-;; Built-in Lisp mode enhancements for Common Lisp development
-;; Provides syntax highlighting, indentation, and basic editing features
+;; Lisp Mode: Built-in Lisp mode enhancements for Common Lisp
+;; Provides syntax highlighting, indentation, and basic editing features for
+;; Common Lisp development with enhanced indentation and electric features.
 (use-package lisp-mode
   :ensure nil
   :config
@@ -62,9 +63,9 @@
                             1 font-lock-keyword-face)))))))
 
 ;; SLIME: Superior Lisp Interaction Mode for Emacs
-;; The premier Common Lisp development environment for Emacs
-;; Provides REPL, debugger, inspector, cross-references, and much more
-;; https://github.com/slime/slime
+;; The premier Common Lisp development environment providing REPL, debugger,
+;; inspector, cross-references, and comprehensive IDE features for Lisp development.
+;; GitHub: https://github.com/slime/slime
 (use-package slime
   :ensure t
   :init
@@ -122,9 +123,9 @@
               ("C-c C-z" . slime-repl)))
 
 ;; Geiser: Interactive development environment for Scheme
-;; Provides REPL, evaluation, documentation, and debugging for Scheme dialects
-;; Supports multiple Scheme implementations (Guile, Chicken, Racket, etc.)
-;; https://github.com/jaor/geiser
+;; Provides REPL, evaluation, documentation, and debugging for multiple Scheme
+;; dialects including Guile, Chicken, Racket with IDE-like features.
+;; GitHub: https://github.com/jaor/geiser
 (use-package geiser
   :ensure t
 

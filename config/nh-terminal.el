@@ -12,24 +12,31 @@
 ;; Ensure CMake is available for vterm
 (setq vterm-cmake-path "/opt/homebrew/bin/cmake")
 
+;; Vterm: Fully-featured terminal emulator
+;; Fast terminal emulator based on libvterm providing full terminal capabilities
+;; including colors, cursor positioning, and complex terminal applications support.
+;; GitHub: https://github.com/akermu/emacs-libvterm
 (use-package vterm
   :ensure t
   :commands vterm
   :config
   (setq vterm-shell "/bin/zsh")             ;; Use zsh as the default shell
-  (setq vterm-max-scrollback 200000)         ;; Increase scrollback buffer
+  (setq vterm-max-scrollback 10000)         ;; Increase scrollback buffer
+  (setq vterm-buffer-name-string "vterm %s")
   ;; Example keybinding: open new vterm with C-c t
   (global-set-key (kbd "C-c t") #'vterm))
 
-;; Manage multiple vterm buffers with multi-vterm
+;; Multi Vterm: Manage multiple vterm buffers
+;; Provides convenient functions to create, manage, and switch between multiple
+;; vterm terminal sessions with dedicated buffer management and keybindings.
+;; GitHub: https://github.com/suonlight/multi-vterm
 (use-package multi-vterm
-  :ensure nil
+  :ensure t
   :after vterm
-  :config
-  ;; Keybindings for multi-vterm navigation and creation
-  (define-key vterm-mode-map (kbd "C-c n") 'multi-vterm-next)
-  (define-key vterm-mode-map (kbd "C-c p") 'multi-vterm-prev)
-  (define-key vterm-mode-map (kbd "C-c c") 'multi-vterm))
+  :bind (("C-c t t" . multi-vterm)
+         ("C-c t n" . multi-vterm-next)
+         ("C-c t p" . multi-vterm-prev)
+         ("C-c t d" . multi-vterm-dedicated-toggle)))
 
 (provide 'nh-terminal)
 ;;; nh-terminal.el ends here
