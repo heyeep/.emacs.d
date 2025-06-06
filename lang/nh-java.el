@@ -14,7 +14,7 @@
   (with-eval-after-load 'evil
     (evil-define-key 'normal java-mode-map
       (kbd "K") #'javadoc-lookup
-      (kbd "gf") #'xref-find-definitions)
+      (kbd "gf") #'xref-find-definitions)))
 
 ;; Javadoc Lookup: Quick access to Java API documentation
 ;; https://github.com/nicferrier/emacs-javadoc-lookup

@@ -122,4 +122,4 @@
 
 (provide 'nh-markdown)
 
-a;;; lang/nh-markdown.el ends here
+;;; lang/nh-markdown.el ends here
