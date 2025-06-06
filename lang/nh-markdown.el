@@ -1,6 +1,8 @@
 ;;; lang/nh-markdown.el --- Markdown configuration -*- lexical-binding: t; -*-
 
-;; This file configures Emacs for working with Markdown files.
+;;; Commentary:
+
+;;; Code:
 
 ;; Markdown Mode: Major mode for editing Markdown files
 ;; Provides syntax highlighting, live preview, and editing features for
@@ -64,7 +66,7 @@
   (defun nh/markdown-show-raw-on-markup ()
     "Show raw markdown when cursor is on a markdown block."
     (when (derived-mode-p 'markdown-mode)
-      (let ((pos (point))
+      (let ((pos_ (point))
             ;; Regexp to match markdown syntax characters, ensuring they're not escaped
             ;; Matches: # (headers), * and _ (emphasis), ` (code), ~ (strikethrough), [] and () (links)
             (markup-regexp "\\(^\\|[^\\]\\)\\([#*_`~]\\|\\[\\|\\]\\|(\\|)\\)"))
@@ -82,10 +84,15 @@
               (setq markdown-hide-markup t)
               (markdown-toggle-markup-hiding 1)))))))
 
-  ;; Set up keybindings for markdown-mode
   (with-eval-after-load 'markdown-mode
+    ;; Set up keybindings for markdown-mode
     (define-key markdown-mode-map (kbd "C-c C-p") 'nh/markdown-toggle-preview)
     (define-key markdown-mode-map (kbd "C-c C-m") 'nh/markdown-toggle-markup-hiding))
+
+    ;; Use default background for code faces
+    (set-face-background 'markdown-code-face (face-background 'default nil t))
+    (set-face-background 'markdown-inline-code-face (face-background 'default nil t))
+    (set-face-background 'markdown-pre-face (face-background 'default nil t)))
 
   ;; Enable markup hiding by default after mode is fully initialized
   (add-hook 'markdown-mode-hook
@@ -99,7 +106,6 @@
               ;; Add cursor movement hook to dynamically show/hide markup
               ;; The 't' at the end makes this hook buffer-local (only affects current buffer)
               (add-hook 'post-command-hook 'nh/markdown-show-raw-on-markup nil t)))
-  )
 
 ;; Markdown Preview Mode: Live preview for Markdown files
 ;; Provides real-time HTML preview of Markdown files in a web browser with
@@ -116,4 +122,4 @@
 
 (provide 'nh-markdown)
 
-;;; lang/nh-markdown.el ends here
+a;;; lang/nh-markdown.el ends here

@@ -95,7 +95,7 @@
   :config
   (set-face-attribute 'rainbow-delimiters-unmatched-face nil
                       :foreground "red"
-                      :background nil
+                      :background 'unspecified
                       :weight 'bold
                       :underline t)
   (nh/bold-rainbow-parens))
@@ -195,8 +195,8 @@
   ;; Make highlight-symbol-face look like the standard highlight face
   (defun nh/highlight-symbol-face ()
     (set-face-attribute 'highlight-symbol-face nil
-                        :background nil
-                        :foreground nil
+                        :background 'unspecified
+                        :foreground 'unspecified
                         :inherit 'highlight))
 
   ;; Set face after theme changes
