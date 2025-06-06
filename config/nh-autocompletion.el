@@ -80,8 +80,8 @@ These are added to `completion-ignored-extensions'."
 (nh--configure-global-completion)
 
 ;; Vertico: Vertical interactive completion
-;; A performant and minimalist vertical completion UI based on the default
-;; completion system with support for cycling, grouping, and directory navigation.
+;; Provides a minimalist vertical completion interface with fast fuzzy matching,
+;; better than ivy/helm with cleaner UI and excellent performance for selection.
 ;; GitHub: https://github.com/minad/vertico
 (use-package vertico
   :ensure t
@@ -122,8 +122,8 @@ These are added to `completion-ignored-extensions'."
               ("M-n" . #'vertico-next)))     ;; Explicit next for history navigation
 
 ;; Orderless: Advanced completion style
-;; Provides flexible completion matching with support for multiple patterns,
-;; regular expressions, and smart case sensitivity for enhanced search experience.
+;; Provides flexible completion matching with space-separated components that
+;; can match in any order, supporting regexp, literal, and fuzzy matching styles.
 ;; GitHub: https://github.com/oantolin/orderless
 (use-package orderless
   :ensure t
@@ -135,8 +135,8 @@ These are added to `completion-ignored-extensions'."
   (orderless-component-separator #'orderless-escapable-split-on-space))
 
 ;; Marginalia: Rich annotations in the minibuffer
-;; Adds informative annotations to minibuffer completions showing file sizes,
-;; modification dates, documentation strings, and other contextual information.
+;; Adds helpful annotations and metadata to minibuffer completions, showing file
+;; sizes, documentation strings, and other contextual information for candidates.
 ;; GitHub: https://github.com/minad/marginalia
 (use-package marginalia
   :ensure t
