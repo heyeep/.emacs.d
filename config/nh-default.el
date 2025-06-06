@@ -44,10 +44,9 @@
 (use-package exec-path-from-shell
   :ensure t
   :config
-;;  (setq exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-copy-envs '("PATH" "AIDER_API_KEY" "OPENAI_API_KEY"))
+  (setq exec-path-from-shell-check-startup-files nil)
   (exec-path-from-shell-initialize))
-
-(exec-path-from-shell-copy-envs '("PATH" "AIDER_API_KEY" "OPENAI_API_KEY"))
 
 ;; Keycast: Show current command and its key in the mode line
 ;; Displays the keys you press and the commands they invoke in the header line,
