@@ -37,17 +37,6 @@
                   (abbreviate-file-name (buffer-file-name))
                 "%b")))
 
-;; Exec Path From Shell: Make Emacs use the $PATH set up by the user's shell
-;; Ensures Emacs inherits the correct PATH and environment variables from the
-;; user's shell, especially important for GUI Emacs and tools managed by asdf.
-;; GitHub: https://github.com/purcell/exec-path-from-shell
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (exec-path-from-shell-copy-envs '("PATH" "AIDER_API_KEY" "OPENAI_API_KEY"))
-  (setq exec-path-from-shell-check-startup-files nil)
-  (exec-path-from-shell-initialize))
-
 ;; Keycast: Show current command and its key in the mode line
 ;; Displays the keys you press and the commands they invoke in the header line,
 ;; useful for presentations, tutorials, and learning new keybindings.

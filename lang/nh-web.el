@@ -24,7 +24,6 @@
   ("\\.djhtml\\'" . web-mode)
   ("\\.jsp\\'" . web-mode)
   ("\\.eex\\'" . web-mode)
-  ("\\.tsx\\'" . web-mode)
   ("\\.ejs\\'" . web-mode))
   :hook (web-mode . nh/web-mode-setup)
   :init
@@ -81,8 +80,7 @@
   :ensure t
   :mode ("\\.js\\'" . js2-mode)
   :interpreter ("node" . js2-mode)
-  :hook ((js2-mode . nh/js2-setup)
-         (js2-mode . lsp-deferred))
+  :hook (js2-mode . nh/js2-setup)
   :custom
   (js-indent-level 2)
   (js2-basic-offset 2)
@@ -110,7 +108,6 @@
   :ensure t
   :mode (("\\.js[x]?\\'" . rjsx-mode))
   :interpreter ("node" . rjsx-mode)
-  :hook (rjsx-mode . lsp-deferred)
   :config
   ;; Workaround: align closing bracket with opening bracket in JSX
   (defun nh/js-jsx-indent-line-align-closing-bracket ()
@@ -121,7 +118,7 @@
         (delete-char sgml-basic-offset))))
   (advice-add #'js-jsx-indent-line :after #'nh/js-jsx-indent-line-align-closing-bracket)
   ;; Restore standard Emacs behavior for < and C-d in rjsx-mode
-  (with-eval-after-load 'rjsx
+  (with-eval-after-load 'rjsx-mode
     (define-key rjsx-mode-map "<" nil)
     (define-key rjsx-mode-map (kbd "C-d") nil)))
 
@@ -133,7 +130,70 @@
   :ensure t
   :mode ("\\.ts\\'" . typescript-mode)
          ("\\.tsx\\'" . typescript-mode)
-  :hook (typescript-mode . lsp-deferred))
+  :init
+  (add-hook 'typescript-mode-hook
+            (lambda ()
+              (setq-local typescript-indent-level 2))))
+
+;; Tide: TypeScript Interactive Development Environment (also works for JS)
+;; https://github.com/ananthakumaran/tide
+(use-package tide
+  :ensure t
+  :commands (tide-setup)
+  :init
+  (defun nh/setup-tide-mode ()
+    (interactive)
+    (when (locate-dominating-file default-directory "tsfmt.json")
+      (add-hook 'before-save-hook #'tide-format-before-save nil t))
+    ;; Disable linting for Typescript Definition files.
+    (when (and (buffer-file-name)
+               (string-match-p ".d.ts$" (buffer-file-name)))
+      (flycheck-mode -1))
+    (tide-setup)
+    (tide-hl-identifier-mode +1)
+    ;; Ensure flycheck is enabled
+    (flycheck-mode +1)
+    ;; Set the checkers for this buffer
+    (setq-local flycheck-checkers '(typescript-tide typescript-tsc)))
+  (add-hook 'typescript-mode-hook #'nh/setup-tide-mode)
+
+  (add-hook 'js2-mode-hook
+            (lambda ()
+              (when (or
+                     (locate-dominating-file default-directory "tsconfig.json")
+                     (locate-dominating-file default-directory "jsconfig.json"))
+                (nh/setup-tide-mode))))
+
+  (add-hook 'web-mode-hook
+            (lambda ()
+              ;; Set up Tide mode if Typescript.
+              (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                (setq-local web-mode-enable-auto-quoting nil)
+                (when (fboundp 'yas-activate-extra-mode)
+                  (yas-activate-extra-mode 'typescript-mode))
+                (nh/setup-tide-mode))))
+  :config
+  ;; Configure Flycheck to use both tide and tsc checkers
+  (with-eval-after-load 'flycheck
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    
+    ;; Add Tide support to modes
+    (flycheck-add-mode 'typescript-tide 'web-mode)
+    (flycheck-add-mode 'typescript-tide 'typescript-mode)
+    
+    ;; Define a proper typescript-tsc checker if it doesn't exist
+    (unless (flycheck-valid-checker-p 'typescript-tsc)
+      (flycheck-define-checker typescript-tsc
+        "TypeScript compiler for type checking."
+        :command ("tsc" "--noEmit" "--pretty" "false"
+                  "--skipLibCheck"
+                  source-inplace)
+        :error-patterns
+        ((error line-start (file-name) "(" line "," column "): error TS" (id (one-or-more digit)) ": " (message) line-end))
+        :modes (typescript-mode tsx-mode)))
+    
+    ;; Chain the checkers: run tsc after tide
+    (flycheck-add-next-checker 'typescript-tide 'typescript-tsc 'append)))
 
 ;; Prettier JS: Format JavaScript code using Prettier
 ;; Automatically formats JavaScript, TypeScript, and JSX code on save using the

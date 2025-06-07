@@ -475,7 +475,10 @@ These are added to `completion-ignored-extensions'."
   :ensure t
   :commands (lsp lsp-deferred)
   :hook ((prog-mode . (lambda ()
-                        (unless (derived-mode-p 'emacs-lisp-mode)
+                        (unless (or (derived-mode-p 'emacs-lisp-mode)
+                                    (derived-mode-p 'typescript-mode)
+                                    (derived-mode-p 'js2-mode)
+                                    (derived-mode-p 'rjsx-mode))
                           (lsp-deferred)))))
   :custom
   (lsp-completion-provider :capf)
