@@ -8,9 +8,26 @@
 (defun nh/load-directory (dir)
   "Load all .el files from DIR."
   (add-to-list 'load-path dir)
+  (message "[init.el] Loading files from %s..." dir)
   (dolist (file (directory-files dir t "\.el$"))
     (when (not (string-match-p "\`\." (file-name-nondirectory file)))
-      (require (intern (file-name-base file))))))
+      (let ((feature (intern (file-name-base file)))
+            (start-time (current-time)))
+        (message "[init.el] Loading %s..." feature)
+        (condition-case err
+            (progn
+              (require feature)
+              (let ((load-time (float-time (time-subtract (current-time) start-time))))
+                (message "[init.el] ✓ Loaded %s (%.3fs)" feature load-time)
+                (when (boundp 'nh/load-stats)
+                  (plist-put nh/load-stats :success (1+ (plist-get nh/load-stats :success))))))
+          (error
+           (message "[init.el] ✗ Failed to load %s: %s" feature (error-message-string err))
+           (when (boundp 'nh/load-stats)
+             (plist-put nh/load-stats :failed (1+ (plist-get nh/load-stats :failed)))
+             (plist-put nh/load-stats :errors 
+                        (append (plist-get nh/load-stats :errors) 
+                                (list (cons feature (error-message-string err))))))))))))
 
 ;; Indentation helpers: quickly indent buffer or region, clean up whitespace, and untabify if needed
 (defun nh/indent-buffer ()

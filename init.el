@@ -92,28 +92,76 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+;; Track loading statistics
+(defvar nh/load-stats '(:success 0 :failed 0 :errors nil)
+  "Statistics for module loading.")
+
+;; Function to show loading summary
+(defun nh/show-load-summary ()
+  "Display a summary of module loading statistics."
+  (let ((success (plist-get nh/load-stats :success))
+        (failed (plist-get nh/load-stats :failed))
+        (errors (plist-get nh/load-stats :errors))
+        (total-time (float-time (time-subtract after-init-time before-init-time))))
+    (message "════════════════════════════════════════")
+    (message "Emacs Startup Summary:")
+    (message "  Total modules: %d (✓ %d succeeded, ✗ %d failed)"
+             (+ success failed) success failed)
+    (message "  Total startup time: %.3f seconds" total-time)
+    (when (> failed 0)
+      (message "  Failed modules:")
+      (dolist (error errors)
+        (message "    - %s: %s" (car error) (cdr error))))
+    (message "════════════════════════════════════════")))
+
+;; Debug function for tracking module loading
+(defun nh/require-with-log (feature)
+  "Require FEATURE with logging and error tracking."
+  (let ((start-time (current-time)))
+    (message "[init.el] Loading %s..." feature)
+    (condition-case err
+        (progn
+          (require feature)
+          (let ((load-time (float-time (time-subtract (current-time) start-time))))
+            (message "[init.el] ✓ Loaded %s (%.3fs)" feature load-time)
+            (plist-put nh/load-stats :success (1+ (plist-get nh/load-stats :success)))))
+      (error
+       (message "[init.el] ✗ Failed to load %s: %s" feature (error-message-string err))
+       (plist-put nh/load-stats :failed (1+ (plist-get nh/load-stats :failed)))
+       (plist-put nh/load-stats :errors 
+                  (append (plist-get nh/load-stats :errors) 
+                          (list (cons feature (error-message-string err)))))))))
+
+;; Load core configuration files immediately
+(message "[init.el] Starting configuration load...")
+(nh/require-with-log 'nh-env)
+(nh/require-with-log 'nh-default)  ;; This contains inhibit-startup-screen setting
+
 (add-hook 'after-init-hook
           (lambda ()
             (load "server") ;; server-running-p is not autoloaded.
             (unless (server-running-p)
               (server-start))
-            ;; Load configuration files in explicit order
-            (require 'nh-env)
-            (require 'nh-default)
-            (require 'nh-helpers)
-            (require 'nh-commands)
-            (require 'nh-theme)
-            (require 'nh-dired)
-            (require 'nh-autocompletion)
-            (require 'nh-git)
-            (require 'nh-terminal)
-            (require 'nh-keybindings)
-            (require 'nh-mouse)
-            (require 'nh-org)
-            (require 'nh-copilot-ai)
-            (require 'nh-aider-ai)
+            ;; Load remaining configuration files
+            (nh/require-with-log 'nh-helpers)
+            (nh/require-with-log 'nh-commands)
+            (nh/require-with-log 'nh-theme)
+            (nh/require-with-log 'nh-dired)
+            (nh/require-with-log 'nh-autocompletion)
+            (nh/require-with-log 'nh-git)
+            (nh/require-with-log 'nh-terminal)
+            (nh/require-with-log 'nh-keybindings)
+            (nh/require-with-log 'nh-mouse)
+            (nh/require-with-log 'nh-org)
+            (nh/require-with-log 'nh-debug)
+            (nh/require-with-log 'nh-copilot-ai)
+            (nh/require-with-log 'nh-aider-ai)
             ;; Load all language-specific configuration files
-            (nh/load-directory (expand-file-name "lang" user-emacs-directory))))
+            (if (fboundp 'nh/load-directory)
+                (nh/load-directory (expand-file-name "lang" user-emacs-directory))
+              (message "[init.el] ✗ Cannot load language files - nh/load-directory not defined"))
+            ;; Display loading summary
+            (nh/show-load-summary)))
 
 (setq native-comp-async-report-warnings-errors nil)
 

@@ -27,6 +27,9 @@
 
 ;;; Disable the startup screen
 (setq inhibit-startup-screen t)
+(setq inhibit-splash-screen t)
+(setq inhibit-startup-message t)
+(setq initial-buffer-choice nil)
 
 ;;; Mute the system bell
 (setq ring-bell-function 'ignore)
