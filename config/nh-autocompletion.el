@@ -313,7 +313,15 @@ These are added to `completion-ignored-extensions'."
   (setq projectile-track-known-projects-automatically t
         projectile-completion-system 'default
         projectile-enable-caching t
-        projectile-indexing-method 'alien)
+        projectile-indexing-method 'alien
+        ;; Add more project root files for better detection
+        projectile-project-root-files '(".projectile" ".git" ".hg" ".svn" ".bzr" "_darcs"
+                                         "package.json" "Gemfile" "requirements.txt"
+                                         "setup.py" "pom.xml" "build.gradle" "Cargo.toml"
+                                         "go.mod" "tsconfig.json" "jsconfig.json"
+                                         "composer.json" "Makefile" "CMakeLists.txt"))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
   :config
   ;; Apply global exclusions to projectile
   (dolist (dir nh/globally-ignored-directories)
@@ -490,6 +498,20 @@ These are added to `completion-ignored-extensions'."
 
   (setq lsp-disabled-clients '(rubocop-ls sorbet-ls typeprof-ls steep-ls ruby-syntax-tree-ls semgrep-ls))
   (setq lsp-warn-no-matched-clients t)
+  
+  ;; Configure project detection for LSP
+  (setq lsp-auto-guess-root t)  ;; Automatically detect project root
+  (setq lsp-prefer-workspace-root t)  ;; Prefer workspace root for operations
+  
+  ;; Define project root patterns
+  (setq lsp-project-root-files '(".git" ".projectile" "package.json" "Gemfile" 
+                                  "Cargo.toml" "go.mod" "pom.xml" "build.gradle"
+                                  "tsconfig.json" "jsconfig.json" ".env" 
+                                  "Makefile" "CMakeLists.txt" ".gitignore"))
+  
+  ;; Configure workspace folders
+  (setq lsp-enable-file-watchers t)  ;; Watch files for changes
+  (setq lsp-file-watch-threshold 1000)  ;; Increase file watch limit
 
   (require 'lsp-headerline)
   (require 'lsp-modeline)
@@ -508,7 +530,53 @@ These are added to `completion-ignored-extensions'."
   
   ;; Enable flycheck integration with LSP
   (setq lsp-diagnostics-provider :flycheck)
-  (setq lsp-flycheck-live-reporting t))
+  (setq lsp-flycheck-live-reporting t)
+  
+  ;; Suppress certain LSP errors
+  (setq lsp-print-io nil)  ;; Disable IO logging for performance
+  (setq lsp-log-io nil)    ;; Disable IO logging
+  
+  ;; Add advice to handle nil positions in LSP responses
+  (defadvice lsp--apply-text-edit (around lsp-handle-nil-positions activate)
+    "Handle nil positions in LSP text edits."
+    (condition-case err
+        ad-do-it
+      (wrong-type-argument
+       (message "LSP: Ignoring text edit with invalid position: %s" err)
+       nil)))
+  
+  ;; Wrap LSP hover to handle errors gracefully
+  (with-eval-after-load 'lsp-mode
+    (defun nh/safe-lsp-hover ()
+      "Safe wrapper around lsp-hover that handles errors."
+      (interactive)
+      (condition-case err
+          (lsp-hover)
+        (error
+         (message "LSP hover error: %s" (error-message-string err)))))
+    
+    ;; Replace the default hover keybinding
+    (define-key lsp-mode-map [remap xref-find-definitions] 'lsp-find-definition)
+    (define-key lsp-mode-map (kbd "K") 'nh/safe-lsp-hover))
+  
+  ;; Helper functions for debugging LSP project awareness
+  (defun nh/lsp-describe-workspace ()
+    "Describe the current LSP workspace and project root."
+    (interactive)
+    (if (bound-and-true-p lsp-mode)
+        (let ((workspace (lsp-find-workspace-root))
+              (project-root (projectile-project-root))
+              (lsp-root (lsp-workspace-root)))
+          (message "LSP Workspace: %s\nProjectile root: %s\nLSP root: %s" 
+                   workspace project-root lsp-root))
+      (message "LSP mode is not active in this buffer")))
+  
+  (defun nh/lsp-restart-workspace ()
+    "Restart the LSP workspace for the current buffer."
+    (interactive)
+    (when (bound-and-true-p lsp-mode)
+      (lsp-workspace-restart (lsp--read-workspace))
+      (message "LSP workspace restarted"))))
 
 ;; LSP UI: Enhanced UI for LSP diagnostics and features
 ;; Provides rich UI components for LSP including documentation popups, diagnostic
