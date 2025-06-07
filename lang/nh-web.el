@@ -81,7 +81,8 @@
   :ensure t
   :mode ("\\.js\\'" . js2-mode)
   :interpreter ("node" . js2-mode)
-  :hook (js2-mode . nh/js2-setup)
+  :hook ((js2-mode . nh/js2-setup)
+         (js2-mode . lsp-deferred))
   :custom
   (js-indent-level 2)
   (js2-basic-offset 2)
@@ -109,6 +110,7 @@
   :ensure t
   :mode (("\\.js[x]?\\'" . rjsx-mode))
   :interpreter ("node" . rjsx-mode)
+  :hook (rjsx-mode . lsp-deferred)
   :config
   ;; Workaround: align closing bracket with opening bracket in JSX
   (defun nh/js-jsx-indent-line-align-closing-bracket ()
@@ -130,7 +132,8 @@
 (use-package typescript-mode
   :ensure t
   :mode ("\\.ts\\'" . typescript-mode)
-         ("\\.tsx\\'" . typescript-mode))
+         ("\\.tsx\\'" . typescript-mode)
+  :hook (typescript-mode . lsp-deferred))
 
 ;; Prettier JS: Format JavaScript code using Prettier
 ;; Automatically formats JavaScript, TypeScript, and JSX code on save using the

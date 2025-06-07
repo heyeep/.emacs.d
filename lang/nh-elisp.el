@@ -62,7 +62,6 @@
                                     ;; Enable eldoc in scratch buffer for function signatures
                                     (when (fboundp 'eldoc-mode)
                                       (eldoc-mode 1)))))
-
   ;; Enhanced evaluation keybindings with better error handling
   :bind (:map emacs-lisp-mode-map
               ("C-c e e" . eval-last-sexp)
@@ -147,11 +146,13 @@
 
 ;; Custom evaluation functions with enhanced error handling and feedback
 (defun nh/eval-last-sexp-with-error-display ()
-  "Evaluate the last sexp and display errors clearly in minibuffer."
+  "Evaluate the last sexp and display errors clearly in minibuffer with line number."
   (interactive)
   (condition-case err
       (eval-last-sexp nil)
-    (error (message "Eval error: %s" (error-message-string err)))))
+    (error (message "Error at line %d: %s" 
+                    (line-number-at-pos) 
+                    (error-message-string err)))))
 
 (defun nh/eval-and-replace ()
   "Replace the preceding sexp with its evaluated value."
@@ -161,13 +162,20 @@
     (insert (format "%S" value))))
 
 (defun nh/eval-buffer-with-feedback ()
-  "Evaluate entire buffer and show result in minibuffer."
+  "Evaluate entire buffer and show result in minibuffer with error location."
   (interactive)
   (condition-case err
       (progn
         (eval-buffer)
         (message "Buffer evaluated successfully"))
-    (error (message "Buffer eval error: %s" (error-message-string err)))))
+    (error 
+     (let ((error-line (save-excursion
+                         (goto-char (point-min))
+                         (forward-line (1- (cadr err)))
+                         (line-number-at-pos))))
+       (message "Buffer eval error at line %s: %s" 
+                (if error-line error-line "unknown")
+                (error-message-string err))))))
 
 ;; Development utility functions for enhanced productivity
 (defun nh/elisp-find-library ()

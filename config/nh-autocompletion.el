@@ -501,7 +501,11 @@ These are added to `completion-ignored-extensions'."
   (setq lsp-signature-auto-activate t)
   (setq lsp-signature-render-documentation t)
   (setq lsp-hover-enable t)
-  (setq lsp-eldoc-enable-hover t))
+  (setq lsp-eldoc-enable-hover t)
+  
+  ;; Enable flycheck integration with LSP
+  (setq lsp-diagnostics-provider :flycheck)
+  (setq lsp-flycheck-live-reporting t))
 
 ;; LSP UI: Enhanced UI for LSP diagnostics and features
 ;; Provides rich UI components for LSP including documentation popups, diagnostic
@@ -515,11 +519,16 @@ These are added to `completion-ignored-extensions'."
   (lsp-ui-doc-enable t)
   (lsp-ui-doc-show-with-cursor nil)
   (lsp-ui-doc-show-with-mouse t)
-  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-position 'top)
   (lsp-ui-doc-max-width 120)
   (lsp-ui-doc-max-height 15)
   (lsp-ui-doc-use-childframe t)
   (lsp-ui-doc-use-webkit nil)
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-include-signature t)
+  ;; Offset the documentation box position
+  (lsp-ui-doc-alignment 'window)
+  (lsp-ui-doc-border 2)
 
   ;; LSP UI Flycheck (diagnostics) settings
   (lsp-ui-flycheck-enable t)
