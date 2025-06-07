@@ -1,9 +1,5 @@
 ;;; init.el --- Emacs configuration -*- lexical-binding: t; -*-
 
-;; Set up environment variables early
-;; (setenv "PATH" (concat "/opt/homebrew/bin:/opt/homebrew/sbin:" (getenv "PATH")))
-;; (setenv "SHELL" "/bin/zsh")
-
 ;;; Prevent package.el from automatically loading packages at startup
 (setq package-enable-at-startup nil)
 (setq load-prefer-newer t)
@@ -70,6 +66,17 @@
 (require 'diminish)
 
 (setq use-package-always-ensure t)
+
+;;; Set up exec-path-from-shell early to ensure PATH is correct
+;;; This needs to happen before any other packages that depend on external programs
+;;; Note: This is particularly important on macOS and Linux where PATH may not be set correctly in GUI Emacs
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(mac ns x))
+  :config
+  (exec-path-from-shell-copy-envs '("PATH" "AIDER_API_KEY" "OPENAI_API_KEY"))
+  (setq exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-initialize))
 
 ;;; Show use-package loading times for profiling
 (setq use-package-verbose t)
