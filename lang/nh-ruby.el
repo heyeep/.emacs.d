@@ -31,14 +31,51 @@
   (when (fboundp 'electric-pair-local-mode)
     (electric-pair-local-mode 1)))
 
-;; Setup ruby-lsp as the primary LSP client for Ruby
-(defun nh/setup-ruby-lsp ()
-  "Setup ruby-lsp as the primary LSP client for Ruby files."
-  (when (or (derived-mode-p 'ruby-mode) (derived-mode-p 'enh-ruby-mode))
-    ;; Disable other Ruby language servers
-    (setq-local lsp-disabled-clients '(rubocop-ls sorbet-ls typeprof-ls steep-ls ruby-syntax-tree-ls semgrep-ls))
-    ;; Enable ruby-lsp
-    (setq-local lsp-enabled-clients '(ruby-lsp-ls))))
+;; Setup Ruby with LSP and Flycheck working together
+(defun nh/setup-ruby-lsp-flycheck ()
+  "Setup Ruby with LSP and Flycheck working together."
+  (setq-local lsp-diagnostics-provider :flycheck)
+  (setq-local flycheck-relevant-checkers '(lsp))
+  (flycheck-mode 1)
+  (lsp-deferred))
+
+;; Configure LSP for Ruby modes
+(with-eval-after-load 'lsp-mode
+  ;; This tells lsp-mode to use the ruby-lsp executable when it detects
+  ;; a ruby project. It will automatically run it via `bundle exec` if
+  ;; a Gemfile is present, which is the correct behavior.
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection '("ruby-lsp"))
+    :major-modes '(ruby-mode enh-ruby-mode)
+    :server-id 'ruby-lsp-ls
+    ;; Enable all features, including Rails support.
+    :initialization-options
+    '((:featuresConfiguration (:textDocument (:codeAction (:enabled t)
+                                               :completion (:enabled t)
+                                               :definition (:enabled t)
+                                               :documentHighlight (:enabled t)
+                                               :documentLink (:enabled t)
+                                               :documentSymbol (:enabled t)
+                                               :foldingRange (:enabled t)
+                                               :formatting (:enabled t)
+                                               :hover (:enabled t)
+                                               :inlayHint (:enabled t)
+                                               :onTypeFormatting (:enabled t)
+                                               :references (:enabled t)
+                                               :rename (:enabled t)
+                                               :selectionRange (:enabled t)
+                                               :semanticHighlighting (:enabled t)
+                                               :signatureHelp (:enabled t)
+                                               :workspaceSymbol (:enabled t))
+                             :diagnostics (:enabled t)
+                             :workspace (:didChangeWatchedFiles (:enabled t))
+                             :experimental (:enabled t)
+                             :rails (:enabled t))))
+    :priority 20)))
+
+;; (with-eval-after-load 'flycheck
+;;   (add-hook 'flycheck-mode-hook #'flycheck-lsp-setup))
 
 ;; Ruby Mode: Major mode for editing Ruby files
 ;; Built-in Ruby major mode providing syntax highlighting, indentation, and
@@ -71,15 +108,16 @@
   :interpreter ("ruby" . ruby-mode)
   :hook ((ruby-mode . nh/ruby-check-for-cocoapods)
          (ruby-mode . nh/ruby-mode-setup)
-         (ruby-mode . nh/setup-ruby-lsp)
-         (ruby-mode . lsp-deferred)
-         (ruby-mode . flycheck-mode))
+         (ruby-mode . nh/setup-ruby-lsp-flycheck))
   :bind (:map ruby-mode-map
               ("C-c r u c" . nh/ruby-rubocop-check-current-file)
               ("C-c r u a" . nh/ruby-rubocop-autocorrect-current-file)
               ("C-c r t r" . nh/rails-routes)
               ("C-c r t d" . nh/rails-dbconsole)
-              ("C-c r t g" . nh/rails-routes-grep))
+              ("C-c r t g" . nh/rails-routes-grep)
+              ("C-c r f n" . flycheck-next-error)
+              ("C-c r f p" . flycheck-previous-error)
+              ("C-c r f l" . flycheck-list-errors))
   :config
   ;; Do not insert encoding magic comment in new Ruby files
   (setq ruby-insert-encoding-magic-comment nil)
@@ -120,15 +158,16 @@
   :interpreter ("ruby" . enh-ruby-mode)
   :hook ((enh-ruby-mode . nh/ruby-check-for-cocoapods)
          (enh-ruby-mode . nh/ruby-mode-setup)
-         (enh-ruby-mode . nh/setup-ruby-lsp)
-         (enh-ruby-mode . lsp-deferred)
-         (enh-ruby-mode . flycheck-mode))
+         (enh-ruby-mode . nh/setup-ruby-lsp-flycheck))
   :bind (:map enh-ruby-mode-map
               ("C-c r u c" . nh/ruby-rubocop-check-current-file)
               ("C-c r u a" . nh/ruby-rubocop-autocorrect-current-file)
               ("C-c r t r" . nh/rails-routes)
               ("C-c r t d" . nh/rails-dbconsole)
-              ("C-c r t g" . nh/rails-routes-grep))
+              ("C-c r t g" . nh/rails-routes-grep)
+              ("C-c r f n" . flycheck-next-error)
+              ("C-c r f p" . flycheck-previous-error)
+              ("C-c r f l" . flycheck-list-errors))
   :config
   ;; Enhanced Ruby mode specific settings
   (setq enh-ruby-add-encoding-comment-on-save nil)
@@ -168,17 +207,43 @@
 ;; GitHub: https://github.com/dgutov/robe
 (use-package robe
   :ensure t
-  :hook ((ruby-mode enh-ruby-mode) . robe-mode)
+  :hook (((ruby-mode enh-ruby-mode) . robe-mode))
   :config
-  ;; Add robe completion to corfu
-  (with-eval-after-load 'cape
-    (add-hook 'ruby-mode-hook
-              (lambda ()
-                (add-to-list 'completion-at-point-functions #'robe-complete-at-point)))
-    (add-hook 'enh-ruby-mode-hook
-              (lambda ()
-                (add-to-list 'completion-at-point-functions #'robe-complete-at-point))))
-
+  ;; Custom function to ensure Robe starts correctly with project environment
+  (defun nh/robe-safe-start ()
+    "Start Robe safely with appropriate environment settings."
+    (interactive)
+    (let ((default-directory (or (projectile-project-root)
+                                 default-directory)))
+      ;; Ensure asdf shims are in the PATH for this process
+      (when (file-exists-p "~/.asdf/shims")
+        (setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.asdf/shims")))
+        (setq exec-path (append exec-path (list (expand-file-name "~/.asdf/shims")))))
+      
+      ;; Set environment variables to help Robe find the gems
+      (setenv "RUBYOPT" "-rpry -rpry-doc -rreadline")
+      
+      ;; Start inf-ruby first if not running
+      (unless (comint-check-proc inf-ruby-buffer)
+        (condition-case nil
+            (inf-ruby-console-auto)
+          (error (inf-ruby))))
+      
+      ;; Now start Robe
+      (condition-case err
+          (progn
+            (call-interactively 'robe-start)
+            (message "Robe started successfully"))
+        (error
+         (message "Robe start error: %s" (error-message-string err))
+         (display-warning 'robe (format "Failed to start Robe: %s" (error-message-string err)))))
+      
+      ;; Reset environment after starting Robe
+      (setenv "RUBYOPT" nil)))
+  
+  (advice-add 'robe-start :override #'nh/robe-safe-start)
+  
+  (add-to-list 'completion-at-point-functions #'robe-complete-at-point)
   :bind (:map robe-mode-map
               ("C-c r d" . robe-doc)
               ("C-c r j" . robe-jump)
@@ -209,6 +274,9 @@
               ("C-c r g" . projectile-rails-goto-file-at-point)
               ("C-c r R" . projectile-rails-console)))
 
+(with-eval-after-load 'lsp-ui
+  (setq lsp-ui-sideline-show-diagnostics t)
+  (setq lsp-ui-doc-enable t))
 
 (defun nh/ruby-bundle-exec (command)
   "Run COMMAND with bundle exec in the project root."
@@ -268,23 +336,6 @@
     (when (eq (cdr alist) 'nh/ruby-mode)
       (setf (cdr alist) 'ruby-mode)))
   (ruby-mode))
-
-;;;###autoload
-(defun nh/restart-lsp-ruby ()
-  "Restart LSP and ensure ruby-lsp is used for Ruby files."
-  (interactive)
-  (when (bound-and-true-p lsp-mode)
-    (if (fboundp 'lsp-workspace-shutdown)
-        (lsp-workspace-shutdown (lsp-find-workspace))
-      (when (fboundp 'lsp-disconnect)
-        (lsp-disconnect)))
-    (when (fboundp 'lsp-workspace-restart)
-      (lsp-workspace-restart (lsp-find-workspace))))
-  ;; Ensure our Ruby-specific settings are applied
-  (when (or (derived-mode-p 'ruby-mode) (derived-mode-p 'enh-ruby-mode))
-    (nh/setup-ruby-lsp)
-    (lsp-deferred))
-  (message "LSP restarted - ruby-lsp should now be active for Ruby files"))
 
 (provide 'nh-ruby)
 
