@@ -680,7 +680,7 @@ These are added to `completion-ignored-extensions'."
 
 ;; Global keybindings
 (global-set-key (kbd "C-r") #'nh/consult-line-reverse)
-(global-set-key (kbd "C-c p s") #'nh/consult-ripgrep-project)
+;;(global-set-key (kbd "C-c p s") #'nh/consult-ripgrep-project)
 
 ;; Add convenience bindings in isearch-mode for transitioning to consult
 (define-key isearch-mode-map (kbd "M-s l") #'consult-line)

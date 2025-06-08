@@ -37,10 +37,11 @@
                   (apply orig-fn args))))
 
   ;; Accept Copilot suggestion with TAB
-  (define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion))
+  ;(define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
+  ;(define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion))
 
 (setq copilot-indent-offset nil)
 (defun copilot--infer-indentation-offset () nil)
+
 (provide 'nh-copilot-ai)
 ;;; nh-copilot-ai.el ends here
