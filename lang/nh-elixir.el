@@ -55,11 +55,8 @@
 
 (defun nh/alchemist-mode-setup ()
   "Setup function for alchemist mode."
-  ;; Set up company backend for alchemist
-  (when (fboundp 'company-mode)
-    (nh/company-merge-backends))
-
   ;; Set up keybindings for alchemist
+
   (local-set-key (kbd "C-c t t") #'alchemist-mix-test)
   (local-set-key (kbd "C-c t f") #'alchemist-mix-test-current-file)
   (local-set-key (kbd "C-c t b") #'alchemist-mix-test-this-buffer)

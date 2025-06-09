@@ -10,14 +10,12 @@
   (add-to-list 'load-path "/Users/hiep/Code/claude/vaibe/vaibe-mode")
   (require 'vaibe)
   (setq vaibe-enable-ollama nil)
-  (require 'vaibe-init-fixes)
   (global-vaibe-mode 1)
 
   ;; Disable completion in chat buffers
   (add-hook 'vaibe-chat-mode-hook
             (lambda ()
-              (when (fboundp 'corfu-mode) (corfu-mode -1))
-              (when (fboundp 'company-mode) (company-mode -1))))
+              (when (fboundp 'corfu-mode) (corfu-mode -1))))
 
 (add-to-list 'load-path "~/vaibe-mode")
 (require 'vaibe)

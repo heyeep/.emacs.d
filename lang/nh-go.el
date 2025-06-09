@@ -64,16 +64,6 @@
             (unusedwrite . t)             ;; Check for unused writes
             (useany . t)))))              ;; Use "any" type when appropriate
 
-;; Company backend for Go
-;; Provides completion for Go code (used when LSP is not available)
-;; https://github.com/nsf/gocode
-(use-package company-go
-  :ensure t
-  :after (go-mode company)
-  :config
-  (setq company-go-show-annotation t)
-  :hook (go-mode . nh/go-company-setup))
-
 ;; Go Eldoc: Documentation in minibuffer for Go
 ;; Shows function signatures and documentation in the minibuffer
 ;; https://github.com/syohex/emacs-go-eldoc
@@ -111,12 +101,6 @@
   ;; Debugging keybindings
   (local-set-key (kbd "C-c d d") 'dlv)
   (local-set-key (kbd "C-c d f") 'dlv-current-func))
-
-;; Company setup for Go
-(defun nh/go-company-setup ()
-  "Setup company backends for Go mode."
-  (setq-local company-backends '((company-go company-yasnippet))))
-
 ;; Legacy compatibility function
 (defun nh/go-mode ()
   "Bootstrap Go mode configuration."
