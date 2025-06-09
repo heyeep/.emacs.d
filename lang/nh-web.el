@@ -186,6 +186,7 @@
       (flycheck-define-checker typescript-tsc
         "TypeScript compiler for type checking."
         :command ("tsc" "--noEmit" "--pretty" "false"
+                  "--jsx" "react"
                   "--skipLibCheck"
                   source-inplace)
         :error-patterns
