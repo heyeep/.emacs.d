@@ -37,8 +37,9 @@
                   (apply orig-fn args))))
 
   ;; Accept Copilot suggestion with TAB
-  ;(define-key copilot-mode-map (kbd "TAB") #'copilot-accept-completion)
-  ;(define-key copilot-mode-map (kbd "<tab>") #'copilot-accept-completion)
+  :bind (:map copilot-completion-map
+              ("C-<return>" . 'copilot-accept-completion)
+              ("C-<right>" . 'copilot-accept-completion-by-word))
   )
 
 (setq copilot-indent-offset nil)

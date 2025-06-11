@@ -24,7 +24,8 @@
   ("\\.djhtml\\'" . web-mode)
   ("\\.jsp\\'" . web-mode)
   ("\\.eex\\'" . web-mode)
-  ("\\.ejs\\'" . web-mode))
+  ("\\.ejs\\'" . web-mode)
+  ("\\.tsx\\'" . web-mode))
   :hook (web-mode . nh/web-mode-setup)
   :init
   (defun nh/web-mode-setup ()
@@ -129,7 +130,6 @@
 (use-package typescript-mode
   :ensure t
   :mode ("\\.ts\\'" . typescript-mode)
-         ("\\.tsx\\'" . typescript-mode)
   :init
   (add-hook 'typescript-mode-hook
             (lambda ()
