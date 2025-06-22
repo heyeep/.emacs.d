@@ -120,6 +120,26 @@ Detects the unresolved class name and adds the appropriate import."
   (interactive)
   (call-interactively 'lsp-java-add-import))
 
+;; Toggle between test and implementation files
+(defun nh/java-toggle-test-impl ()
+  "Toggle between Java test and implementation files."
+  (interactive)
+  (let* ((filename (buffer-file-name))
+         (is-test (string-match-p "Test\\.java$" filename))
+         (new-filename
+          (if is-test
+              ;; From test to implementation
+              (replace-regexp-in-string
+               "/src/test/java/" "/src/main/java/"
+               (replace-regexp-in-string "Test\\.java$" ".java" filename))
+            ;; From implementation to test
+            (replace-regexp-in-string
+             "/src/main/java/" "/src/test/java/"
+             (replace-regexp-in-string "\\.java$" "Test.java" filename)))))
+    (if (file-exists-p new-filename)
+        (find-file new-filename)
+      (message "Target file does not exist: %s" new-filename))))
+
 ;; Create a new Java class
 (defun nh/java-create-class (classname package)
   "Create a new Java class with the given name and package.
@@ -128,8 +148,12 @@ Argument PACKAGE is the package name for the class."
   (interactive
    (list
     (read-string "Class name: ")
-    (read-string "Package: " (lsp-java-get-package-name))))
-  (let* ((src-dirs (lsp-java-get-source-paths))
+    (read-string "Package: " (if (fboundp 'lsp-java-get-package-name)
+                                (lsp-java-get-package-name)
+                              ""))))
+  (let* ((src-dirs (if (fboundp 'lsp-java-get-source-paths)
+                      (lsp-java-get-source-paths)
+                    (list "./src/main/java")))
          (src-dir (if (= (length src-dirs) 1)
                      (car src-dirs)
                    (completing-read "Source directory: " src-dirs)))
@@ -181,8 +205,8 @@ Configures indentation, LSP features, and keybindings for Java development."
   (local-set-key (kbd "C-c j o") #'nh/java-organize-imports)
   (local-set-key (kbd "C-c j i") #'nh/java-import-class-at-point)
   (local-set-key (kbd "C-c j c") #'nh/java-create-class)
-  (local-set-key (kbd "C-c j gc") #'nh/java-generate-constructor)
-  (local-set-key (kbd "C-c j gg") #'nh/java-generate-getters-setters))
+  (local-set-key (kbd "C-c j C") #'nh/java-generate-constructor)  ;; Changed from gc to C
+  (local-set-key (kbd "C-c j G") #'nh/java-generate-getters-setters))  ;; Changed from gg to G
 
 ;; Add hooks for Java mode
 (add-hook 'java-mode-hook #'nh/java-mode-setup)

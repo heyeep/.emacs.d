@@ -38,26 +38,19 @@
     (nh/setup-python-interpreter)
     (unless (python-shell-get-buffer)
       (save-selected-window
-        (run-python (python-shell-calculate-command) nil nil))))
+        (let ((python-shell-prompt-detect-enabled nil))  ;; Disable prompt detection for startup
+          (run-python (python-shell-calculate-command) nil nil)))))
 
   :config
   ;; Enhanced Python development settings
   (setq python-indent-offset 4                    ;; Standard Python indentation
         python-indent-guess-indent-offset t       ;; Auto-detect indentation
-        python-shell-completion-native-enable t   ;; Use native completion
+        python-shell-completion-native-enable nil  ;; Disable native completion (issues in Emacs 30.1)
         python-shell-prompt-detect-enabled t      ;; Auto-detect prompts
         python-shell-prompt-detect-failure-warning nil) ;; Reduce noise
 
-  ;; Fix for native completion issues
-  ;; Addresses completion problems in some Python environments
-  (defun python-shell-completion-native-try ()
-    "Return non-nil if can trigger native completion."
-    (let ((python-shell-completion-native-enable t)
-          (python-shell-completion-native-output-timeout
-           python-shell-completion-native-try-output-timeout))
-      (python-shell-completion-native-get-completions
-       (get-buffer-process (current-buffer))
-       nil "_")))
+  ;; Remove the custom completion function since it conflicts with Emacs 30.1
+  ;; The built-in version handles this correctly
 
   :hook ((python-mode . (lambda ()
                           ;; Enhanced display and editing settings
@@ -71,8 +64,8 @@
                           (when (fboundp 'electric-pair-local-mode)
                             (electric-pair-local-mode 1))
 
-                          ;; Set up Python shell
-                          (nh/setup-inferior-python)
+                          ;; Set up Python interpreter but don't auto-start shell
+                          (nh/setup-python-interpreter)
 
                           ;; Enhanced font-lock for Python development
                           (font-lock-add-keywords
@@ -83,16 +76,21 @@
                              ("@\\(\\sw\\|\\s_\\)+" . 'font-lock-preprocessor-face))))))
 
   :bind (:map python-mode-map
-              ;; Evaluation commands - execute Python code interactively
+              ;; Standard Python mode keybindings
+              ("C-c C-e" . python-shell-send-statement)     ;; Send current statement
+              ("C-c C-r" . python-shell-send-region)        ;; Send region
+              ("C-c C-b" . python-shell-send-buffer)        ;; Send buffer
+              ("C-c C-f" . python-shell-send-defun)         ;; Send function/class
+              ("C-c C-p" . run-python)                      ;; Start Python shell
+              ("C-c C-z" . python-shell-switch-to-shell)    ;; Switch to Python shell
+              ("C-c C-c" . python-shell-send-buffer)        ;; Quick buffer execution
+
+              ;; Additional evaluation commands with custom prefix
               ("C-c e e" . python-shell-send-statement)     ;; Send current statement
               ("C-c e b" . python-shell-send-buffer)        ;; Send entire buffer
               ("C-c e f" . python-shell-send-defun)         ;; Send current function
               ("C-c e s" . python-shell-send-string)        ;; Send custom string
               ("C-c e R" . python-shell-send-region)        ;; Send selected region
-
-              ;; Shell and REPL management
-              ("C-c C-z" . python-shell-switch-to-shell)    ;; Switch to Python shell
-              ("C-c C-c" . python-shell-send-buffer)        ;; Quick buffer execution
 
               ;; Navigation and documentation
               ("C-c d d" . python-describe-at-point)        ;; Describe symbol at point

@@ -1,8 +1,6 @@
-;;; nh-dired.el --- Dired and file management enhancements -*- lexical-binding: t; -*-
+;;; nh-dired.el --- dired -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Modern Dired enhancements and region expansion for Emacs 30+.
-;; Provides sidebar, icons, subtree, collapse, and expand-region support.
 
 ;;; Code:
 
@@ -20,6 +18,9 @@
 
   ;; Shortcut to toggle details view
   (define-key dired-mode-map (kbd "<tab>") 'dired-hide-details-mode)
+
+  ;; Ensure standard dired keybindings are available
+  (define-key dired-mode-map (kbd "g") 'revert-buffer)
 
   ;; Configure the regex for files to omit.
   ;; This regex hides Emacs backup files (~), auto-save files (#),
@@ -54,24 +55,24 @@
   :config
   ;; Hide details by default in the sidebar
   (add-hook 'dired-sidebar-mode-hook 'dired-hide-details-mode)
-  
+
   ;; Use ls-lisp to avoid issues with different ls versions
   (setq dired-sidebar-use-ls-lisp t)
-  
+
   ;; Don't show the header in the sidebar
   (setq dired-sidebar-display-header nil)
-  
+
   ;; Use a minimal listing format for the sidebar
   (setq dired-sidebar-listing-switches "-la --group-directories-first")
-  
+
   ;; Only show one directory at a time
   (setq dired-sidebar-pop-to-sidebar-on-toggle-open nil)
   (setq dired-sidebar-cycle-subtree-on-click t)
-  
+
   ;; Make sidebar width adjustable
   (setq dired-sidebar-width 35)
   (setq dired-sidebar-theme 'icons)
-  
+
   ;; Font settings
   (setq dired-sidebar-use-custom-font t)
   (setq dired-sidebar-face
@@ -125,10 +126,10 @@
   :config
   ;; Auto-enable dired-git-info-mode in all Dired buffers
   (add-hook 'dired-after-readin-hook #'dired-git-info-auto-enable)
-  
+
   ;; Customize the display of Git information
   (setq dgi-auto-hide-details-p nil)  ;; Don't hide details automatically
-  
+
   ;; Show brief status instead of commit messages
   (defun dgi-commit-message ()
     "Show symbolic status instead of full commit message."
@@ -146,7 +147,7 @@
             ("?" "? Untracked")
             (_ status))
         "Not a git file")))
-  
+
   (setq dired-git-info-format "    %s"))
 
 ;; Git status highlighting for Dired
@@ -158,20 +159,20 @@
   ;; Fix potential issues with dired-k initialization
   (setq dired-k-padding 0)
   (setq dired-k-human-readable nil)
-  
+
   :config
   ;; Enable more vivid colors based on Git status
   (setq dired-k-style 'git)
-  
+
   ;; Automatically run dired-k when opening dired
   (add-hook 'dired-initial-position-hook 'dired-k)
   (add-hook 'dired-after-readin-hook 'dired-k-no-revert)
-  
+
   ;; Use different colors for different Git statuses
   ;; (set-face-foreground 'dired-k-modified "red")
   ;; (set-face-foreground 'dired-k-added "green")
   ;; (set-face-foreground 'dired-k-untracked "purple")
-  
+
   ;; Alternative method to show Git status with icons
   (defun my-dired-k-highlight ()
     "Add Git status indicators using text properties."
@@ -191,11 +192,11 @@
                                ('unregistered "? ")
                                (_ nil)))))))
         (forward-line 1))))
-  
+
   ;; Add additional hooks for more reliable display
   (add-hook 'dired-mode-hook 'my-dired-k-highlight)
   (add-hook 'dired-after-readin-hook 'my-dired-k-highlight)
-  
+
   ;; Add keybinding to manually refresh Git status
   :bind (:map dired-mode-map
               ("g" . dired-k)))

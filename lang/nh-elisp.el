@@ -201,10 +201,17 @@
   "Byte compile and load the current buffer for testing."
   (interactive)
   (when (buffer-file-name)
-    (let ((compiled-file (byte-compile-file (buffer-file-name))))
-      (when compiled-file
-        (load-file compiled-file)
-        (message "Compiled and loaded %s" (file-name-nondirectory compiled-file))))))
+    (let ((source-file (buffer-file-name))
+          (compiled-result (byte-compile-file (buffer-file-name))))
+      (when compiled-result
+        (let ((compiled-file (byte-compile-dest-file source-file)))
+          (if (file-exists-p compiled-file)
+              (progn
+                (load-file compiled-file)
+                (message "Compiled and loaded %s" (file-name-nondirectory compiled-file)))
+            (progn
+              (load-file source-file)
+              (message "Compilation succeeded, loaded source %s" (file-name-nondirectory source-file)))))))))
 
 (provide 'nh-elisp)
 ;;; nh-elisp.el ends here

@@ -35,5 +35,15 @@
   (setq ns-right-option-modifier 'super) ; Right Option as Super on macOS
   (setq mac-pass-command-to-system nil)) ; Let Emacs handle Command key, not macOS
 
+;; Ensure C-g always works as keyboard-quit
+(global-set-key (kbd "C-g") 'keyboard-quit)
+
+;; Make sure C-g works in minibuffer
+(define-key minibuffer-local-map (kbd "C-g") 'abort-recursive-edit)
+(define-key minibuffer-local-ns-map (kbd "C-g") 'abort-recursive-edit)
+(define-key minibuffer-local-completion-map (kbd "C-g") 'abort-recursive-edit)
+(define-key minibuffer-local-must-match-map (kbd "C-g") 'abort-recursive-edit)
+(define-key minibuffer-local-isearch-map (kbd "C-g") 'abort-recursive-edit)
+
 (provide 'nh-keybindings)
 ;;; nh-keybindings.el ends here 

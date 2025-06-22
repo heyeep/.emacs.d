@@ -35,6 +35,18 @@
   (setq solarized-distinct-fringe-background t)
   (setq solarized-use-less-bold t))
 
+;; Modus Themes: Highly accessible themes for Emacs
+;; Provides meticulously designed light and dark themes (modus-operandi and modus-vivendi)
+;; that meet the highest accessibility standards (WCAG AAA) for color contrast.
+;; GitHub: https://github.com/protesilaos/modus-themes
+(use-package modus-themes
+  :ensure t
+  :init
+  ;; Add customizations before loading the themes
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs nil
+        modus-themes-region '(bg-only no-extend)))
+
 
 ;; Circadian: Theme-switching based on daytime
 ;; Automatically switches between light and dark themes based on sunrise and
@@ -43,8 +55,8 @@
 (use-package circadian
   :ensure t
   :config
-  (setq circadian-themes '((:sunrise . solarized-light)
-                           (:sunset  . solarized-dark)))
+  (setq circadian-themes '((:sunrise . modus-operandi-tritanopia)
+                           (:sunset  . modus-operandi-tritanopia)))
   (setq calendar-latitude 37.8044)
   (setq calendar-longitude -122.2711)
   (circadian-setup))
@@ -124,38 +136,38 @@
 ;; Provides intelligent handling of paired characters like parentheses, quotes,
 ;; and brackets with structural editing commands for navigating and manipulating code.
 ;; GitHub: https://github.com/Fuco1/smartparens
-(use-package smartparens
-  :ensure t
-  :config
-  ;; Load the default smartparens config
-  (require 'smartparens-config)
-  ;; Enable Smartparens globally
-  (smartparens-global-mode 1)
-  ;; Highlight matching pairs
-  (show-smartparens-global-mode 1)
-  ;; Don't autopair single quotes (common in Lisp, Python, etc.)
-  (sp-pair "'" nil :actions :rem)
-  ;; Recommended: strict mode in Lisp modes for structural editing
-  (dolist (hook (nh/lisp-hooks))
-    (add-hook hook #'smartparens-strict-mode))
-  ;; Keybindings for common structural editing actions
+;; (use-package smartparens
+;;   :ensure t
+;;   :config
+;;   ;; Load the default smartparens config
+;;   (require 'smartparens-config)
+;;   ;; Enable Smartparens globally
+;;   (smartparens-global-mode 1)
+;;   ;; Highlight matching pairs
+;;   (show-smartparens-global-mode 1)
+;;   ;; Don't autopair single quotes (common in Lisp, Python, etc.)
+;;   (sp-pair "'" nil :actions :rem)
+;;   ;; Recommended: strict mode in Lisp modes for structural editing
+;;   (dolist (hook (nh/lisp-hooks))
+;;     (add-hook hook #'smartparens-strict-mode))
+;;   ;; Keybindings for common structural editing actions
 
-(define-key smartparens-mode-map (kbd "C-M-f") 'sp-forward-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-b") 'sp-backward-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-d") 'sp-down-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-a") 'sp-backward-down-sexp)
-  (define-key smartparens-mode-map (kbd "C-S-d") 'sp-beginning-of-sexp)
-  (define-key smartparens-mode-map (kbd "C-S-a") 'sp-end-of-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-e") 'sp-up-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-u") 'sp-backward-up-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-t") 'sp-transpose-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-n") 'sp-next-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-p") 'sp-previous-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-k") 'sp-kill-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-w") 'sp-copy-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-<delete>") 'sp-splice-sexp-killing-forward)
-  (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp-killing-backward))
+;; (define-key smartparens-mode-map (kbd "C-M-f") 'sp-forward-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-b") 'sp-backward-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-d") 'sp-down-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-a") 'sp-backward-down-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-S-d") 'sp-beginning-of-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-S-a") 'sp-end-of-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-e") 'sp-up-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-u") 'sp-backward-up-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-t") 'sp-transpose-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-n") 'sp-next-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-p") 'sp-previous-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-k") 'sp-kill-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-w") 'sp-copy-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp)
+;;   (define-key smartparens-mode-map (kbd "C-M-<delete>") 'sp-splice-sexp-killing-forward)
+;;   (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp-killing-backward))
 
 ;; Diminish modeline clutter.
 (when (require 'diminish nil 'noerror)
@@ -209,6 +221,37 @@
       (highlight-symbol-mode 1)))
   :hook
   (prog-mode . nh/enable-highlight-symbol-mode))
+
+;; Powerline: Emacs version of the Vim powerline
+;; Provides a modern, customizable mode-line with angled separators and better
+;; visual organization of mode-line information, inspired by Vim's powerline.
+;; GitHub: https://github.com/milkypostman/powerline
+(use-package powerline
+  :ensure t
+  :config
+  (powerline-default-theme))
+
+;; Remove text clutter from modeline
+;; (setq-default mode-line-buffer-identification
+;;               '(:eval (propertize "%b" 'face 'mode-line-buffer-id)))
+
+;; Shorter VC info (remove "Git:" prefix)
+(advice-add 'vc-git-mode-line-string :filter-return
+            (lambda (str)
+              (when str
+                (replace-regexp-in-string "^Git:" "" str))))
+
+;; Hide minor mode lighters (text indicators)
+(use-package diminish
+  :ensure t
+  :config
+  ;; Hide common minor modes from modeline
+  (diminish 'eldoc-mode)
+  (diminish 'undo-tree-mode)
+  (diminish 'auto-revert-mode)
+  (diminish 'which-key-mode)
+  (diminish 'company-mode)
+  (diminish 'flycheck-mode))
 
 (provide 'nh-theme)
 
