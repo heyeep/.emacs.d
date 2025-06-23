@@ -31,7 +31,6 @@
                            "~" ; Emacs backup files (e.g., filename~)
                            ".#" ; Emacs lock files (e.g., .#filename)
                            ".DS_Store" ; macOS directory metadata
-                           ".git" ; Git directory
                            ".gitignore" ; Git ignore file
                            ".gitmodules" ; Git submodules file
                            ".projectile" ; Projectile file

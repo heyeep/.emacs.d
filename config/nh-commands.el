@@ -1,7 +1,6 @@
-;;; nh-commands.el --- Custom shell command macros -*- lexical-binding: t; -*-
+;;; nh-commands.el --- commands -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Defines macros for generating shell command helpers, e.g., for iTerm2.
 
 ;;; Code:
 
@@ -9,7 +8,7 @@
 
 ;;; Macro: Create a command to run a shell CMD in iTerm2 at the project root or current directory
 (defmacro nh/make-iterm-dot-app-command (cmd)
-  "Creates a function that runs a terminal CMD in iTerm2.
+  "Create a function that run a terminal CMD in iTerm2.
 The function will be named nh/iterm-<cmd-with-dashes>."
   (let* ((fn-name (concat "nh/iterm-"
                          (replace-regexp-in-string "[^a-zA-Z0-9]+" "-" (string-trim cmd))))
@@ -93,37 +92,23 @@ On macOS, prefers iTerm2, then Terminal.app. On Linux, tries common terminal emu
 
 (defun nh/recentf-dwim ()
   "Open a recent file using the best available completion framework.
-Prefers Helm, then Ivy, then Ido, then vanilla Emacs."
+Prefers Helm, then vanilla Emacs."
   (interactive)
   (cond
    ;; If Helm is active, use helm-recentf
    ((bound-and-true-p helm-mode)
     (helm-recentf))
-   ;; If Ivy is active, use counsel-recentf
-   ;; ((bound-and-true-p ivy-mode)
-   ;;  (counsel-recentf))
-   ;; If Ido is active, use ido-recentf-open
-   ((bound-and-true-p ido-mode)
-    (ido-recentf-open))
-   ;; Otherwise, use the default recentf-open-files
    (t
     (recentf-open-files))))
 
 (defun nh/buffers-dwim ()
   "Switch to another buffer using the best available completion framework.
-Prefers Helm, then Ivy, then Ido, then vanilla Emacs."
+Prefers Helm, then vanilla Emacs."
   (interactive)
   (cond
    ;; If Helm is active, use helm-buffers-list
    ((bound-and-true-p helm-mode)
     (helm-buffers-list))
-   ;; If Ivy is active, use ivy-switch-buffer
-   ;; ((bound-and-true-p ivy-mode)
-   ;;  (ivy-switch-buffer))
-   ;; If Ido is active, use ido-switch-buffer
-   ((bound-and-true-p ido-mode)
-    (ido-switch-buffer))
-   ;; Otherwise, use the default switch-to-buffer
    (t
     (call-interactively #'switch-to-buffer))))
 
@@ -162,7 +147,7 @@ Otherwise, use the current buffer's major mode."
       (message "No buffers found with mode: %s" mode))))
 
 (defun nh/buffer-contains-string-p (string)
-  "Return non-nil if the current buffer contains STRING.
+  "Return non-nil if the current buffer contain STRING.
 Preserves point, mark, and match data."
   (save-excursion
     (save-match-data
@@ -170,7 +155,7 @@ Preserves point, mark, and match data."
       (search-forward string nil t))))
 
 (defun nh/buffer-contains-regex-p (regex)
-  "Return non-nil if the current buffer contains a match for REGEX.
+  "Return non-nil if the current buffer contain a match for REGEX.
 Preserves point, mark, and match data."
   (save-excursion
     (save-match-data

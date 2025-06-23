@@ -1,7 +1,6 @@
-;;; nh-git.el --- Git configuration -*- lexical-binding: t; -*-
-(setq debug-on-error t)
+;;; nh-git.el --- git -*- lexical-binding: t; -*-
+
 ;;; Commentary:
-;; Configuration for Git-related packages and settings.
 
 ;;; Code:
 
@@ -9,6 +8,7 @@
 ;; because we are loading transient from a git submodule, not from ELPA/MELPA.
 ;; Using use-package with :ensure t would try to install it from the package archives,
 ;; which we do not want. This ensures we always use our submodule version.
+(setq debug-on-error t)
 (require 'transient)
 
 ;; Magit: A Git porcelain inside Emacs

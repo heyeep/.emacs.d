@@ -1,7 +1,6 @@
-;;; nh-mouse.el --- Mouse configuration -*- lexical-binding: t; -*-
+;;; nh-mouse.el --- mouse -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Configuration for mouse-related settings and packages.
 
 ;;; Code:
 
@@ -36,4 +35,4 @@
   (global-set-key (kbd "<mouse-5>") 'scroll-up-line))
 
 (provide 'nh-mouse)
-;;; nh-mouse.el ends here 
+;;; nh-mouse.el ends here

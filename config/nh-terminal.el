@@ -1,7 +1,6 @@
-;;; nh-terminal.el --- Terminal-specific configuration -*- lexical-binding: t; -*-
+;;; nh-terminal.el --- terminal -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Configuration and settings specific to running Emacs in a terminal environment.
 
 ;;; Code:
 
@@ -20,7 +19,7 @@
   :ensure t
   :commands vterm
   :config
-  (setq vterm-shell "/bin/zsh")             ;; Use zsh as the default shell
+  (setq vterm-shell "/bin/zsh")              ;; Use zsh as the default shell
   (setq vterm-max-scrollback 200000)         ;; Increase scrollback buffer
   ;; Example keybinding: open new vterm with C-c t
   (global-set-key (kbd "C-c t") #'vterm))

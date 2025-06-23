@@ -1,8 +1,6 @@
-;;; nh-env.el --- Environment detection helpers -*- lexical-binding: t; -*-
+;;; nh-env.el --- environment -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Provides variables and functions to detect the OS and whether Emacs is running
-;; in a graphical (GUI) or terminal (text) environment.
 
 ;;; Code:
 

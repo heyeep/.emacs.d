@@ -1,7 +1,6 @@
-;;; nh-default.el --- Default Emacs configuration -*- lexical-binding: t; -*-
+;;; nh-default.el --- default -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Basic Emacs settings and configurations.
 
 ;;; Code:
 
@@ -106,15 +105,6 @@
 (setq inhibit-compacting-font-caches t)
 
 (setq native-comp-async-report-warnings-errors nil)
-
-;; Beacon: A light that follows your cursor around so you don't lose it!
-;; Provides visual feedback by briefly highlighting your cursor position when
-;; the window scrolls, making it easy to track your cursor after large movements.
-;; GitHub: https://github.com/Malabarba/beacon
-(use-package beacon
-  :ensure t
-  :config
-  (beacon-mode 1))
 
 ;; Expand Region: Quickly expand the selected region by semantic units
 ;; Intelligently expands the region around point by semantic units like words,

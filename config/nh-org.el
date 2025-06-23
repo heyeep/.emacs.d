@@ -1,8 +1,8 @@
-;;; nh-org.el --- Org mode configuration -*- lexical-binding: t; -*-
+;;; nh-org.el --- org -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Org mode and related tools configuration.
 
+;;; Code:
 
 ;; Htmlize: Export Org buffers to HTML with syntax highlighting
 ;; Converts Emacs buffers to HTML while preserving font-lock syntax highlighting,

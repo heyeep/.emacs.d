@@ -1,7 +1,6 @@
-;;; nh-keybindings.el --- Keybindings configuration -*- lexical-binding: t; -*-
+;;; nh-keybindings.el --- keybindings -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Configuration for custom keybindings.
 
 ;;; Code:
 
@@ -46,4 +45,4 @@
 (define-key minibuffer-local-isearch-map (kbd "C-g") 'abort-recursive-edit)
 
 (provide 'nh-keybindings)
-;;; nh-keybindings.el ends here 
+;;; nh-keybindings.el ends here

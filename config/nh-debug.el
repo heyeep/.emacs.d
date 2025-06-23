@@ -1,7 +1,6 @@
-;;; nh-debug.el --- Debug configuration -*- lexical-binding: t; -*-
+;;; nh-debug.el --- debug -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Debug tools and utilities configuration
 
 ;;; Code:
 

@@ -278,26 +278,61 @@
   (powerline-default-theme))
 
 ;; Remove text clutter from modeline
-;; (setq-default mode-line-buffer-identification
-;;               '(:eval (propertize "%b" 'face 'mode-line-buffer-id)))
+(setq-default mode-line-buffer-identification
+              '(:eval (propertize "%b" 'face 'mode-line-buffer-id)))
 
-;; Shorter VC info (remove "Git:" prefix)
+;; Shorter VC info (remove "Git:" prefix and simplify branch name)
 (advice-add 'vc-git-mode-line-string :filter-return
             (lambda (str)
               (when str
-                (replace-regexp-in-string "^Git:" "" str))))
+                (replace-regexp-in-string "^Git[:\-]" "" str))))
+
+;; Simplify position info - just show percentage
+(setq mode-line-percent-position '(-3 "%p"))
+(setq mode-line-position-column-line-format '(" %l:%c"))
+
+;; Remove "of" from line number display
+(setq mode-line-position
+      '((:eval (if (>= (point) (point-max))
+                   " Bot"
+                 (if (<= (point) (point-min))
+                     " Top"
+                   (format " %d%%" (/ (- (point) (point-min)) 0.01
+                                     (- (point-max) (point-min)))))))))
+
+;; Hide encoding/EOL info unless it's not UTF-8
+(defun nh/simplify-mode-line-encoding ()
+  "Hide encoding in mode line unless it's not UTF-8."
+  (setq-default mode-line-mule-info
+                '(:eval (unless (and (eq buffer-file-coding-system 'utf-8-unix)
+                                     (not (memq 'dos buffer-file-coding-system-alist))
+                                     (not (memq 'mac buffer-file-coding-system-alist)))
+                          mode-line-mule-info))))
+(nh/simplify-mode-line-encoding)
+
+;; Remove the modification indicator [**] and just use color
+(setq-default mode-line-modified
+              '(:eval (if (buffer-modified-p) 
+                          (propertize "●" 'face '(:foreground "orange"))
+                        "")))
+
+;; Hide all minor modes from the modeline completely
+(setq mode-line-modes
+      (list (propertize "%[" 'help-echo "Recursive edit, type C-M-c to get out")
+            '(:eval (propertize (format-mode-line mode-name)
+                                'face 'mode-line-buffer-id
+                                'help-echo "Major mode"))
+            (propertize "%]" 'help-echo "Recursive edit, type C-M-c to get out")
+            " "))
 
 ;; Hide minor mode lighters (text indicators)
 (use-package diminish
   :ensure t
   :config
-  ;; Hide common minor modes from modeline
-  (diminish 'eldoc-mode)
-  (diminish 'undo-tree-mode)
-  (diminish 'auto-revert-mode)
-  (diminish 'which-key-mode)
-  (diminish 'company-mode)
-  (diminish 'flycheck-mode))
+  ;; Only diminish built-in modes that don't have use-package declarations
+  (with-eval-after-load 'eldoc (diminish 'eldoc-mode))
+  (with-eval-after-load 'autorevert (diminish 'auto-revert-mode))
+  (with-eval-after-load 'outline (diminish 'outline-minor-mode)))
 
 (provide 'nh-theme)
 

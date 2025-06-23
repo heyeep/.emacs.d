@@ -477,6 +477,7 @@ These are added to `completion-ignored-extensions'."
 ;; GitHub: https://github.com/joaotavora/yasnippet
 (use-package yasnippet
   :ensure t
+  :diminish yas-minor-mode
   :config
   (yas-global-mode 1)
   ;; Load snippets from a community collection
@@ -858,6 +859,7 @@ These are added to `completion-ignored-extensions'."
 ;; tabs, and lines exceeding length limits to maintain code quality standards.
 (use-package whitespace
   :ensure nil
+  :diminish whitespace-mode
   :init
   (add-hook 'prog-mode-hook #'whitespace-mode)
   :config
