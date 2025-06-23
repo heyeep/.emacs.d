@@ -31,6 +31,9 @@
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice nil)
 
+;;; Disable scratch buffer message
+(setq initial-scratch-message nil)
+
 ;;; Mute the system bell
 (setq ring-bell-function 'ignore)
 

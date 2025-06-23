@@ -1,7 +1,6 @@
-;;; nh-theme.el --- Theme configuration -*- lexical-binding: t; -*-
+;;; nh-theme.el --- theme -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Configuration for themes and visual appearance.
 
 ;;; Code:
 
@@ -11,7 +10,7 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
-(set-face-attribute 'default nil :font "Inconsolata for Powerline" :height 128)
+(set-face-attribute 'default nil :font "Inconsolata-g for Powerline" :height 128)
 
 ;; Gotham Theme: A very dark Emacs theme
 ;; Provides a dark, low-contrast color scheme inspired by Batman's Gotham City,
@@ -41,11 +40,24 @@
 ;; GitHub: https://github.com/protesilaos/modus-themes
 (use-package modus-themes
   :ensure t
-  :init
+  :config
   ;; Add customizations before loading the themes
   (setq modus-themes-italic-constructs t
         modus-themes-bold-constructs nil
-        modus-themes-region '(bg-only no-extend)))
+        modus-themes-region '(accented)
+        modus-themes-completions
+        '((matches . (extrabold underline))
+          (selection . (semibold italic)))
+        ;; Make fringe subtle or invisible
+        modus-themes-fringes nil)
+
+  ;; Define palette overrides to fix fringe and line numbers
+  (setq modus-themes-common-palette-overrides
+        '((fringe unspecified)
+          (bg-line-number-inactive unspecified)
+          (bg-line-number-active unspecified)
+          (fg-line-number-inactive fg-dim)
+          (fg-line-number-active fg-main))))
 
 
 ;; Circadian: Theme-switching based on daytime
@@ -55,8 +67,8 @@
 (use-package circadian
   :ensure t
   :config
-  (setq circadian-themes '((:sunrise . modus-operandi-tritanopia)
-                           (:sunset  . modus-operandi-tritanopia)))
+  (setq circadian-themes '((:sunrise . modus-operandi-tinted)
+                           (:sunset  . modus-operandi-tinted)))
   (setq calendar-latitude 37.8044)
   (setq calendar-longitude -122.2711)
   (circadian-setup))
@@ -68,21 +80,32 @@
     (set-face-attribute
      sym nil
      :height 120
-     :font "Inconsolata for Powerline"
+     :font "Inconsolata-g for Powerline"
      :box `(:line-width 4 :color ,(face-attribute sym :background))))
   ;; Org-mode tweaks
   (with-eval-after-load 'org-faces
     (set-face-background 'org-hide (face-attribute 'default :background))
     (set-face-foreground 'org-hide (face-attribute 'default :background)))
+  ;; Force fringe to inherit from default face
   (set-face-attribute 'fringe nil
-                      :background (face-attribute 'default :background))
-  ;; Modernize line numbers (if using display-line-numbers-mode)
-  (when (boundp 'line-number-current-line)
-    (set-face-attribute 'line-number nil :inherit 'default :foreground 'unspecified :background 'unspecified)
-    (set-face-attribute 'line-number-current-line nil :inherit 'default :foreground 'unspecified :background 'unspecified :weight 'bold)))
+                      :inherit 'default
+                      :background 'unspecified
+                      :foreground 'unspecified)
+  ;; Fix line numbers to use the same background as default with subtle foreground
+  (when (fboundp 'display-line-numbers-mode)
+    (let ((subtle-fg (face-attribute 'shadow :foreground)))
+      (set-face-attribute 'line-number nil
+                          :background (face-attribute 'default :background)
+                          :foreground subtle-fg)
+      (set-face-attribute 'line-number-current-line nil
+                          :background (face-attribute 'default :background)
+                          :foreground (face-attribute 'default :foreground)
+                          :weight 'normal)))
+  )
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
+;; Force fringe to match background after all initialization
 ;; Rainbow Delimiters: Color-coding for parentheses and brackets
 ;; Colors nested delimiters with different colors based on their depth, making
 ;; it easier to match parentheses and understand code structure in Lisp-like languages.
@@ -221,6 +244,29 @@
       (highlight-symbol-mode 1)))
   :hook
   (prog-mode . nh/enable-highlight-symbol-mode))
+
+;; Spacious Padding: Increase the padding/spacing of Emacs frames and windows
+;; Provides a more comfortable reading experience by adding padding around
+;; windows, mode lines, tab bars, and other UI elements for better visual clarity.
+;; GitHub: https://github.com/protesilaos/spacious-padding
+(use-package spacious-padding
+  :ensure t
+  :config
+  ;; Enable spacious-padding-mode
+  (spacious-padding-mode 1)
+  ;; Configure the padding values after package is loaded
+  (setq spacious-padding-widths
+        '(:internal-border-width 4
+          :header-line-width 4
+          :mode-line-width 4
+          :tab-width 4
+          :right-divider-width 8
+          :scroll-bar-width 4))
+  ;; Don't let spacious-padding affect the fringe
+  (setq spacious-padding-subtle-mode-line nil)
+  ;; Re-enable after theme changes to ensure it persists
+  :hook
+  (after-load-theme . spacious-padding-mode))
 
 ;; Powerline: Emacs version of the Vim powerline
 ;; Provides a modern, customizable mode-line with angled separators and better

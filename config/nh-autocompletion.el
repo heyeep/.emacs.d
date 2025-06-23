@@ -425,7 +425,7 @@ These are added to `completion-ignored-extensions'."
   :init
   ;; Add desired completion sources to `completion-at-point-functions`
   ;; Order can matter for priority if multiple backends provide completions.
-  
+
   ;; Setup cape completions when entering a buffer
   (defun nh/safe-add-cape-completions ()
     "Safely add cape completion functions if cape is loaded."
@@ -437,7 +437,7 @@ These are added to `completion-ignored-extensions'."
         (add-to-list 'completion-at-point-functions #'cape-dabbrev t))
       (unless (memq 'cape-keyword completion-at-point-functions)
         (add-to-list 'completion-at-point-functions #'cape-keyword t))))
-  
+
   ;; Hook to setup cape completions after cape loads
   (with-eval-after-load 'cape
     (add-hook 'find-file-hook #'nh/safe-add-cape-completions)
@@ -457,7 +457,7 @@ These are added to `completion-ignored-extensions'."
     (when (and (featurep 'cape) (fboundp 'cape-elisp-symbol))
       (unless (memq 'cape-elisp-symbol completion-at-point-functions)
         (add-to-list 'completion-at-point-functions #'cape-elisp-symbol t))))
-  
+
   (with-eval-after-load 'cape
     (add-hook 'emacs-lisp-mode-hook #'nh/setup-elisp-cape-completions)))
 
@@ -513,17 +513,17 @@ These are added to `completion-ignored-extensions'."
 
   (setq lsp-disabled-clients '(rubocop-ls sorbet-ls typeprof-ls steep-ls ruby-syntax-tree-ls semgrep-ls solargraph))
   (setq lsp-warn-no-matched-clients t)
-  
+
   ;; Configure project detection for LSP
   (setq lsp-auto-guess-root t)  ;; Automatically detect project root
   (setq lsp-prefer-workspace-root t)  ;; Prefer workspace root for operations
-  
+
   ;; Define project root patterns
-  (setq lsp-project-root-files '(".git" ".projectile" "package.json" "Gemfile" 
+  (setq lsp-project-root-files '(".git" ".projectile" "package.json" "Gemfile"
                                   "Cargo.toml" "go.mod" "pom.xml" "build.gradle"
-                                  "tsconfig.json" "jsconfig.json" ".env" 
+                                  "tsconfig.json" "jsconfig.json" ".env"
                                   "Makefile" "CMakeLists.txt" ".gitignore"))
-  
+
   ;; Configure workspace folders
   (setq lsp-enable-file-watchers t)  ;; Watch files for changes
   (setq lsp-file-watch-threshold 1000)  ;; Increase file watch limit
@@ -542,15 +542,15 @@ These are added to `completion-ignored-extensions'."
   (setq lsp-signature-render-documentation t)
   (setq lsp-hover-enable t)
   (setq lsp-eldoc-enable-hover t)
-  
+
   ;; Enable flycheck integration with LSP
   (setq lsp-diagnostics-provider :flycheck)
   (setq lsp-flycheck-live-reporting t)
-  
+
   ;; Suppress certain LSP errors
   (setq lsp-print-io nil)  ;; Disable IO logging for performance
   (setq lsp-log-io nil)    ;; Disable IO logging
-  
+
   ;; Add advice to handle nil positions in LSP responses
   (defadvice lsp--apply-text-edit (around lsp-handle-nil-positions activate)
     "Handle nil positions in LSP text edits."
@@ -559,7 +559,7 @@ These are added to `completion-ignored-extensions'."
       (wrong-type-argument
        (message "LSP: Ignoring text edit with invalid position: %s" err)
        nil)))
-  
+
   ;; Wrap LSP hover to handle errors gracefully
   (with-eval-after-load 'lsp-mode
     (defun nh/safe-lsp-hover ()
@@ -569,11 +569,11 @@ These are added to `completion-ignored-extensions'."
           (lsp-hover)
         (error
          (message "LSP hover error: %s" (error-message-string err)))))
-    
+
     ;; Replace the default hover keybinding
     (define-key lsp-mode-map [remap xref-find-definitions] 'lsp-find-definition)
     (define-key lsp-mode-map (kbd "K") 'nh/safe-lsp-hover))
-  
+
   ;; Helper functions for debugging LSP project awareness
   (defun nh/lsp-describe-workspace ()
     "Describe the current LSP workspace and project root."
@@ -582,10 +582,10 @@ These are added to `completion-ignored-extensions'."
         (let ((workspace (lsp-find-workspace-root))
               (project-root (projectile-project-root))
               (lsp-root (lsp-workspace-root)))
-          (message "LSP Workspace: %s\nProjectile root: %s\nLSP root: %s" 
+          (message "LSP Workspace: %s\nProjectile root: %s\nLSP root: %s"
                    workspace project-root lsp-root))
       (message "LSP mode is not active in this buffer")))
-  
+
   (defun nh/lsp-restart-workspace ()
     "Restart the LSP workspace for the current buffer."
     (interactive)
@@ -622,15 +622,15 @@ These are added to `completion-ignored-extensions'."
   ;; Border configuration - can be a color string or nil for no border
   (lsp-ui-doc-border (face-attribute 'vertical-border :foreground))
   ;; Frame parameters including internal padding
-  (lsp-ui-doc-frame-parameters 
+  (lsp-ui-doc-frame-parameters
    '((internal-border-width . 15)
      (left-fringe . 10)
      (right-fringe . 10)))
-  
+
   :config
   ;; Simple spacing solution using built-in margin
   (setq lsp-ui-doc-child-frame-border-width 3)  ; Add spacing around the frame
-  
+
   ;; Working solution: Advise the actual move function to add offset
   (defun nh/lsp-ui-doc-move-with-offset (orig-fun &rest args)
     "Add offset when moving the doc frame."
@@ -638,7 +638,7 @@ These are added to `completion-ignored-extensions'."
     (apply orig-fun args)
     ;; Then adjust position if frame exists
     (when (and (boundp 'lsp-ui-doc--frame)
-               lsp-ui-doc--frame  
+               lsp-ui-doc--frame
                (frame-live-p lsp-ui-doc--frame))
       (let* ((frame-pos (frame-position lsp-ui-doc--frame))
              (x (car frame-pos))
@@ -648,7 +648,7 @@ These are added to `completion-ignored-extensions'."
                         -80  ; Move up 80 pixels when on top
                       80)))  ; Move down 80 pixels when on bottom
         (set-frame-position lsp-ui-doc--frame x (+ y offset)))))
-  
+
   ;; Apply the advice after lsp-ui loads
   (with-eval-after-load 'lsp-ui-doc
     (advice-add 'lsp-ui-doc--move-frame :around #'nh/lsp-ui-doc-move-with-offset))
@@ -688,7 +688,7 @@ These are added to `completion-ignored-extensions'."
               ("C-c l I" . lsp-ui-peek-find-implementation))
 
   :hook (lsp-mode . lsp-ui-mode)
-  
+
   :config
   ;; Custom face definitions to match current theme
   (defun nh/configure-lsp-ui-faces ()
@@ -700,7 +700,7 @@ These are added to `completion-ignored-extensions'."
            ;; Swap the colors - darker for header, lighter for doc
            (header-bg mode-line-inactive-bg)  ; Use darker background for header
            (doc-bg default-bg))  ; Use main background for documentation
-      
+
       ;; Apply the faces - ONLY for lsp-ui-doc faces
       (custom-set-faces
        ;; Header face - bold with darker background
@@ -718,37 +718,37 @@ These are added to `completion-ignored-extensions'."
        `(lsp-ui-doc ((t (:background ,doc-bg))))
        ;; Markdown code blocks in lsp-ui-doc
        `(lsp-ui-doc-markdown-code-block-face ((t (:background ,doc-bg)))))
-      
+
       ;; Additional configuration
       (setq lsp-ui-doc-border (face-attribute 'vertical-border :foreground))
-      
+
       ;; Debug message to check colors
       (message "LSP-UI colors set: header=%s, doc=%s" header-bg doc-bg))
-    
+
     ;; Force refresh of child frames to apply new colors
-    (when (and (fboundp 'lsp-ui-doc--delete-frame) 
+    (when (and (fboundp 'lsp-ui-doc--delete-frame)
                (boundp 'lsp-ui-doc--frame)
                lsp-ui-doc--frame)
       (lsp-ui-doc--delete-frame)))
-  
+
   ;; Apply the face configuration
   (nh/configure-lsp-ui-faces)
-  
+
   ;; Re-apply when theme changes
   (add-hook 'after-load-theme-hook #'nh/configure-lsp-ui-faces)
-  
+
   ;; Configure webkit rendering if used
   (when lsp-ui-doc-use-webkit
-    (setq lsp-ui-doc-webkit-background-color 
+    (setq lsp-ui-doc-webkit-background-color
           (face-attribute 'mode-line-inactive :background))))
-  
+
   ;; Override markdown rendering in lsp-ui-doc
   (with-eval-after-load 'lsp-ui-doc
     ;; Custom CSS for webkit rendering
     (when lsp-ui-doc-use-webkit
-      (setq lsp-ui-doc-webkit-background-color 
+      (setq lsp-ui-doc-webkit-background-color
             (face-attribute 'mode-line-inactive :background)))
-    
+
     ;; Override the markdown rendering to remove code block backgrounds
     (defun nh/lsp-ui-doc-remove-code-background (orig-fn &rest args)
       "Remove white background from code blocks in lsp-ui-doc."
@@ -763,60 +763,51 @@ These are added to `completion-ignored-extensions'."
                 (while (re-search-forward "`[^`]+`" nil t)
                   (let ((start (match-beginning 0))
                         (end (match-end 0)))
-                    (add-face-text-property start end 
+                    (add-face-text-property start end
                                           `(:background ,doc-bg) t)))
                 ;; Also handle triple backtick code blocks
                 (goto-char (point-min))
                 (while (re-search-forward "```[^`]*```" nil t)
                   (let ((start (match-beginning 0))
                         (end (match-end 0)))
-                    (add-face-text-property start end 
+                    (add-face-text-property start end
                                           `(:background ,doc-bg) t)))))))
         result))
-    
+
     (advice-add 'lsp-ui-doc--render-buffer :around #'nh/lsp-ui-doc-remove-code-background))
-  
+
   ;; Interactive function to customize lsp-ui-doc colors
-  (defun nh/lsp-ui-doc-set-theme-colors ()
-    "Interactively set lsp-ui-doc colors to match theme."
-    (interactive)
-    (let* ((themes '(("Solarized Light" . ("#fdf6e3" "#eee8d5"))
-                    ("Solarized Dark" . ("#002b36" "#073642"))
-                    ("Use mode-line colors" . (mode-line region))
-                    ("Custom..." . custom)))
-           (choice (completing-read "Choose color scheme: " (mapcar #'car themes)))
-           (colors (cdr (assoc choice themes))))
-      (cond
-       ((equal colors 'custom)
-        (let ((header-bg (read-color "Header background: "))
-              (doc-bg (read-color "Documentation background: ")))
-          (custom-set-faces
-           `(lsp-ui-doc-header ((t (:background ,header-bg))))
-           `(lsp-ui-doc-background ((t (:background ,doc-bg)))))))
-       ((listp colors)
-        (if (stringp (car colors))
-            (progn
-              (custom-set-faces
-               `(lsp-ui-doc-header ((t (:background ,(car colors)))))
-               `(lsp-ui-doc-background ((t (:background ,(cadr colors))))))
-              (message "Set lsp-ui-doc colors: header=%s, doc=%s" (car colors) (cadr colors)))
-          (custom-set-faces
-           `(lsp-ui-doc-header ((t (:background ,(face-attribute (car colors) :background)))))
-           `(lsp-ui-doc-background ((t (:background ,(face-attribute (cadr colors) :background)))))
-           (message "Set lsp-ui-doc colors from faces: %s and %s" (car colors) (cadr colors)))))))
-    (when (and (boundp 'lsp-ui-doc-frame) lsp-ui-doc-frame)
-      (lsp-ui-doc-hide)
-      (message "Reopen documentation to see changes")))
-  
-  ;; Simple function to refresh lsp-ui colors
-  (defun nh/lsp-ui-refresh-colors ()
-    "Refresh lsp-ui-doc colors to match current theme."
-    (interactive)
-    (nh/configure-lsp-ui-faces)
-    (when (and (boundp 'lsp-ui-doc-frame) lsp-ui-doc-frame)
-      (lsp-ui-doc-hide))
-    (message "LSP-UI colors refreshed. Hover over code to see updated colors."))
-  
+  ;; (defun nh/lsp-ui-doc-set-theme-colors ()
+  ;;   "Interactively set lsp-ui-doc colors to match theme."
+  ;;   (interactive)
+  ;;   (let* ((themes '(("Solarized Light" . ("#fdf6e3" "#eee8d5"))
+  ;;                   ("Solarized Dark" . ("#002b36" "#073642"))
+  ;;                   ("Use mode-line colors" . (mode-line region))
+  ;;                   ("Custom..." . custom)))
+  ;;          (choice (completing-read "Choose color scheme: " (mapcar #'car themes)))
+  ;;          (colors (cdr (assoc choice themes))))
+  ;;     (cond
+  ;;      ((equal colors 'custom)
+  ;;       (let ((header-bg (read-color "Header background: "))
+  ;;             (doc-bg (read-color "Documentation background: ")))
+  ;;         (custom-set-faces
+  ;;          `(lsp-ui-doc-header ((t (:background ,header-bg))))
+  ;;          `(lsp-ui-doc-background ((t (:background ,doc-bg)))))))
+  ;;      ((listp colors)
+  ;;       (if (stringp (car colors))
+  ;;           (progn
+  ;;             (custom-set-faces
+  ;;              `(lsp-ui-doc-header ((t (:background ,(car colors)))))
+  ;;              `(lsp-ui-doc-background ((t (:background ,(cadr colors))))))
+  ;;             (message "Set lsp-ui-doc colors: header=%s, doc=%s" (car colors) (cadr colors)))
+  ;;         (custom-set-faces
+  ;;          `(lsp-ui-doc-header ((t (:background ,(face-attribute (car colors) :background)))))
+  ;;          `(lsp-ui-doc-background ((t (:background ,(face-attribute (cadr colors) :background)))))
+  ;;          (message "Set lsp-ui-doc colors from faces: %s and %s" (car colors) (cadr colors)))))))
+  ;;   (when (and (boundp 'lsp-ui-doc-frame) lsp-ui-doc-frame)
+  ;;     (lsp-ui-doc-hide)
+  ;;     (message "Reopen documentation to see changes")))
+
   ;; Function to customize border and padding
   (defun nh/lsp-ui-doc-set-border-padding ()
     "Interactively set border and padding for lsp-ui-doc."
@@ -836,60 +827,31 @@ These are added to `completion-ignored-extensions'."
            (padding-choice (completing-read "Padding: " (mapcar #'car padding-options)))
            (border-val (cdr (assoc border-choice border-options)))
            (padding-val (cdr (assoc padding-choice padding-options))))
-      
+
       ;; Set border
       (cond
        ((null border-val) (setq lsp-ui-doc-border nil))
-       ((eq border-val 'custom) 
+       ((eq border-val 'custom)
         (setq lsp-ui-doc-border (read-color "Border color: ")))
        ((symbolp border-val)
         (setq lsp-ui-doc-border (face-attribute border-val :foreground))))
-      
+
       ;; Set padding
       (when (eq padding-val 'custom)
         (setq padding-val (read-number "Padding (pixels): " 10)))
-      
+
       (setq lsp-ui-doc-frame-parameters
             `((internal-border-width . ,padding-val)))
-      
+
       ;; Force refresh
       (when (and (boundp 'lsp-ui-doc--frame) lsp-ui-doc--frame)
         (lsp-ui-doc--delete-frame))
-      
-      (message "Border: %s, Padding: %dpx. Hover to see changes." 
+
+      (message "Border: %s, Padding: %dpx. Hover to see changes."
                (or lsp-ui-doc-border "none") padding-val)))
-  
-  ;; Function to adjust doc position
-  (defun nh/lsp-ui-doc-set-position ()
-    "Interactively set position and spacing for lsp-ui-doc."
-    (interactive)
-    (let* ((position-options '(("Above cursor" . top)
-                              ("Below cursor" . bottom)
-                              ("At point (follows cursor)" . at-point)))
-           (alignment-options '(("Window edge" . window)
-                               ("Frame edge" . frame)))
-           (pos-choice (completing-read "Position: " (mapcar #'car position-options)))
-           (align-choice (completing-read "Align to: " (mapcar #'car alignment-options)))
-           (delay (read-number "Delay before showing (seconds): " 0.2)))
-      
-      (setq lsp-ui-doc-position (cdr (assoc pos-choice position-options)))
-      (setq lsp-ui-doc-alignment (cdr (assoc align-choice alignment-options)))
-      (setq lsp-ui-doc-delay delay)
-      
-      ;; Adjust delay for better spacing feel
-      (when (yes-or-no-p "Increase delay for more perceived spacing? ")
-        (setq lsp-ui-doc-delay (read-number "Delay (seconds): " 0.5)))
-      
-      (when (and (boundp 'lsp-ui-doc--frame) lsp-ui-doc--frame)
-        (lsp-ui-doc--delete-frame))
-      
-      (message "Position: %s, Alignment: %s, Delay: %.1fs" 
-               lsp-ui-doc-position lsp-ui-doc-alignment lsp-ui-doc-delay)))
-  
+
   ;; Bind to convenient keys (using C-c L to avoid conflicts with lsp-ui)
-  (global-set-key (kbd "C-c L c") 'nh/lsp-ui-refresh-colors)
-  (global-set-key (kbd "C-c L b") 'nh/lsp-ui-doc-set-border-padding)
-  (global-set-key (kbd "C-c L p") 'nh/lsp-ui-doc-set-position)
+(global-set-key (kbd "C-c L b") 'nh/lsp-ui-doc-set-border-padding)
 
 ;; Whitespace: Highlight trailing whitespace and long lines
 ;; Built-in package for visualizing whitespace issues including trailing spaces,
