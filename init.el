@@ -141,9 +141,9 @@
 
 ;; Set font early before loading other modules
 (set-face-attribute 'default nil
-                    :font "IosevkaTermSlab Nerd Font"
+                    :font "Iosevka Etoile"
                     :height 120)
-(add-to-list 'default-frame-alist '(font . "IosevkaTermSlab Nerd Font-12"))
+(add-to-list 'default-frame-alist '(font . "Iosevka Etoile-12"))
 
 ;; Load core configuration files immediately
 (message "[init.el] Starting configuration load...")

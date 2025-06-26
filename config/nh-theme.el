@@ -15,7 +15,11 @@
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . light)))
 
-(set-face-attribute 'default nil :font "IosevkaTermSlab Nerd Font" :height 120)
+(set-face-attribute 'default nil
+                    :font (font-spec :family "Iosevka Etoile"
+                                     :size 12
+                                     :weight 'normal
+                                     ))  ; Force monospace
 
 ;; Gotham Theme: A very dark Emacs theme
 ;; Provides a dark, low-contrast color scheme inspired by Batman's Gotham City,
@@ -64,6 +68,7 @@
           (fg-line-number-inactive fg-dim)
           (fg-line-number-active fg-main))))
 
+
 ;; Circadian: Theme-switching based on daytime
 ;; Automatically switches between light and dark themes based on sunrise and
 ;; sunset times, providing a natural rhythm that matches your daily schedule.
@@ -91,7 +96,7 @@
     (set-face-attribute
      sym nil
      :height 120
-     :font "IosevkaTermSlab Nerd Font"
+     :font "Iosevka Etoile"
      :box `(:line-width 4 :color ,(face-attribute sym :background))))
   ;; Org-mode tweaks
   (with-eval-after-load 'org-faces
