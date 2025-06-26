@@ -36,7 +36,7 @@
 
 ;; Remove any ELPA transient directories from load-path
 ;; (require 'cl-lib)  ; Required for cl-remove-if
-;; (setq load-path 
+;; (setq load-path
 ;;       (cl-remove-if (lambda (path)
 ;;                       (and (string-match-p "elpa" path)
 ;;                            (string-match-p "transient" path)))
@@ -135,9 +135,15 @@
       (error
        (message "[init.el] ✗ Failed to load %s: %s" feature (error-message-string err))
        (plist-put nh/load-stats :failed (1+ (plist-get nh/load-stats :failed)))
-       (plist-put nh/load-stats :errors 
-                  (append (plist-get nh/load-stats :errors) 
+       (plist-put nh/load-stats :errors
+                  (append (plist-get nh/load-stats :errors)
                           (list (cons feature (error-message-string err)))))))))
+
+;; Set font early before loading other modules
+(set-face-attribute 'default nil
+                    :font "IosevkaTermSlab Nerd Font"
+                    :height 120)
+(add-to-list 'default-frame-alist '(font . "IosevkaTermSlab Nerd Font-12"))
 
 ;; Load core configuration files immediately
 (message "[init.el] Starting configuration load...")
@@ -208,7 +214,6 @@
 ;; (add-hook 'after-init-hook
 ;;          (lambda ()
 ;;            (vaibe-test-markdown-folding)))
-(setq native-comp-async-report-warnings-errors nil)
 
 (provide 'init)
 ;;; init.el ends here
@@ -229,31 +234,6 @@
      "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
- '(package-selected-packages
-   '(add-node-modules-path ag aidermacs alchemist all-the-icons-dired
-     all-the-icons-ivy-rich amx auctex-latexmk beacon blamer
-     buttercup-junit cape cdlatex circadian company-anaconda
-     company-go company-lua company-quickhelp consult-dir
-     consult-project-extra copilot corfu counsel debbugs diminish
-     dired-collapse dired-git-info dired-k dired-sidebar edebug-x
-     elisp-refs elisp-slime-nav embark-consult enh-ruby-mode
-     eval-sexp-fu exec-path-from-shell expand-region
-     flycheck-color-mode-line flycheck-inline flycheck-package
-     flycheck-popup-tip flycheck-pos-tip flycheck-posframe
-     flycheck-swiftlint format-all geiser go-dlv go-eldoc go-guru
-     godoctor gotham-theme graphviz-dot-mode haskell-mode
-     highlight-parentheses highlight-symbol htmlize indium
-     ivy-prescient javadoc-lookup keycast kind-icon latex-preview-pane
-     lsp-java lsp-latex lsp-ui magit malinka marginalia
-     markdown-preview-mode mocha modus-themes multi-vterm orderless
-     org-bullets org-download org-modern org-plus-contrib
-     org-roam-bibtex org-roam-timestamps org-roam-ui paredit pdf-tools
-     plz poly-markdown poly-org polymode powerline prettier-js
-     projectile-rails rainbow-delimiters rainbow-mode
-     reveal-in-osx-finder rjsx-mode robe slime smartparens smex
-     solarized-theme spacemacs-theme spacious-padding swift-mode
-     theme-changer tide ts-comint typescript-mode undo-tree vertico
-     vundo web-mode ws-butler xref-js2 yaml-mode yasnippet-snippets))
  '(warning-suppress-log-types '((copilot copilot-no-mode-indent) (bytecomp)))
  '(warning-suppress-types '((use-package) (bytecomp))))
 (custom-set-faces

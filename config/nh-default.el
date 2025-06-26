@@ -81,6 +81,9 @@
 ;;; Show line numbers in most buffers
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'absolute)
+;; Make line numbers fill the width without padding
+(setq display-line-numbers-width-start t)
+(setq display-line-numbers-grow-only t)
 
 ;;; Disable line numbers in terminal and shell modes
 (dolist (mode '(term-mode shell-mode eshell-mode vterm-mode))
@@ -151,6 +154,36 @@
 ;; GitHub: https://github.com/kaz-yos/reveal-in-osx-finder
 (use-package reveal-in-osx-finder
     :ensure t)
+
+;; Configure compilation buffers for better ANSI color support
+(require 'compile)
+(setq compilation-scroll-output t)
+(add-to-list 'comint-output-filter-functions 'ansi-color-process-output)
+
+;; Make compilation buffers handle ANSI color codes
+(defun nh/compilation-mode-colorize ()
+  "Colorize compilation buffer."
+  (when (eq major-mode 'compilation-mode)
+    (ansi-color-apply-on-region compilation-filter-start (point-max))))
+
+(add-hook 'compilation-filter-hook 'nh/compilation-mode-colorize)
+
+;; Terminal-specific configurations
+(when (not (display-graphic-p))
+  ;; Use Command as Meta in terminal
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'alt)
+  ;; For other terminals, ensure 8-bit input
+  (set-input-meta-mode t)
+  (set-terminal-coding-system 'utf-8)
+  ;; Ensure terminal sends proper Meta sequences
+  (unless (getenv "EMACS_TERM_META_SENDS_ESCAPE")
+    (set-input-meta-mode t)))
+
+;; Also set Command as Meta for GUI Emacs
+(when (eq system-type 'darwin)
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'alt))
 
 (provide 'nh-default)
 

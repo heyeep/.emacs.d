@@ -10,7 +10,12 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
-(set-face-attribute 'default nil :font "Inconsolata-g for Powerline" :height 128)
+;; Make title bar transparent and match the theme
+(when (memq window-system '(mac ns))
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . light)))
+
+(set-face-attribute 'default nil :font "IosevkaTermSlab Nerd Font" :height 120)
 
 ;; Gotham Theme: A very dark Emacs theme
 ;; Provides a dark, low-contrast color scheme inspired by Batman's Gotham City,
@@ -43,7 +48,7 @@
   :config
   ;; Add customizations before loading the themes
   (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs nil
+        modus-themes-bold-constructs t  ; Enable bold constructs
         modus-themes-region '(accented)
         modus-themes-completions
         '((matches . (extrabold underline))
@@ -55,10 +60,9 @@
   (setq modus-themes-common-palette-overrides
         '((fringe unspecified)
           (bg-line-number-inactive unspecified)
-          (bg-line-number-active unspecified)
+          (bg-line-number-active bg-hover)
           (fg-line-number-inactive fg-dim)
           (fg-line-number-active fg-main))))
-
 
 ;; Circadian: Theme-switching based on daytime
 ;; Automatically switches between light and dark themes based on sunrise and
@@ -75,12 +79,19 @@
 
 (defun nh/update-theme ()
   "Update various UI elements when theme change."
+  ;; Update title bar appearance based on theme
+  (when (memq window-system '(mac ns))
+    (let* ((bg-color (face-attribute 'default :background))
+           (is-dark (< (apply '+ (color-values bg-color))
+                      (* 0.5 (apply '+ (color-values "white"))))))
+      (modify-all-frames-parameters
+       (list (cons 'ns-appearance (if is-dark 'dark 'light))))))
   ;; Make modeline taller, use a modern font, and add a subtle border.
   (dolist (sym '(mode-line mode-line-inactive))
     (set-face-attribute
      sym nil
      :height 120
-     :font "Inconsolata-g for Powerline"
+     :font "IosevkaTermSlab Nerd Font"
      :box `(:line-width 4 :color ,(face-attribute sym :background))))
   ;; Org-mode tweaks
   (with-eval-after-load 'org-faces
@@ -93,19 +104,22 @@
                       :foreground 'unspecified)
   ;; Fix line numbers to use the same background as default with subtle foreground
   (when (fboundp 'display-line-numbers-mode)
-    (let ((subtle-fg (face-attribute 'shadow :foreground)))
+    (let ((subtle-fg (face-attribute 'shadow :foreground))
+          (highlight-bg (face-attribute 'highlight :background)))
       (set-face-attribute 'line-number nil
                           :background (face-attribute 'default :background)
                           :foreground subtle-fg)
       (set-face-attribute 'line-number-current-line nil
-                          :background (face-attribute 'default :background)
+                          :background highlight-bg
                           :foreground (face-attribute 'default :foreground)
-                          :weight 'normal)))
+                          :weight 'bold
+                          :extend t)))
+  ;; Make line numbers fill the gutter
+  (setq-default display-line-numbers-width-start t)
   )
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
-;; Force fringe to match background after all initialization
 ;; Rainbow Delimiters: Color-coding for parentheses and brackets
 ;; Colors nested delimiters with different colors based on their depth, making
 ;; it easier to match parentheses and understand code structure in Lisp-like languages.
@@ -149,6 +163,7 @@
 ;; GitHub: https://github.com/tsdh/highlight-parentheses.el
 (use-package highlight-parentheses
   :ensure t
+  :diminish t
   :commands (highlight-parentheses-mode)
   :init
   ;; Enable highlight-parentheses-mode in all Lisp-related modes
@@ -256,8 +271,8 @@
   (spacious-padding-mode 1)
   ;; Configure the padding values after package is loaded
   (setq spacious-padding-widths
-        '(:internal-border-width 4
-          :header-line-width 4
+        '(:internal-border-width 8
+          :header-line-width 8
           :mode-line-width 4
           :tab-width 4
           :right-divider-width 8
@@ -301,18 +316,15 @@
                                      (- (point-max) (point-min)))))))))
 
 ;; Hide encoding/EOL info unless it's not UTF-8
-(defun nh/simplify-mode-line-encoding ()
-  "Hide encoding in mode line unless it's not UTF-8."
-  (setq-default mode-line-mule-info
-                '(:eval (unless (and (eq buffer-file-coding-system 'utf-8-unix)
-                                     (not (memq 'dos buffer-file-coding-system-alist))
-                                     (not (memq 'mac buffer-file-coding-system-alist)))
-                          mode-line-mule-info))))
-(nh/simplify-mode-line-encoding)
+(setq-default mode-line-mule-info
+              '(:eval (if (and buffer-file-coding-system
+                               (eq buffer-file-coding-system 'utf-8-unix))
+                          ""  ; Hide for UTF-8
+                        " %z")))  ; Show for other encodings
 
 ;; Remove the modification indicator [**] and just use color
 (setq-default mode-line-modified
-              '(:eval (if (buffer-modified-p) 
+              '(:eval (if (buffer-modified-p)
                           (propertize "●" 'face '(:foreground "orange"))
                         "")))
 
@@ -333,6 +345,10 @@
   (with-eval-after-load 'eldoc (diminish 'eldoc-mode))
   (with-eval-after-load 'autorevert (diminish 'auto-revert-mode))
   (with-eval-after-load 'outline (diminish 'outline-minor-mode)))
+
+;; Force header-line face via custom-set-faces as last resort
+(custom-set-faces
+ '(header-line ((t (:inherit default :background unspecified)))))
 
 (provide 'nh-theme)
 

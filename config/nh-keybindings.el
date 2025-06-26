@@ -44,5 +44,8 @@
 (define-key minibuffer-local-must-match-map (kbd "C-g") 'abort-recursive-edit)
 (define-key minibuffer-local-isearch-map (kbd "C-g") 'abort-recursive-edit)
 
+;; Make Shift+Enter insert a newline
+(global-set-key (kbd "S-<return>") 'newline)
+
 (provide 'nh-keybindings)
 ;;; nh-keybindings.el ends here

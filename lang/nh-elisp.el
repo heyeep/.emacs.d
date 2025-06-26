@@ -1,8 +1,6 @@
-;;; nh-elisp.el --- Enhanced Emacs Lisp development configuration -*- lexical-binding: t; -*-
+;;; nh-elisp.el --- elisp -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Modern Emacs Lisp development configuration for Emacs 30.1
-;; Includes enhanced editing, debugging, navigation, and evaluation features.
 
 ;;; Code:
 
@@ -138,7 +136,7 @@
 
 ;; Edebug X: Enhanced debugging features for edebug
 ;; Provides additional features and improvements for Emacs's built-in debugger,
-;; including better breakpoint management and enhanced debugging UI.
+;; including better breakpoint management and enhanced debuggging UI.
 ;; GitHub: https://github.com/ScottyB/edebug-x
 (use-package edebug-x
   :ensure t
@@ -150,8 +148,8 @@
   (interactive)
   (condition-case err
       (eval-last-sexp nil)
-    (error (message "Error at line %d: %s" 
-                    (line-number-at-pos) 
+    (error (message "Error at line %d: %s"
+                    (line-number-at-pos)
                     (error-message-string err)))))
 
 (defun nh/eval-and-replace ()
@@ -168,12 +166,12 @@
       (progn
         (eval-buffer)
         (message "Buffer evaluated successfully"))
-    (error 
+    (error
      (let ((error-line (save-excursion
                          (goto-char (point-min))
                          (forward-line (1- (cadr err)))
                          (line-number-at-pos))))
-       (message "Buffer eval error at line %s: %s" 
+       (message "Buffer eval error at line %s: %s"
                 (if error-line error-line "unknown")
                 (error-message-string err))))))
 

@@ -821,16 +821,22 @@ Current checker: %s"
        (message "Ruby-LSP config: %s" config))
      :mode 'detached)))
 
-;; Bind diagnostic functions
+;; Function to set up keybindings for Ruby modes
+(defun nh/setup-ruby-keybindings (mode-map)
+  "Set up keybindings for ruby MODE-MAP."
+  (define-key mode-map (kbd "C-c l s") 'nh/check-ruby-lsp-status)
+  (define-key mode-map (kbd "C-c l f") 'nh/flycheck-diagnose-ruby)
+  (define-key mode-map (kbd "C-c l c") 'nh/ruby-lsp-show-config)
+  (define-key mode-map (kbd "C-c l d") 'nh/ruby-check-diagnostics-source)
+  (define-key mode-map (kbd "C-c l R") 'nh/ruby-lsp-disable-rubocop)
+  (define-key mode-map (kbd "C-c l E") 'nh/ruby-lsp-env-disable-rubocop))
+
+;; Apply keybindings to both Ruby modes
 (with-eval-after-load 'ruby-mode
-  (define-key ruby-mode-map (kbd "C-c l s") 'nh/check-ruby-lsp-status)
-  (define-key ruby-mode-map (kbd "C-c l f") 'nh/flycheck-diagnose-ruby)
-  (define-key ruby-mode-map (kbd "C-c l c") 'nh/ruby-lsp-show-config))
+  (nh/setup-ruby-keybindings ruby-mode-map))
 
 (with-eval-after-load 'enh-ruby-mode
-  (define-key enh-ruby-mode-map (kbd "C-c l s") 'nh/check-ruby-lsp-status)
-  (define-key enh-ruby-mode-map (kbd "C-c l f") 'nh/flycheck-diagnose-ruby)
-  (define-key enh-ruby-mode-map (kbd "C-c l c") 'nh/ruby-lsp-show-config))
+  (nh/setup-ruby-keybindings enh-ruby-mode-map))
 
 ;; Function to check what's actually providing diagnostics
 (defun nh/ruby-check-diagnostics-source ()
@@ -870,11 +876,6 @@ Current checker: %s"
 
     (message "%s" (string-join (reverse messages) "\n"))))
 
-(with-eval-after-load 'ruby-mode
-  (define-key ruby-mode-map (kbd "C-c l d") 'nh/ruby-check-diagnostics-source))
-
-(with-eval-after-load 'enh-ruby-mode
-  (define-key enh-ruby-mode-map (kbd "C-c l d") 'nh/ruby-check-diagnostics-source))
 
 ;; Function to create .ruby-lsp.yml to disable RuboCop
 (defun nh/ruby-lsp-disable-rubocop ()
@@ -910,13 +911,14 @@ features:
   (setenv "DISABLE_RUBOCOP" "true")
   (message "Set environment to disable RuboCop. Restart LSP with M-x lsp-restart-workspace"))
 
-(with-eval-after-load 'ruby-mode
-  (define-key ruby-mode-map (kbd "C-c l R") 'nh/ruby-lsp-disable-rubocop)
-  (define-key ruby-mode-map (kbd "C-c l E") 'nh/ruby-lsp-env-disable-rubocop))
 
-(with-eval-after-load 'enh-ruby-mode
-  (define-key enh-ruby-mode-map (kbd "C-c l R") 'nh/ruby-lsp-disable-rubocop)
-  (define-key enh-ruby-mode-map (kbd "C-c l E") 'nh/ruby-lsp-env-disable-rubocop))
+;; Configure compilation mode to handle ANSI color codes
+(require 'ansi-color)
+(defun nh/colorize-compilation-buffer ()
+  "Colorize ANSI escape sequences in compilation buffer."
+  (ansi-color-apply-on-region compilation-filter-start (point-max)))
+
+(add-hook 'compilation-filter-hook 'nh/colorize-compilation-buffer)
 
 ;; Create a simple RSpec runner function
 (defun nh/run-rspec-at-point ()
