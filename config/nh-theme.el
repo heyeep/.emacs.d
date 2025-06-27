@@ -52,21 +52,44 @@
   :config
   ;; Add customizations before loading the themes
   (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t  ; Enable bold constructs
-        modus-themes-region '(accented)
+        modus-themes-bold-constructs t
+        modus-themes-mixed-fonts t
+        modus-themes-variable-pitch-ui t
+        modus-themes-fringes nil  ; or 'subtle
+        modus-themes-org-blocks 'gray-background
+        modus-themes-paren-match '(bold intense)
+        modus-themes-region '(bg-only accented)
+        modus-themes-hl-line '(accented)
         modus-themes-completions
         '((matches . (extrabold underline))
           (selection . (semibold italic)))
-        ;; Make fringe subtle or invisible
-        modus-themes-fringes nil)
+        ;; Mode line customization
+        modus-themes-mode-line '(accented 3d padded moody)
+        ;; Diffs
+        modus-themes-diffs 'desaturated
+        ;; Markup (bold, italic in markdown, org, etc)
+        modus-themes-markup '(bold italic)
+        ;; Subtle line numbers
+        modus-themes-subtle-line-numbers t)
 
-  ;; Define palette overrides to fix fringe and line numbers
+  ;; Comprehensive palette overrides
   (setq modus-themes-common-palette-overrides
-        '((fringe unspecified)
+        '(;; Fix fringe to match background
+          (fringe unspecified)
+          ;; Line numbers
           (bg-line-number-inactive unspecified)
           (bg-line-number-active bg-hover)
           (fg-line-number-inactive fg-dim)
-          (fg-line-number-active fg-main))))
+          (fg-line-number-active fg-main)
+          ;; Completion matches - colorful highlighting
+          (fg-completion-match-0 blue)
+          (fg-completion-match-1 magenta-warmer)
+          (fg-completion-match-2 cyan)
+          (fg-completion-match-3 red)
+          (bg-completion-match-0 bg-blue-nuanced)
+          (bg-completion-match-1 bg-magenta-nuanced)
+          (bg-completion-match-2 bg-cyan-nuanced)
+          (bg-completion-match-3 bg-red-nuanced))))
 
 
 ;; Circadian: Theme-switching based on daytime
@@ -81,6 +104,16 @@
   (setq calendar-latitude 37.8044)
   (setq calendar-longitude -122.2711)
   (circadian-setup))
+
+;; Solaire Mode: Distinguish "real" buffers from "special" buffers
+;; Makes file-visiting buffers slightly brighter than special buffers like
+;; sidebars, popup windows, and help buffers for better visual hierarchy.
+;; GitHub: https://github.com/hlissner/emacs-solaire-mode
+(use-package solaire-mode
+  :ensure t
+  :config
+  ;; Enable solaire-mode in all buffers
+  (solaire-global-mode +1))
 
 (defun nh/update-theme ()
   "Update various UI elements when theme change."
