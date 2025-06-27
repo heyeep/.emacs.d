@@ -115,6 +115,18 @@
   ;; Enable solaire-mode in all buffers
   (solaire-global-mode +1))
 
+;; Custom solaire-mode faces for modus themes
+(defun nh/modus-themes-solaire-faces (&rest _)
+  "Set custom solaire-mode faces for modus themes."
+  (modus-themes-with-colors
+    (custom-set-faces
+     `(solaire-default-face ((,c :inherit default :background ,bg-dim :foreground ,fg-dim)))
+     `(solaire-line-number-face ((,c :inherit solaire-default-face :foreground ,fg-dim)))
+     `(solaire-hl-line-face ((,c :background ,bg-active)))
+     `(solaire-org-hide-face ((,c :background ,bg-dim :foreground ,bg-dim))))))
+
+(add-hook 'modus-themes-after-load-theme-hook #'nh/modus-themes-solaire-faces)
+
 (defun nh/update-theme ()
   "Update various UI elements when theme change."
   ;; Update title bar appearance based on theme

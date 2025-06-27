@@ -155,6 +155,23 @@
 (use-package reveal-in-osx-finder
     :ensure t)
 
+;; Minimap: Display a minimap of the buffer on the side
+;; Provides a VS Code-style minimap showing an overview of the entire buffer,
+;; useful for navigating large files and getting a bird's eye view of code structure.
+;; GitHub: https://github.com/dengste/minimap
+(use-package minimap
+  :ensure t
+  :commands (minimap-mode minimap-create minimap-kill)
+  :config
+  ;; Set the width of the minimap window
+  (setq minimap-window-location 'right)
+  ;; Only show the minimap for files larger than this many lines
+  (setq minimap-minimum-width 20)
+  ;; Update minimap when scrolling
+  (setq minimap-update-delay 0.1)
+  ;; Show current line highlight in minimap
+  (setq minimap-highlight-line t))
+
 ;; Configure compilation buffers for better ANSI color support
 (require 'compile)
 (setq compilation-scroll-output t)
