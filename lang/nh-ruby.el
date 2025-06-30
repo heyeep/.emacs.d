@@ -27,7 +27,13 @@
 
   ;; Enable auto-pairing for Ruby
   (when (fboundp 'electric-pair-local-mode)
-    (electric-pair-local-mode 1)))
+    (electric-pair-local-mode 1))
+
+  ;; Reduce LSP sensitivity for .rake files to prevent position errors
+  (when (and buffer-file-name (string-match-p "\\.rake\\'" buffer-file-name))
+    (setq-local lsp-response-timeout 2)  ; Shorter timeout for rake files
+    (setq-local lsp-eldoc-render-all nil)  ; Reduce eldoc updates
+    (message "Configured reduced LSP sensitivity for .rake file")))
 
 ;; Setup Ruby with LSP and Flycheck working together
 (defun nh/setup-ruby-lsp-flycheck ()
@@ -245,6 +251,21 @@
                   :linters (list :rubocop :json-false)
                   :testFramework "rspec")))
     :priority 100)))
+
+;; Add error handling for .rake files specifically
+(defun nh/ruby-lsp-error-handler (workspace err)
+  "Handle Ruby LSP errors, especially for .rake files."
+  (let ((message (gethash "message" err)))
+    (when (and message (string-match-p "LocationNotFoundError\\|find_char_position" message))
+      (message "Ruby LSP position error in %s - this is usually harmless"
+               (if buffer-file-name
+                   (file-name-nondirectory buffer-file-name)
+                 "buffer"))
+      ;; Don't show the full error for common position errors
+      nil)))
+
+(with-eval-after-load 'lsp-mode
+  (setq lsp-ruby-lsp-error-filter #'nh/ruby-lsp-error-handler))
 
 ;; (with-eval-after-load 'flycheck
 ;;   (add-hook 'flycheck-mode-hook #'flycheck-lsp-setup))
