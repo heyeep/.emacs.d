@@ -18,10 +18,10 @@
   ;; Set the default model to use when Architect mode is not active,
   ;; or as the editor model if aidermacs-editor-model is not explicitly set.
   (aidermacs-default-model "openai/gpt-4o")
-
+  (setenv "OPEN_API_KEY" "")
   ;; Choose your preferred terminal backend. 'vterm' offers better compatibility.
   ;; Ensure 'vterm' is installed if you choose it.
-  ;; (setq aidermacs-backend 'vterm)
+  (setq aidermacs-backend 'vterm)
 
   ;; Disable auto-commits by Aider, allowing manual Git workflow.
   ;; Set to t if you want Aider to auto-commit changes.

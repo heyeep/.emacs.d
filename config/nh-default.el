@@ -130,18 +130,23 @@
              aw-select)
   :bind (("M-o" . ace-window)))
 
-;; Vundo: Modern visual undo tree (C-x u to launch)
-;; Provides a visual tree representation of your undo history, allowing you to
+;; Undo Tree: Visual undo interface for better undo management
+;; Provides a visual tree-like interface for Emacs' undo system, allowing you to
 ;; navigate and restore any previous state of your buffer with precision.
-;; GitHub: https://github.com/casouri/vundo
-(use-package vundo
+;; GitHub: https://github.com/apchamberlain/undo-tree.el
+(use-package undo-tree
   :ensure t
-  :bind (("C-x u" . vundo))
+  :diminish undo-tree-mode
+  :bind (("C-x u" . undo-tree-visualize))
   :config
-  ;; Use a more compact character set for the tree
-  (setq vundo-glyph-alist vundo-unicode-symbols)
-  ;; Optionally, set the window size
-  (setq vundo-window-max-height 20))
+  ;; Enable undo-tree globally
+  (global-undo-tree-mode)
+  ;; Prevent undo tree files from cluttering the file system
+  (setq undo-tree-auto-save-history nil)
+  ;; Show timestamps in the undo tree
+  (setq undo-tree-visualizer-timestamps t)
+  ;; Show differences between states
+  (setq undo-tree-visualizer-diff t))
 
 ;; Increase undo limits for a more robust undo experience
 (setq undo-limit 160000)
@@ -160,18 +165,37 @@
 ;; useful for navigating large files and getting a bird's eye view of code structure.
 ;; GitHub: https://github.com/dengste/minimap
 (use-package minimap
-  :ensure t
-  :commands (minimap-mode minimap-create minimap-kill)
-  :config
-  ;; Set the width of the minimap window
-  (setq minimap-window-location 'right)
-  ;; Only show the minimap for files larger than this many lines
-  (setq minimap-minimum-width 20)
-  ;; Update minimap when scrolling
-  (setq minimap-update-delay 0.1)
-  ;; Show current line highlight in minimap
-  (setq minimap-highlight-line t))
+    :ensure t
+    :commands (minimap-mode minimap-create minimap-kill)
+    :config
+    ;; Set the width of the minimap window
+    (setq minimap-window-location 'right)
+    ;; Only show the minimap for files larger than this many lines
+    (setq minimap-minimum-width 20)
+    ;; Update minimap when scrolling
+    (setq minimap-update-delay 0.1)
+    ;; Show current line highlight in minimap
+    (setq minimap-highlight-line t))
 
+
+;; Highlight Indent Guides: Simple and reliable indentation guides
+;; Shows subtle vertical lines to indicate indentation levels
+;; GitHub: https://github.com/DarthFennec/highlight-indent-guides
+(use-package highlight-indent-guides
+    :ensure t
+    :hook (prog-mode . highlight-indent-guides-mode)
+    :config
+    ;; Use column method for clean vertical lines
+    (setq highlight-indent-guides-method 'column)
+    ;; Use pipe character for column guides
+    (setq highlight-indent-guides-character ?\|)  ; Pipe character
+    ;; Auto-detect colors from current theme
+    (setq highlight-indent-guides-auto-character-face-perc 30)
+    (setq highlight-indent-guides-auto-top-character-face-perc 50)
+    ;; Responsive guides (highlight current context)
+    (setq highlight-indent-guides-responsive nil)
+    ;; Show guides on blank lines for better continuity
+    (setq highlight-indent-guides-suppress-auto-error t))
 ;; Configure compilation buffers for better ANSI color support
 (require 'compile)
 (setq compilation-scroll-output t)

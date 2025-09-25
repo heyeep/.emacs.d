@@ -256,7 +256,7 @@
 (defun nh/ruby-lsp-error-handler (workspace err)
   "Handle Ruby LSP errors, especially for .rake files."
   (let ((message (gethash "message" err)))
-    (when (and message (string-match-p "LocationNotFoundError\\|find_char_position" message))
+    (when (and message (string-match-p "LocationNotFoundError\\|find_char_position\\|target position\\|documentHighlight failed\\|signatureHelp failed\\|codeAction failed\\|hover failed" message))
       (message "Ruby LSP position error in %s - this is usually harmless"
                (if buffer-file-name
                    (file-name-nondirectory buffer-file-name)

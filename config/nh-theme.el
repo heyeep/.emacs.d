@@ -13,7 +13,7 @@
 ;; Make title bar transparent and match the theme
 (when (memq window-system '(mac ns))
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist '(ns-appearance . light)))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark)))
 
 (set-face-attribute 'default nil
                     :font (font-spec :family "Iosevka Etoile"

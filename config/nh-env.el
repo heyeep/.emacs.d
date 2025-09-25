@@ -82,5 +82,19 @@ Checks for Windows, known desktop hostnames, or very wide monitors."
         scroll-preserve-screen-position 1
         auto-window-vscroll nil))
 
+;; Override Node.js version to use 22.19.0 instead of what's in shell PATH
+(when (file-exists-p "/Users/hiep/.asdf/installs/nodejs/22.19.0/bin/node")
+  (let* ((nodejs-22-path "/Users/hiep/.asdf/installs/nodejs/22.19.0/bin")
+         (current-path (getenv "PATH"))
+         ;; Remove any existing nodejs paths from PATH
+         (cleaned-path (replace-regexp-in-string
+                       "/Users/hiep/\\.asdf/installs/nodejs/[^:]*:"
+                       "" current-path))
+         ;; Add Node.js 22 at the beginning
+         (new-path (concat nodejs-22-path ":" cleaned-path)))
+    (setenv "PATH" new-path)
+    (setq exec-path (cons nodejs-22-path exec-path))
+    (message "Emacs configured to use Node.js 22.19.0")))
+
 (provide 'nh-env)
 ;;; nh-env.el ends here
