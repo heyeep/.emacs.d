@@ -573,7 +573,7 @@ These are added to `completion-ignored-extensions'."
 
     ;; Replace the default hover keybinding
     (define-key lsp-mode-map [remap xref-find-definitions] 'lsp-find-definition)
-    (define-key lsp-mode-map (kbd "K") 'nh/safe-lsp-hover))
+    (define-key lsp-mode-map (kbd "C-c l h") 'nh/safe-lsp-hover))
 
   ;; Helper functions for debugging LSP project awareness
   (defun nh/lsp-describe-workspace ()
