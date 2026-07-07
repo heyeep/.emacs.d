@@ -8,7 +8,6 @@
 ;; because we are loading transient from a git submodule, not from ELPA/MELPA.
 ;; Using use-package with :ensure t would try to install it from the package archives,
 ;; which we do not want. This ensures we always use our submodule version.
-(setq debug-on-error t)
 (require 'transient)
 
 ;; Magit: A Git porcelain inside Emacs
@@ -30,7 +29,12 @@
   ;; Highlight word-level changes in diffs
   (magit-diff-refine-hunk 'all)
    ;; Show more detailed logs
-  (magit-log-section-arguments '("--graph" "--color" "--decorate" "-n256")))
+  (magit-log-section-arguments '("--graph" "--color" "--decorate" "-n256"))
+  :config
+  ;; Remove deprecated magit-insert-bisect-output from status sections
+  ;; This function was removed in newer Magit versions
+  (when (boundp 'magit-status-sections-hook)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-output)))
   ;; ;; Set default push behavior
   ;; (magit-push-current-set-remote-if-missing t)
   ;; (magit-push-always-verify nil)

@@ -18,7 +18,10 @@
             (setq gc-cons-percentage 0.1)))
 
 ;; Run garbage collection when Emacs loses focus
-(add-hook 'focus-out-hooks #'garbage-collect-maybe)
+(add-function :after after-focus-change-function
+              (lambda ()
+                (unless (frame-focus-state)
+                  (garbage-collect-maybe 4))))
 
 ;; Ensure our submodule version of transient is loaded FIRST.
 ;; This must go before normal-top-level-add-subdirs-to-load-path,
@@ -74,12 +77,22 @@
 (eval-when-compile
   (require 'use-package)
   (require 'bind-key)
-  (require 'diminish))
+  (require 'diminish nil t))
 
 ;;; Require diminish at runtime in case it is used outside of use-package
-(require 'diminish)
+(require 'diminish nil t)
 
 (setq use-package-always-ensure t)
+
+;;; Prevent certain packages from being byte-compiled (they have bugs)
+(defun nh/maybe-skip-package-compile (orig-fun pkg-desc)
+  "Skip compilation for packages that have bugs in their compilation."
+  (let ((pkg-name (package-desc-name pkg-desc)))
+    (if (memq pkg-name '(rake tide))
+        nil  ;; Skip compilation
+      (funcall orig-fun pkg-desc))))
+
+(advice-add 'package--compile :around #'nh/maybe-skip-package-compile)
 
 ;;; Install any missing packages from package-list
 (defvar package-list nil
@@ -151,10 +164,10 @@
                           (list (cons feature (error-message-string err)))))))))
 
 ;; Set font early before loading other modules
-(set-face-attribute 'default nil
-                    :font "Iosevka Etoile"
-                    :height 140)
-(add-to-list 'default-frame-alist '(font . "Iosevka Etoile-14"))
+;;(set-face-attribute 'default nil
+;;                    :font "Iosevka Etoile"
+;;                    :height 140)
+;;(add-to-list 'default-frame-alist '(font . "Iosevka Etoile-14"))
 
 ;; Load core configuration files immediately
 (message "[init.el] Starting configuration load...")
@@ -180,7 +193,6 @@
             (nh/require-with-log 'nh-debug)
             (nh/require-with-log 'nh-copilot-ai)
             (nh/require-with-log 'nh-aider-ai)
-            (nh/require-with-log 'nh-tools)
             ;; Load all language-specific configuration files
             (if (fboundp 'nh/load-directory)
                 (nh/load-directory (expand-file-name "lang" user-emacs-directory))
@@ -199,13 +211,13 @@
             (lambda (orig-fun type message &optional level buffer-name)
               (unless (and (eq type 'bytecomp)
                           (string-match-p "make-network-process.*:service" message))
-                (apply orig-fun type message level buffer-name))))
+                (funcall orig-fun type message level buffer-name))))
 
 ;; (add-to-list 'load-path "/Users/hiep/Code/claude/vaibe")
 ;; (require 'vaibe)
 ;; (add-to-list 'load-path "/Users/hiep/Code/ellm")
-(add-to-list 'load-path "/Users/hiep/Code/claude/ellm")
-(require 'ellm)
+;;(add-to-list 'load-path "/Users/hiep/Code/claude/ellm")
+;;(require 'ellm)
 ;; (add-to-list 'load-path "/Users/hiep/Code/claude/fragment")
 ;; (require 'fragment-demo)
 
@@ -245,7 +257,25 @@
      "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8"
      default))
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
- '(package-selected-packages nil)
+ '(package-selected-packages
+   '(ace-window ag aidermacs alchemist all-the-icons-dired
+     all-the-icons-ivy-rich anaconda-mode auctex cape circadian
+     consult-dir copilot corfu counsel dape diminish dired-collapse
+     dired-git-info dired-k dired-sidebar edebug-x elisp-refs
+     elisp-slime-nav elixir-mode embark-consult enh-ruby-mode
+     eval-sexp-fu exec-path-from-shell expand-region flycheck-inline
+     flycheck-pos-tip format-all geiser go-mode gotham-theme
+     graphviz-dot-mode grip-mode highlight-indent-guides
+     highlight-parentheses highlight-symbol htmlize ivy-prescient
+     keycast kind-icon lsp-ui magit marginalia markdown-preview-eww
+     markdown-preview-mode minimap mixed-pitch modus-themes
+     multi-vterm orderless org-bullets org-download org-modern
+     org-roam-bibtex org-roam-timestamps org-roam-ui paredit pdf-tools
+     powerline prettier-js projectile projectile-rails
+     rainbow-delimiters rainbow-mode reveal-in-osx-finder rjsx-mode
+     robe slime smartparens solaire-mode solarized-theme
+     spacemacs-theme swift-mode tide typescript-mode undo-tree vertico
+     vundo web-mode ws-butler yasnippet-snippets))
  '(warning-suppress-log-types '((copilot copilot-no-mode-indent) (bytecomp)))
  '(warning-suppress-types '((use-package) (bytecomp))))
 (custom-set-faces
