@@ -10,6 +10,8 @@
 (use-package dired
   :ensure nil ; dired is built-in, no need to ensure
   :config
+  ;; dired-omit-mode lives in dired-x, which is not autoloaded
+  (require 'dired-x)
   ;; Enable dired-omit-mode globally to hide unwanted files
   (add-hook 'dired-mode-hook 'dired-omit-mode)
 
