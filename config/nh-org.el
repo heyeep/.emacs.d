@@ -368,8 +368,9 @@
   (pdf-links-minor-mode t)  ;; Enable link following
   (pdf-outline-minor-mode t)  ;; Enable outline navigation
   :bind
-  ;; PDF navigation and features
-  (("C-c C-p" . pdf-view-scroll-up-or-next-page)  ;; Scroll up/next page
+  ;; PDF navigation and features (scoped to PDF buffers only)
+  (:map pdf-view-mode-map
+   ("C-c C-p" . pdf-view-scroll-up-or-next-page)  ;; Scroll up/next page
    ("C-c C-n" . pdf-view-scroll-down-or-previous-page)  ;; Scroll down/previous page
    ("C-c C-f" . pdf-view-fit-page-to-window)  ;; Fit page to window
    ("C-c C-w" . pdf-view-fit-width-to-window)  ;; Fit width to window
