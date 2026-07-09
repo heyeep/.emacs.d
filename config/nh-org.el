@@ -167,22 +167,6 @@
      ("css" (:background "#f8f8f8" :extend t))
      ("shell" (:background "#f8f8f8" :extend t)))))
 
-;; Keybindings for source blocks
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c C-s") 'org-edit-src-code)  ;; Edit in dedicated buffer
-  (define-key org-mode-map (kbd "C-c C-v") 'org-babel-expand-src-block)  ;; Show options
-  (define-key org-mode-map (kbd "C-c C-c") 'org-babel-execute-src-block)  ;; Execute
-  (define-key org-mode-map (kbd "C-c C-o") 'org-babel-open-src-block-result)  ;; View results
-  (define-key org-mode-map (kbd "C-c C-r") 'org-babel-remove-result-one-or-many)  ;; Remove results
-  (define-key org-mode-map (kbd "C-c C-u") 'org-babel-goto-src-block-head)  ;; Go to header
-  (define-key org-mode-map (kbd "C-c C-i") 'org-babel-view-src-block-info)  ;; View info
-  (define-key org-mode-map (kbd "C-c C-t") 'org-babel-tangle)  ;; Extract to files
-  (define-key org-mode-map (kbd "C-c C-j") 'org-babel-insert-header-arg)  ;; Add header arg
-  (define-key org-mode-map (kbd "C-c C-k") 'org-babel-load-in-session)  ;; Load in session
-  (define-key org-mode-map (kbd "C-c C-l") 'org-babel-lob-ingest)  ;; Load library
-  (define-key org-mode-map (kbd "C-c C-n") 'org-babel-next-src-block)  ;; Next block
-  (define-key org-mode-map (kbd "C-c C-p") 'org-babel-previous-src-block))  ;; Previous block
-
 ;; Org Bullets: Show Org heading bullets as UTF-8 characters
 ;; Replaces the default asterisk bullets in Org headings with attractive
 ;; Unicode symbols, improving the visual appearance of Org documents.
