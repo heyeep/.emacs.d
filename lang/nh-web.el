@@ -180,8 +180,10 @@
     ;; Add Tide support to modes
     (flycheck-add-mode 'typescript-tide 'web-mode)
     (flycheck-add-mode 'typescript-tide 'typescript-mode)
-    
-    ;; Define a proper typescript-tsc checker if it doesn't exist
+
+    ;; Define a proper typescript-tsc checker if it doesn't exist.
+    ;; NOTE: web-mode is used for .tsx here (there is no `tsx-mode'), so the
+    ;; checker must list web-mode or it never runs in .tsx buffers.
     (unless (flycheck-valid-checker-p 'typescript-tsc)
       (flycheck-define-checker typescript-tsc
         "TypeScript compiler for type checking."
@@ -191,8 +193,11 @@
                   source-inplace)
         :error-patterns
         ((error line-start (file-name) "(" line "," column "): error TS" (id (one-or-more digit)) ": " (message) line-end))
-        :modes (typescript-mode tsx-mode)))
-    
+        :modes (typescript-mode web-mode)))
+
+    ;; Ensure the tsc checker is also recognized in web-mode (.tsx) buffers
+    (flycheck-add-mode 'typescript-tsc 'web-mode)
+
     ;; Chain the checkers: run tsc after tide
     (flycheck-add-next-checker 'typescript-tide 'typescript-tsc 'append)))
 
