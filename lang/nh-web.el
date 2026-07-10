@@ -77,29 +77,28 @@
 ;; Enhanced JavaScript major mode with better syntax highlighting, error
 ;; detection, and support for modern JavaScript features including ES6+ syntax.
 ;; GitHub: https://github.com/mooz/js2-mode
+;; NOTE: .js is owned by rjsx-mode (below), which derives from js2-mode.
+;; js2-mode is loaded as the base library but does not claim .js itself,
+;; to avoid a three-way auto-mode-alist fight (js2 / js2-jsx / rjsx).
 (use-package js2-mode
   :ensure t
-  :mode ("\\.js\\'" . js2-mode)
-  :interpreter ("node" . js2-mode)
   :hook (js2-mode . nh/js2-setup)
   :custom
   (js-indent-level 2)
   (js2-basic-offset 2)
   (js2-highlight-level 3)
   (js2-idle-timer-delay 0.5)
-  (js2-mode-show-parse-errors nil)
+  ;; Show real syntax errors (e.g. a mangled `const'), but keep strict
+  ;; warnings off: they flag "missing ; after statement" on every line of
+  ;; semicolon-less (ASI-style) code, which is valid JS.
+  (js2-mode-show-parse-errors t)
   (js2-mode-show-strict-warnings nil)
+  ;; Extra guard: never warn about omitted semicolons.
+  (js2-strict-missing-semi-warning nil)
   :config
   (defun nh/js2-setup ()
     "Custom setup for js2-mode."
     (setq mode-name "JS2")))
-
-;; JS2 JSX Mode: Fallback for mixed JS/HTML files
-;; Extends js2-mode to support JSX syntax for React development, providing
-;; proper highlighting and indentation for mixed JavaScript and XML markup.
-(use-package js2-jsx-mode
-  :ensure nil ; it's part of js2-mode
-  :mode ("\\.js\\'" . js2-jsx-mode))
 
 ;; RJSX Mode: React JSX syntax highlighting
 ;; Specialized major mode for React JSX files with enhanced support for JSX
@@ -177,9 +176,15 @@
   (with-eval-after-load 'flycheck
     (setq flycheck-check-syntax-automatically '(save mode-enabled))
     
-    ;; Add Tide support to modes
+    ;; Add Tide support to modes.
+    ;; js2-mode/rjsx-mode are included so tide diagnostics work in .js
+    ;; buffers too (nh/setup-tide-mode attaches tide there when a
+    ;; jsconfig.json/tsconfig.json exists; without these entries flycheck
+    ;; refuses to run the checker in those modes).
     (flycheck-add-mode 'typescript-tide 'web-mode)
     (flycheck-add-mode 'typescript-tide 'typescript-mode)
+    (flycheck-add-mode 'typescript-tide 'js2-mode)
+    (flycheck-add-mode 'typescript-tide 'rjsx-mode)
 
     ;; Define a proper typescript-tsc checker if it doesn't exist.
     ;; NOTE: web-mode is used for .tsx here (there is no `tsx-mode'), so the
@@ -205,11 +210,12 @@
 ;; Automatically formats JavaScript, TypeScript, and JSX code on save using the
 ;; Prettier code formatter for consistent code style across projects.
 ;; GitHub: https://github.com/prettier/prettier-emacs
-(use-package prettier-js
-  :ensure t
-  :hook ((js2-mode . prettier-js-mode)
-         (typescript-mode . prettier-js-mode)
-         (rjsx-mode . prettier-js-mode)))
+;; DISABLED: Uncommenting below to prevent auto-formatting on save
+;; (use-package prettier-js
+;;   :ensure t
+;;   :hook ((js2-mode . prettier-js-mode)
+;;          (typescript-mode . prettier-js-mode)
+;;          (rjsx-mode . prettier-js-mode)))
 
 
 ;; Nodes Path
