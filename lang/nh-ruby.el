@@ -39,166 +39,33 @@
 (defun nh/setup-ruby-lsp-flycheck ()
   "Setup Ruby with LSP and Flycheck working together."
   (setq-local lsp-diagnostics-provider :flycheck)
-  (setq-local flycheck-relevant-checkers '(lsp))
   ;; Explicitly disable all Ruby-related checkers except LSP
   (setq-local flycheck-disabled-checkers '(ruby-rubocop ruby-reek ruby-rubylint ruby))
   (flycheck-mode 1)
   (lsp-deferred))
 
 ;; Configure LSP for Ruby modes - using ruby-lsp only
+;; (lsp-mode ships the ruby-lsp-ls client in lsp-ruby-lsp.el; the custom
+;; client registration, command-handler advice stack, and global
+;; shell-command rewriting that used to live here were broken or dead and
+;; have been removed.)
 (with-eval-after-load 'lsp-mode
-  ;; Disable Solargraph and other Ruby servers completely
-  (setq lsp-disabled-clients '(solargraph rubocop-ls steep-ls typeprof-ls))
-
   ;; Disable RuboCop diagnostics globally
   (setq lsp-rubocop-use-bundler nil)
   (setq lsp-ruby-lsp-use-bundler nil)
 
-  ;; Custom handler for ruby-lsp code lens actions (Run/Debug buttons)
-  (defun nh/ruby-lsp-execute-command-handler (command)
-    "Custom handler for ruby-lsp commands to fix RSpec execution."
-    ;; Debug output
-    (message "=== Ruby LSP Command Handler ===")
-    (message "Raw command: %S" command)
-    (message "Command type: %s" (type-of command))
-
-    ;; If command is nil or empty, and we're in a spec file, just run the spec
-    (if (and (or (null command)
-                 (and (stringp command) (string= command ""))
-                 (and (hash-table-p command) (null (gethash "command" command))))
-             (derived-mode-p 'ruby-mode 'enh-ruby-mode)
-             (string-match-p "_spec\\.rb\\'" (or buffer-file-name "")))
-        (progn
-          (message "Command is nil/empty, running spec at point")
-          (nh/run-rspec-at-point))
-      ;; Otherwise continue with normal processing
-
-      ;; Handle the case where command might be wrapped
-      (when (and (listp command) (= (length command) 1))
-        (setq command (car command)))
-
-      (let* ((command-id (cond
-                         ((stringp command) command)
-                         ((hash-table-p command) (gethash "command" command))
-                         (t nil)))
-             (arguments (when (hash-table-p command)
-                         (gethash "arguments" command))))
-
-        (message "Extracted command-id: %s" command-id)
-        (message "Arguments: %S" arguments)
-
-        ;; Check if this is a shell command that ruby-lsp wants us to run
-        (cond
-         ;; If still nil but in spec file, run spec
-         ((and (null command-id)
-               (derived-mode-p 'ruby-mode 'enh-ruby-mode)
-               (string-match-p "_spec\\.rb\\'" (or buffer-file-name "")))
-          (message "No command ID, running spec at point")
-          (nh/run-rspec-at-point))
-
-         ;; Direct shell command from ruby-lsp
-         ((and (stringp command-id)
-               (or (string-match-p "rspec" command-id)
-                   (string-match-p "ruby.*spec" command-id)
-                   (string-match-p "bundle.*rspec" command-id)))
-          (message "Detected direct RSpec command: %s" command-id)
-          (let* ((project-root (or (locate-dominating-file default-directory "Gemfile")
-                                  (locate-dominating-file default-directory ".git")
-                                  default-directory))
-                 (default-directory project-root))
-            ;; Fix the command if it's trying to run ./rspec
-            (when (string-match "^\\./rspec" command-id)
-              (setq command-id (replace-regexp-in-string "^\\./rspec" "bundle exec rspec" command-id)))
-            (message "Running command: %s from %s" command-id default-directory)
-            (compile command-id)))
-
-         ;; Ruby LSP test commands
-         ((and command-id (or (string-match-p "test" command-id)
-                             (string-match-p "Test" command-id)
-                             (string-match-p "spec" command-id)))
-          (message "Intercepting test command: %s" command-id)
-          ;; Try to extract file and line from arguments
-          (let* ((file-path buffer-file-name)
-                 (line-number (line-number-at-pos))
-                 (project-root (or (locate-dominating-file file-path "Gemfile")
-                                 (locate-dominating-file file-path ".git")))
-                 (default-directory (or project-root default-directory)))
-            (when file-path
-              (let* ((relative-path (if project-root
-                                       (file-relative-name file-path project-root)
-                                     file-path))
-                     (rspec-command (format "bundle exec rspec %s:%s" relative-path line-number)))
-                (message "Running: %s" rspec-command)
-                (compile rspec-command)))))
-
-         ;; Pass through other commands
-         (t
-          (message "Unknown command format, passing through: %s" command-id)
-          (when command-id
-            (lsp-execute-command command-id arguments)))))))
-
-  ;; Override the LSP execute command for ruby-lsp
-  (advice-add 'lsp-execute-command :around
-              (lambda (orig-fun command &rest args)
-                (when (and lsp-mode (lsp-workspaces))
-                  (message "LSP execute-command called with: %S args: %S" command args))
-                (if (and lsp-mode
-                        (lsp-workspaces)
-                        (equal (lsp--workspace-server-id (car (lsp-workspaces))) 'ruby-lsp-ls))
-                    (nh/ruby-lsp-execute-command-handler (or command (car args)))
-                  (apply orig-fun command args))))
-
-  ;; Also intercept code lens action execution
+  ;; ruby-lsp code-lens "Run" buttons execute ./rspec, which fails unless a
+  ;; binstub exists.  Intercept test lenses in spec buffers and run them via
+  ;; `nh/run-rspec-at-point' (bundle exec) instead.
   (advice-add 'lsp-execute-code-action :around
               (lambda (orig-fun action &rest args)
-                (when (and lsp-mode (lsp-workspaces))
-                  (message "LSP code action called with: %S" action))
-                (if (and lsp-mode
-                        (lsp-workspaces)
-                        (equal (lsp--workspace-server-id (car (lsp-workspaces))) 'ruby-lsp-ls)
-                        (hash-table-p action))
-                    (let ((command (gethash "command" action)))
-                      (when command
-                        (nh/ruby-lsp-execute-command-handler command)))
-                  (apply orig-fun action args))))
-
-  ;; Intercept shell-command to fix rspec execution
-  (defun nh/fix-rspec-shell-command (orig-fun command &rest args)
-    "Fix RSpec commands that try to run ./rspec."
-    (when (string-match-p "ruby.*rspec\\|^\\.?/?rspec" command)
-      (message "Intercepted shell command: %s" command)
-      ;; Fix various forms of rspec commands
-      (setq command (replace-regexp-in-string "^\\./rspec" "bundle exec rspec" command))
-      (setq command (replace-regexp-in-string "^rspec" "bundle exec rspec" command))
-      (setq command (replace-regexp-in-string "ruby .*rspec" "bundle exec rspec" command))
-      ;; Also fix the path if it's running from wrong directory
-      (when (string-match "rspec \\(.*\\)" command)
-        (let* ((spec-file (match-string 1 command))
-               (project-root (or (locate-dominating-file default-directory "Gemfile")
-                                (locate-dominating-file default-directory ".git"))))
-          (when project-root
-            (setq default-directory project-root))))
-      (message "Fixed command: %s from directory: %s" command default-directory))
-    (apply orig-fun command args))
-
-  ;; Apply advice to shell-command functions
-  (advice-add 'shell-command :around #'nh/fix-rspec-shell-command)
-  (advice-add 'async-shell-command :around #'nh/fix-rspec-shell-command)
-  (advice-add 'compile :around #'nh/fix-rspec-shell-command)
-
-  ;; Also intercept the terminal/vterm commands that LSP might use
-  (defun nh/fix-terminal-rspec-command (orig-fun command &rest args)
-    "Fix RSpec commands in terminal."
-    (when (and (stringp command) (string-match-p "rspec" command))
-      (setq command (replace-regexp-in-string "^\\./rspec" "bundle exec rspec" command))
-      (setq command (replace-regexp-in-string "^rspec" "bundle exec rspec" command)))
-    (apply orig-fun command args))
-
-  ;; Intercept various terminal commands
-  (with-eval-after-load 'vterm
-    (advice-add 'vterm-send-string :around #'nh/fix-terminal-rspec-command))
-  (with-eval-after-load 'term
-    (advice-add 'term-send-raw-string :around #'nh/fix-terminal-rspec-command))
+                (let ((cmd (ignore-errors (lsp-get (lsp-get action :command) :command))))
+                  (if (and cmd buffer-file-name
+                           (derived-mode-p 'ruby-mode 'enh-ruby-mode)
+                           (string-match-p "_spec\\.rb\\'" buffer-file-name)
+                           (string-match-p "test\\|spec" cmd))
+                      (nh/run-rspec-at-point)
+                    (apply orig-fun action args)))))
 
   ;; Create rspec binstub if needed
   (defun nh/ensure-rspec-binstub ()
@@ -217,58 +84,7 @@
             (insert "# This is a wrapper for LSP code lens compatibility\n")
             (insert "bundle exec rspec \"$@\"\n"))
           (set-file-modes rspec-bin #o755)
-          (message "Created %s" rspec-bin)))))
-
-  ;; Intercept lsp--send-execute-command to see what's being sent
-  (advice-add 'lsp--send-execute-command :before
-              (lambda (command &optional args)
-                (message "LSP sending execute command: %s with args: %S" command args)))
-
-  ;; Also check lsp-perform-code-action
-  (advice-add 'lsp-perform-code-action :around
-              (lambda (orig-fun action &rest args)
-                (message "Performing code action: %S" action)
-                (apply orig-fun action args)))
-
-  ;; Register ruby-lsp as the primary Ruby language server
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-stdio-connection '("ruby-lsp"))
-    :major-modes '(ruby-mode enh-ruby-mode)
-    :server-id 'ruby-lsp-ls
-    ;; Enable all features, including Rails support, but disable RuboCop
-    :initialization-options
-    (lambda ()
-      (list :initializationOptions
-            (list :enabledFeatures ["codeActions" "diagnostics" "documentHighlights"
-                                   "documentLink" "documentSymbols" "foldingRanges"
-                                   "formatting" "hover" "inlayHint" "onTypeFormatting"
-                                   "selectionRanges" "semanticHighlighting" "completion"
-                                   "codeLens" "definition" "documentLink" "references"
-                                   "signatureHelp" "typeHierarchy" "workspaceSymbol"]
-                  :experimentalFeaturesEnabled t
-                  :formatter "auto"
-                  :linters (list :rubocop :json-false)
-                  :testFramework "rspec")))
-    :priority 100)))
-
-;; Add error handling for .rake files specifically
-(defun nh/ruby-lsp-error-handler (workspace err)
-  "Handle Ruby LSP errors, especially for .rake files."
-  (let ((message (gethash "message" err)))
-    (when (and message (string-match-p "LocationNotFoundError\\|find_char_position\\|target position\\|documentHighlight failed\\|signatureHelp failed\\|codeAction failed\\|hover failed" message))
-      (message "Ruby LSP position error in %s - this is usually harmless"
-               (if buffer-file-name
-                   (file-name-nondirectory buffer-file-name)
-                 "buffer"))
-      ;; Don't show the full error for common position errors
-      nil)))
-
-(with-eval-after-load 'lsp-mode
-  (setq lsp-ruby-lsp-error-filter #'nh/ruby-lsp-error-handler))
-
-;; (with-eval-after-load 'flycheck
-;;   (add-hook 'flycheck-mode-hook #'flycheck-lsp-setup))
+          (message "Created %s" rspec-bin))))))
 
 ;; Ruby Mode: Major mode for editing Ruby files
 ;; Built-in Ruby major mode providing syntax highlighting, indentation, and
@@ -817,16 +633,13 @@ Flycheck checkers: %s"
   (interactive)
   (if (bound-and-true-p flycheck-mode)
       (let ((checkers flycheck-enabled-checkers)
-            (disabled flycheck-disabled-checkers)
-            (relevant flycheck-relevant-checkers))
+            (disabled flycheck-disabled-checkers))
         (message "Flycheck Ruby Diagnostics:
 Enabled checkers: %s
 Disabled checkers: %s
-Relevant checkers: %s
 Current checker: %s"
                  checkers
                  disabled
-                 relevant
                  flycheck-checker))
     (message "Flycheck not active")))
 
@@ -953,50 +766,6 @@ features:
          (default-directory project-root)
          (relative-path (file-relative-name file-path project-root)))
     (compile (format "bundle exec rspec %s:%d" relative-path line-number))))
-
-;; Override code lens mouse click handler
-(with-eval-after-load 'lsp-mode
-  ;; Fix the actual click handler for code lens
-  (defun nh/lsp-code-lens--action-fix (orig-fun action)
-    "Intercept code lens actions and fix RSpec commands."
-    (if (and (derived-mode-p 'ruby-mode 'enh-ruby-mode)
-             (string-match-p "_spec\\.rb\\'" (or buffer-file-name "")))
-        ;; For Ruby spec files, check if it's a test action
-        (let ((command (when (hash-table-p action)
-                        (gethash "command" action))))
-          (if (and command (hash-table-p command))
-              (let ((cmd-string (gethash "command" command))
-                    (args (gethash "arguments" command)))
-                (message "Code lens command: %s" cmd-string)
-                ;; If it looks like a test command, run our version
-                (if (or (string-match-p "test" cmd-string)
-                       (string-match-p "Test" cmd-string)
-                       (string-match-p "spec" cmd-string))
-                    (nh/run-rspec-at-point)
-                  ;; Otherwise let it through
-                  (funcall orig-fun action)))
-            ;; Not a command we recognize
-            (funcall orig-fun action)))
-      ;; Not a Ruby spec file
-      (funcall orig-fun action)))
-
-  ;; Apply advice to the code lens action handler
-  (advice-add 'lsp-code-lens--action :around #'nh/lsp-code-lens--action-fix))
-
-;; Debug function to see what command is being sent
-(defun nh/debug-lsp-command ()
-  "Debug the last LSP command."
-  (interactive)
-  (message "Debug: Check *Messages* buffer for LSP command details"))
-
-;; Add debugging to the command handler
-(defun nh/ruby-lsp-execute-command-debug (command)
-  "Debug version of the command handler."
-  (message "LSP Command Debug:")
-  (message "  Command: %s" command)
-  (when (hash-table-p command)
-    (message "  Command ID: %s" (gethash "command" command))
-    (message "  Arguments: %s" (gethash "arguments" command))))
 
 ;; Projectile Rails: Rails-specific project navigation
 ;; Enhances Projectile with Rails-specific navigation commands for quickly
