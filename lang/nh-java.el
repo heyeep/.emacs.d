@@ -9,12 +9,7 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/ccmode/
 (use-package cc-mode
   :ensure nil
-  :mode ("\\.java\\'" . java-mode)
-  :config
-  (with-eval-after-load 'evil
-    (evil-define-key 'normal java-mode-map
-      (kbd "K") #'javadoc-lookup
-      (kbd "gf") #'xref-find-definitions)))
+  :mode ("\\.java\\'" . java-mode))
 
 ;; Javadoc Lookup: Quick access to Java API documentation
 ;; https://github.com/nicferrier/emacs-javadoc-lookup

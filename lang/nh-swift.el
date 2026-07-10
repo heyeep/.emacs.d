@@ -2,14 +2,6 @@
 
 ;; This file configures Emacs for working with Swift files.
 
-;; Configure sourcekit-lsp path for macOS
-(defun nh/sourcekit-lsp-path ()
-  "Get the path to sourcekit-lsp on macOS."
-  (let ((xcode-path (shell-command-to-string "xcode-select -p")))
-    (when xcode-path
-      (setq xcode-path (string-trim xcode-path))
-      (expand-file-name "sourcekit-lsp" (expand-file-name "usr/bin" xcode-path)))))
-
 ;; Xcode simulator utilities
 (defun nh/swift-list-simulators ()
   "List available iOS simulators."
@@ -50,20 +42,13 @@
   (setq swift-mode:multiline-statement-offset 4)
   (setq swift-mode:basic-offset 4)
 
-  ;; Enable syntax highlighting
-  (setq swift-mode:highlight-keywords t)
-
-  ;; Enable auto-indentation
-  (setq swift-mode:indent-tabs-mode nil)
-
-  ;; Enable electric-pair-mode for Swift
-  (add-hook 'swift-mode-hook 'electric-pair-mode)
+  ;; Electric pairs in Swift buffers only (the global mode was being
+  ;; switched on for everyone the first time a Swift file opened)
+  (add-hook 'swift-mode-hook 'electric-pair-local-mode)
 
   ;; Enable flycheck for Swift
-  (add-hook 'swift-mode-hook 'flycheck-mode)
-
-  ;; Configure sourcekit-lsp path
-  (setq lsp-swift-server-path (nh/sourcekit-lsp-path)))
+  (add-hook 'swift-mode-hook 'flycheck-mode))
+  ;; NOTE: for Swift LSP, make sure the `lsp-sourcekit' package is installed.
 
 ;; Format All: Universal code formatter
 ;; Provides automatic code formatting for multiple languages including Swift
@@ -73,8 +58,10 @@
   :ensure t
   :config
   (add-hook 'swift-mode-hook 'format-all-mode)
+  ;; format-all's Swift formatter id is `swiftformat' (the old
+  ;; `swift-format' name made format-all-mode error on every save)
   (setq format-all-formatters
-        '(("Swift" swift-format))))
+        '(("Swift" swiftformat))))
 
 ;; Project creation utilities
 (defun nh/swift-create-new-project ()
