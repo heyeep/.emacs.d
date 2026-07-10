@@ -115,7 +115,9 @@
 ;; GitHub: https://github.com/magnars/expand-region.el
 (use-package expand-region
   :ensure t
-  :bind ("C-;" . er/expand-region))
+  ;; C-=, not C-;: embark-dwim owns C-; (nh-autocompletion loads later
+  ;; and won that conflict silently).
+  :bind ("C-=" . er/expand-region))
 
 ;; Ace Window: Fast window switching and management
 ;; Provides quick window navigation by assigning letters to each window,

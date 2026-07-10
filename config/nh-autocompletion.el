@@ -222,7 +222,9 @@ These are added to `completion-ignored-extensions'."
          ;; Replace standard commands with Consult equivalents (like Counsel did)
          ;; Note: M-x is automatically enhanced by consult when present
          ("C-x b" . consult-buffer)          ;; Enhanced switch-buffer
-         ("C-c r" . consult-recent-file)     ;; counsel-recentf equivalent
+         ;; C-x C-r, not C-c r: lang modes (ruby/go/python) use C-c r as
+         ;; their own prefix and would shadow this.
+         ("C-x C-r" . consult-recent-file)   ;; counsel-recentf equivalent
 
          ;; Search commands (replaces Swiper)
          ("C-s" . consult-line)              ;; swiper equivalent
@@ -230,7 +232,9 @@ These are added to `completion-ignored-extensions'."
          ;; File finding and project commands
          ("C-c f" . consult-find)            ;; Find files by name/path (like counsel-find-file enhancement)
          ("C-c d" . consult-fd)              ;; Alternative fast find (if fd is available)
-         ("C-c l" . consult-locate)          ;; Locate files (counsel-locate equivalent)
+         ;; C-c L, not C-c l: C-c l is the LSP prefix (lsp-ui-mode-map)
+         ;; and shadows a global binding in every LSP buffer.
+         ("C-c L" . consult-locate)          ;; Locate files (counsel-locate equivalent)
 
          ;; Grep and search commands
          ("C-c k" . consult-ripgrep)         ;; counsel-rg equivalent

@@ -18,11 +18,12 @@
 (use-package vterm
   :ensure t
   :commands vterm
+  ;; C-c v, not C-c t: the old global-set-key in :config silently stole
+  ;; C-c t from consult-theme the first time vterm loaded.
+  :bind (("C-c v" . vterm))
   :config
   (setq vterm-shell "/bin/zsh")              ;; Use zsh as the default shell
-  (setq vterm-max-scrollback 200000)         ;; Increase scrollback buffer
-  ;; Example keybinding: open new vterm with C-c t
-  (global-set-key (kbd "C-c t") #'vterm))
+  (setq vterm-max-scrollback 200000))        ;; Increase scrollback buffer
 
 ;; Multi Vterm: Manage multiple vterm buffers
 ;; Provides enhanced management for multiple vterm instances with easy
