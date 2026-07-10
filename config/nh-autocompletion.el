@@ -499,10 +499,14 @@ These are added to `completion-ignored-extensions'."
   :ensure t
   :commands (lsp lsp-deferred)
   :hook ((prog-mode . (lambda ()
+                        ;; Exclude modes handled by tide (typescript/js/jsx/tsx).
+                        ;; web-mode covers .tsx here; without this both tide and
+                        ;; ts-ls attach to the same buffer and clobber fontification.
                         (unless (or (derived-mode-p 'emacs-lisp-mode)
                                     (derived-mode-p 'typescript-mode)
                                     (derived-mode-p 'js2-mode)
-                                    (derived-mode-p 'rjsx-mode))
+                                    (derived-mode-p 'rjsx-mode)
+                                    (derived-mode-p 'web-mode))
                           (lsp-deferred)))))
   :custom
   (lsp-completion-provider :capf)
