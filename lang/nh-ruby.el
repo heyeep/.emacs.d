@@ -1005,7 +1005,9 @@ features:
 (use-package projectile-rails
   :ensure t
   :diminish projectile-rails-mode
-  :hook ((ruby-mode enh-ruby-mode web-mode) . projectile-rails-on)
+  ;; No web-mode here: it would load projectile-rails (and its `rake'
+  ;; dependency) into .tsx/.html buffers, breaking their mode hooks.
+  :hook ((ruby-mode enh-ruby-mode) . projectile-rails-on)
   :config
   ;; Enhanced Rails navigation
   (setq projectile-rails-add-keywords t)
