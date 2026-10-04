@@ -170,6 +170,26 @@
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
+;; iTerm2's window padding sits outside the Emacs frame, so ask the terminal
+;; itself to use the theme background (OSC 11) and restore it on exit (OSC 111).
+(defun nh/sync-terminal-background (&rest _)
+  "Set the terminal's background to the theme background."
+  (unless (display-graphic-p)
+    (let ((bg (face-attribute 'default :background)))
+      (when (string-match-p "\\`#[[:xdigit:]]\\{6\\}\\'" bg)
+        (send-string-to-terminal (format "\e]11;%s\a" bg))))))
+
+(defun nh/reset-terminal-background ()
+  "Restore the terminal's own background."
+  (unless (display-graphic-p)
+    (send-string-to-terminal "\e]111\a")))
+
+(add-hook 'enable-theme-functions #'nh/sync-terminal-background)
+(add-hook 'suspend-resume-hook #'nh/sync-terminal-background)
+(add-hook 'suspend-hook #'nh/reset-terminal-background)
+(add-hook 'kill-emacs-hook #'nh/reset-terminal-background)
+(nh/sync-terminal-background)
+
 ;; Rainbow Delimiters: Color-coding for parentheses and brackets
 ;; Colors nested delimiters with different colors based on their depth, making
 ;; it easier to match parentheses and understand code structure in Lisp-like languages.
