@@ -125,7 +125,11 @@
      `(solaire-hl-line-face ((,c :background ,bg-active)))
      `(solaire-org-hide-face ((,c :background ,bg-dim :foreground ,bg-dim))))))
 
-(add-hook 'modus-themes-after-load-theme-hook #'nh/modus-themes-solaire-faces)
+;; Circadian calls plain `load-theme', which skips the modus-themes hook.
+(add-hook 'enable-theme-functions
+          (lambda (theme)
+            (when (string-prefix-p "modus-" (symbol-name theme))
+              (nh/modus-themes-solaire-faces))))
 
 (defun nh/update-theme ()
   "Update various UI elements when theme change."
@@ -167,6 +171,13 @@
   ;; Make line numbers fill the gutter
   (setq-default display-line-numbers-width-start t)
   )
+
+(defvar after-load-theme-hook nil
+  "Hook run after a theme is enabled.")
+
+;; Emacs has no `after-load-theme-hook'; run it from the built-in one.
+(add-hook 'enable-theme-functions
+          (lambda (_theme) (run-hooks 'after-load-theme-hook)))
 
 (add-hook 'after-load-theme-hook #'nh/update-theme)
 
@@ -337,9 +348,6 @@
 (use-package spacious-padding
   :ensure t
   :config
-  ;; Enable spacious-padding-mode
-  (spacious-padding-mode 1)
-  ;; Configure the padding values after package is loaded
   (setq spacious-padding-widths
         '(:internal-border-width 8
           :header-line-width 8
@@ -349,9 +357,7 @@
           :scroll-bar-width 4))
   ;; Don't let spacious-padding affect the fringe
   (setq spacious-padding-subtle-mode-line nil)
-  ;; Re-enable after theme changes to ensure it persists
-  :hook
-  (after-load-theme . spacious-padding-mode))
+  (spacious-padding-mode 1))
 
 ;; Powerline: Emacs version of the Vim powerline
 ;; Provides a modern, customizable mode-line with angled separators and better
