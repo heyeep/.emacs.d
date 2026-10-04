@@ -335,10 +335,10 @@ These are added to `completion-ignored-extensions'."
   ;; Configure projectile to use better tools with exclusions
   (when (executable-find "fd")
     (setq projectile-generic-command
-          (concat "fd . --type f --color=never " (nh--build-fd-shell-command))))
+          (concat "fd . -0 --type f --color=never " (nh--build-fd-shell-command))))
   (when (and (not (executable-find "fd")) (executable-find "rg"))
     (setq projectile-generic-command
-          (concat "rg --files --color=never " (nh--build-ripgrep-shell-command))))
+          (concat "rg --files --null --color=never " (nh--build-ripgrep-shell-command))))
 
   ;; Warn if external 'ag' tool is missing
   (unless (executable-find "ag")
