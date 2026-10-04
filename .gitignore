@@ -13,3 +13,19 @@ recentf
 eln-*
 .aider*
 *.elc
+
+# Personal history and caches
+history
+eshell/
+org-roam.db
+tramp
+.lsp-session-v1
+var/
+.cache/
+
+# Build and patch leftovers
+/node_modules/
+/package.json
+/package-lock.json
+/test.*
+*.rej
