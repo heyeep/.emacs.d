@@ -859,9 +859,6 @@ These are added to `completion-ignored-extensions'."
       (message "Border: %s, Padding: %dpx. Hover to see changes."
                (or lsp-ui-doc-border "none") padding-val)))
 
-  ;; Bind to convenient keys (using C-c L to avoid conflicts with lsp-ui)
-(global-set-key (kbd "C-c L b") 'nh/lsp-ui-doc-set-border-padding)
-
 ;; Whitespace: Highlight trailing whitespace and long lines
 ;; Built-in package for visualizing whitespace issues including trailing spaces,
 ;; tabs, and lines exceeding length limits to maintain code quality standards.
