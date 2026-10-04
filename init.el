@@ -193,6 +193,7 @@
             (nh/require-with-log 'nh-debug)
             (nh/require-with-log 'nh-copilot-ai)
             (nh/require-with-log 'nh-aider-ai)
+            (nh/require-with-log 'nh-agent-ai)
             ;; Load all language-specific configuration files
             (if (fboundp 'nh/load-directory)
                 (nh/load-directory (expand-file-name "lang" user-emacs-directory))
@@ -259,23 +260,27 @@
  '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
  '(package-selected-packages
    '(ace-window ag aidermacs alchemist all-the-icons-dired
-     all-the-icons-ivy-rich anaconda-mode auctex cape circadian
-     consult-dir copilot corfu counsel dape diminish dired-collapse
-     dired-git-info dired-k dired-sidebar edebug-x elisp-refs
-     elisp-slime-nav elixir-mode embark-consult enh-ruby-mode
-     eval-sexp-fu exec-path-from-shell expand-region flycheck-inline
-     flycheck-pos-tip format-all geiser go-mode gotham-theme
-     graphviz-dot-mode grip-mode highlight-indent-guides
-     highlight-parentheses highlight-symbol htmlize ivy-prescient
-     keycast kind-icon lsp-ui magit marginalia markdown-preview-eww
-     markdown-preview-mode minimap mixed-pitch modus-themes
-     multi-vterm orderless org-bullets org-download org-modern
-     org-roam-bibtex org-roam-timestamps org-roam-ui paredit pdf-tools
-     powerline prettier-js projectile projectile-rails
-     rainbow-delimiters rainbow-mode reveal-in-osx-finder rjsx-mode
-     robe slime smartparens solaire-mode solarized-theme
-     spacemacs-theme swift-mode tide typescript-mode undo-tree vertico
-     vundo web-mode ws-butler yasnippet-snippets))
+                all-the-icons-ivy-rich anaconda-mode auctex cape
+                circadian consult-dir copilot corfu counsel dape
+                diminish dired-collapse dired-git-info dired-k
+                dired-sidebar edebug-x elisp-refs elisp-slime-nav
+                elixir-mode embark-consult enh-ruby-mode eval-sexp-fu
+                exec-path-from-shell expand-region flycheck-inline
+                flycheck-pos-tip format-all geiser go-mode
+                gotham-theme graphviz-dot-mode grip-mode
+                highlight-indent-guides highlight-parentheses
+                highlight-symbol htmlize ivy-prescient javadoc-lookup
+                keycast kind-icon lsp-java lsp-latex lsp-ui magit
+                marginalia markdown-preview-eww markdown-preview-mode
+                minimap mixed-pitch modus-themes multi-vterm orderless
+                org-bullets org-download org-modern org-roam-bibtex
+                org-roam-timestamps org-roam-ui paredit pdf-tools
+                powerline prettier-js projectile projectile-rails
+                rainbow-delimiters rainbow-mode reveal-in-osx-finder
+                rjsx-mode robe slime smartparens solaire-mode
+                solarized-theme spacemacs-theme swift-mode tide
+                typescript-mode undo-tree vertico vundo web-mode
+                ws-butler yasnippet-snippets))
  '(warning-suppress-log-types '((copilot copilot-no-mode-indent) (bytecomp)))
  '(warning-suppress-types '((use-package) (bytecomp))))
 (custom-set-faces
