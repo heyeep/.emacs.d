@@ -311,7 +311,7 @@ These are added to `completion-ignored-extensions'."
   :ensure t
   :diminish projectile-mode
   :commands (projectile-find-file projectile-switch-project projectile-ag projectile-mode)
-  :hook (after-init . projectile-mode)
+  :demand t
   :init
   (setq projectile-track-known-projects-automatically t
         projectile-completion-system 'default
@@ -342,7 +342,9 @@ These are added to `completion-ignored-extensions'."
 
   ;; Warn if external 'ag' tool is missing
   (unless (executable-find "ag")
-    (message "[Projectile] Warning: 'ag' (The Silver Searcher) is not installed.")))
+    (message "[Projectile] Warning: 'ag' (The Silver Searcher) is not installed."))
+
+  (projectile-mode 1))
 
 ;; Flycheck: On-the-fly syntax checking
 ;; Real-time syntax checking and error reporting with support for multiple
