@@ -899,24 +899,6 @@ These are added to `completion-ignored-extensions'."
     (setq extended-command-history nil)
     (message "M-x command history cleared")))
 
-;; Better M-x that shows recent commands first
-(defun nh/execute-extended-command ()
-  "Execute extended command with history prioritized."
-  (interactive)
-  (let* ((history-commands (seq-filter (lambda (cmd)
-                                         (and (symbolp (intern-soft cmd))
-                                              (commandp (intern-soft cmd))))
-                                       extended-command-history))
-         (all-commands (all-completions "" obarray 'commandp))
-         ;; Put history commands first, then remaining commands
-         (sorted-commands (append history-commands
-                                  (seq-difference all-commands history-commands)))
-         (command (completing-read "M-x " sorted-commands nil t nil 'extended-command-history)))
-    (command-execute (intern command))))
-
-;; Replace default M-x with enhanced version that shows history first
-(global-set-key (kbd "M-x") #'nh/execute-extended-command)
-
 ;; Enable recursive minibuffers and depth indication
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode 1)
