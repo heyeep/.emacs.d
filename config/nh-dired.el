@@ -18,9 +18,6 @@
   ;; Hide details by default for cleaner view
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
-  ;; Shortcut to toggle details view
-  (define-key dired-mode-map (kbd "<tab>") 'dired-hide-details-mode)
-
   ;; Ensure standard dired keybindings are available
   (define-key dired-mode-map (kbd "g") 'revert-buffer)
 
