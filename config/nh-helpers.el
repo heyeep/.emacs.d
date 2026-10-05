@@ -9,8 +9,8 @@
   "Load all .el files from DIR."
   (add-to-list 'load-path dir)
   (message "[init.el] Loading files from %s..." dir)
-  (dolist (file (directory-files dir t "\.el$"))
-    (when (not (string-match-p "\`\." (file-name-nondirectory file)))
+  (dolist (file (directory-files dir t "\\.el\\'"))
+    (when (not (string-match-p "\\`\\." (file-name-nondirectory file)))
       (let ((feature (intern (file-name-base file)))
             (start-time (current-time)))
         (message "[init.el] Loading %s..." feature)
