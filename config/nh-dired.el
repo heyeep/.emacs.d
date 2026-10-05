@@ -21,25 +21,22 @@
   ;; Ensure standard dired keybindings are available
   (define-key dired-mode-map (kbd "g") 'revert-buffer)
 
-  ;; Configure the regex for files to omit.
-  ;; This regex hides Emacs backup files (~), auto-save files (#),
-  ;; Emacs lock files (.#), and common ignored files.
-  (setq dired-omit-files (rx
-                          (or
-                           "#" ; Emacs auto-save files (e.g., #filename#)
-                           "~" ; Emacs backup files (e.g., filename~)
-                           ".#" ; Emacs lock files (e.g., .#filename)
-                           ".DS_Store" ; macOS directory metadata
-                           ".gitignore" ; Git ignore file
-                           ".gitmodules" ; Git submodules file
-                           ".projectile" ; Projectile file
-                           ".dir-locals.el" ; Directory local variables
-                           ".elc" ; Compiled Emacs Lisp files
-                           ".aider*" ; Aider related files/dirs
-                                                      ".smex-items"
-                                                      ".zcompdump" ;
-                                                      "eln-*" ; Native compilation files
-                           )))
+  ;; Patterns are anchored so they match whole names, not any name containing them.
+  (setq dired-omit-files
+        (rx (or (seq bos "#" (* anything) "#" eos) ; auto-save files
+                (seq "~" eos)                      ; backup files
+                (seq ".elc" eos)                   ; compiled Emacs Lisp
+                (seq bos (or ".#"                  ; lock files
+                             ".aider"
+                             ".zcompdump"
+                             "eln-"))
+                (seq bos (or ".DS_Store"
+                             ".gitignore"
+                             ".gitmodules"
+                             ".projectile"
+                             ".dir-locals.el"
+                             ".smex-items")
+                     eos))))
   )
 
 ;; Dired Sidebar: File explorer sidebar for Dired
