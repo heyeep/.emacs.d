@@ -560,11 +560,10 @@ These are added to `completion-ignored-extensions'."
     "Describe the current LSP workspace and project root."
     (interactive)
     (if (bound-and-true-p lsp-mode)
-        (let ((workspace (lsp-find-workspace-root))
-              (project-root (projectile-project-root))
-              (lsp-root (lsp-workspace-root)))
-          (message "LSP Workspace: %s\nProjectile root: %s\nLSP root: %s"
-                   workspace project-root lsp-root))
+        (message "LSP servers: %s\nProjectile root: %s\nLSP root: %s"
+                 (mapconcat #'lsp--workspace-print (lsp-workspaces) ", ")
+                 (projectile-project-root)
+                 (lsp-workspace-root))
       (message "LSP mode is not active in this buffer")))
 
   (defun nh/lsp-restart-workspace ()
