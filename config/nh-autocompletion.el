@@ -427,45 +427,15 @@ These are added to `completion-ignored-extensions'."
 ;; GitHub: https://github.com/minad/cape
 (use-package cape
   :ensure t
-  :defer t  ;; Defer loading until actually needed
+  :defer t
   :init
-  ;; Add desired completion sources to `completion-at-point-functions`
-  ;; Order can matter for priority if multiple backends provide completions.
-
-  ;; Setup cape completions when entering a buffer
-  (defun nh/safe-add-cape-completions ()
-    "Safely add cape completion functions if cape is loaded."
-    (when (featurep 'cape)
-      ;; Only add if not already present
-      (unless (memq 'cape-file completion-at-point-functions)
-        (add-to-list 'completion-at-point-functions #'cape-file t))
-      (unless (memq 'cape-dabbrev completion-at-point-functions)
-        (add-to-list 'completion-at-point-functions #'cape-dabbrev t))
-      (unless (memq 'cape-keyword completion-at-point-functions)
-        (add-to-list 'completion-at-point-functions #'cape-keyword t))))
-
-  ;; Hook to setup cape completions after cape loads
-  (with-eval-after-load 'cape
-    (add-hook 'find-file-hook #'nh/safe-add-cape-completions)
-    (add-hook 'after-change-major-mode-hook #'nh/safe-add-cape-completions))
-
-  :config
-  ;; Cape is now loaded, setup initial completions for current buffer
-  (nh/safe-add-cape-completions)
-
-  ;; (add-to-list 'completion-at-point-functions (cape-super-capf #'cape-dabbrev #'cape-keyword))
-  ;; (add-to-list 'completion-at-point-functions #'cape-elisp-block) ; Elisp symbols
-  ;; Consider adding other cape functions based on your needs:
-  ;; cape-ispell, cape-tex, cape-sgml, cape-rfc1345, cape-abbrev, cape-dict, cape-symbol
-  ;; Setup elisp-specific completions
-  (defun nh/setup-elisp-cape-completions ()
-    "Setup cape completions specifically for Emacs Lisp mode."
-    (when (and (featurep 'cape) (fboundp 'cape-elisp-symbol))
-      (unless (memq 'cape-elisp-symbol completion-at-point-functions)
-        (add-to-list 'completion-at-point-functions #'cape-elisp-symbol t))))
-
-  (with-eval-after-load 'cape
-    (add-hook 'emacs-lisp-mode-hook #'nh/setup-elisp-cape-completions)))
+  ;; Cape's capfs are autoloaded, so adding them here loads cape on first use.
+  (add-hook 'completion-at-point-functions #'cape-file t)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev t)
+  (add-hook 'completion-at-point-functions #'cape-keyword t)
+  (add-hook 'emacs-lisp-mode-hook
+            (lambda ()
+              (add-hook 'completion-at-point-functions #'cape-elisp-symbol t t))))
 
 ;; Kind Icon: Icons for Corfu and Cape completions
 ;; Adds VSCode-style icons to completion candidates in Corfu, providing visual
