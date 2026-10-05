@@ -139,6 +139,7 @@
 (use-package undo-tree
   :ensure t
   :diminish undo-tree-mode
+  :demand t
   :bind (("C-x u" . undo-tree-visualize))
   :config
   ;; Enable undo-tree globally
