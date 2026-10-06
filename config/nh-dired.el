@@ -171,21 +171,21 @@
   ;; Alternative method to show Git status with icons
   (defun my-dired-k-highlight ()
     "Add Git status indicators using text properties."
+    (remove-overlays (point-min) (point-max) 'nh-git-status t)
     (save-excursion
       (goto-char (point-min))
       (while (not (eobp))
         (when (dired-move-to-filename)
           (let* ((file (dired-get-filename nil t))
-                 (status (and file (vc-state file))))
-            (when status
-              (let ((overlay (make-overlay (point) (+ (point) 1))))
-                (overlay-put overlay 'display
-                             (pcase status
-                               ('edited "✱ ")
-                               ('added "✚ ")
-                               ('removed "✖ ")
-                               ('unregistered "? ")
-                               (_ nil)))))))
+                 (mark (pcase (and file (vc-state file))
+                         ('edited "✱ ")
+                         ('added "✚ ")
+                         ('removed "✖ ")
+                         ('unregistered "? "))))
+            (when mark
+              (let ((overlay (make-overlay (point) (point))))
+                (overlay-put overlay 'nh-git-status t)
+                (overlay-put overlay 'before-string mark)))))
         (forward-line 1))))
 
   ;; Add additional hooks for more reliable display
