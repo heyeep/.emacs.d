@@ -320,10 +320,7 @@
    ("C-c n d" . org-roam-dailies-find-date)  ;; Find daily note by date
    ("C-c n p" . org-roam-dailies-find-previous-note)  ;; Find previous daily note
    ("C-c n n" . org-roam-dailies-find-next-note)  ;; Find next daily note
-   ("C-c n m" . org-roam-migrate-wizard)  ;; Start migration wizard
-   ("C-c n r" . org-roam-migrate-reorganize)  ;; Reorganize notes
-   ("C-c n b" . org-roam-migrate-backup)  ;; Create backup
-   ("C-c n v" . org-roam-migrate-validate))  ;; Validate notes
+   ("C-c n m" . org-roam-migrate-wizard))  ;; Start migration wizard
   :config
   ;; Enable database autosync
   (org-roam-db-autosync-mode))
@@ -347,7 +344,6 @@
   (("C-c n g" . org-roam-ui-mode)))
 
 ;; PDF Tools for viewing and managing PDFs
-;; Required for org-roam-bibtex PDF integration
 (use-package pdf-tools
   :ensure t
   :mode ("\\.pdf\\'" . pdf-view-mode)
@@ -378,42 +374,6 @@
    ("C-c C-a" . pdf-annot-add-annotation)  ;; Add annotation
    ("C-c C-l" . pdf-links-action-perform)  ;; Follow link
    ("C-c C-o" . pdf-outline)))  ;; Show outline
-
-;; BibTeX integration for org-roam
-;; Manages academic references and creates notes from papers
-(use-package org-roam-bibtex
-  :ensure t
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :custom
-  ;; Set the BibTeX file location
-  (org-roam-bibtex-bibliography-path "~/org/bib/references.bib")
-  ;; Template for creating notes from BibTeX entries
-  (org-roam-bibtex-note-templates
-   '(("a" "article" plain
-      "* ${title}\n:PROPERTIES:\n:ROAM_REFS: @${=key=}\n:END:\n\n%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
-                         "#+title: ${title}\n#+filetags: :article:\n#+date: %U\n\n")
-      :unnarrowed t)
-     ("b" "book" plain
-      "* ${title}\n:PROPERTIES:\n:ROAM_REFS: @${=key=}\n:END:\n\n%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${citekey}.org"
-                         "#+title: ${title}\n#+filetags: :book:\n#+date: %U\n\n")
-      :unnarrowed t)))
-  ;; PDF Integration
-  (org-roam-bibtex-pdf-handler-function 'org-roam-bibtex-pdf-handler)  ;; PDF handling
-  (org-roam-bibtex-pdf-extension ".pdf")  ;; PDF file extension
-  ;; Export Settings
-  (org-roam-bibtex-export-citation t)  ;; Include citations in exports
-  (org-roam-bibtex-export-reference t)  ;; Include references in exports
-  ;; Note Organization
-  (org-roam-bibtex-note-tags-function 'org-roam-bibtex-note-tags)  ;; Custom tag function
-  (org-roam-bibtex-note-title-template "${title}")  ;; Note title template
-  :bind
-  ;; Keybindings for BibTeX operations
-  (("C-c n b" . org-roam-bibtex-insert-citation)  ;; Insert citation
-   ("C-c n r" . org-roam-bibtex-insert-reference)  ;; Insert reference
-   ("C-c n e" . org-roam-bibtex-open-pdf)))  ;; Open PDF if available
 
 ;; Automatic timestamp management
 ;; Tracks creation, modification, and access times for notes
