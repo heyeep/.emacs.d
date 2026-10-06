@@ -22,6 +22,8 @@ tramp
 .lsp-session-v1
 var/
 .cache/
+/transient/
+/url/
 
 # Build and patch leftovers
 /node_modules/
