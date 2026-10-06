@@ -7,7 +7,7 @@
 ;;; Code:
 
 ;; Add vaibe-mode to load path ;; vaibe-mode with all fixes
-  (add-to-list 'load-path "/Users/hiep/Code/claude/vaibe/vaibe-mode")
+  (add-to-list 'load-path "~/Code/claude/vaibe/vaibe-mode")
   (require 'vaibe)
   (setq vaibe-enable-ollama nil)
 ;;  (global-vaibe-mode 1)

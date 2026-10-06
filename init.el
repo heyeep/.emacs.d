@@ -214,19 +214,19 @@
                           (string-match-p "make-network-process.*:service" message))
                 (funcall orig-fun type message level buffer-name))))
 
-;; (add-to-list 'load-path "/Users/hiep/Code/claude/vaibe")
+;; (add-to-list 'load-path "~/Code/claude/vaibe")
 ;; (require 'vaibe)
-;; (add-to-list 'load-path "/Users/hiep/Code/ellm")
-;;(add-to-list 'load-path "/Users/hiep/Code/claude/ellm")
+;; (add-to-list 'load-path "~/Code/ellm")
+;;(add-to-list 'load-path "~/Code/claude/ellm")
 ;;(require 'ellm)
-;; (add-to-list 'load-path "/Users/hiep/Code/claude/fragment")
+;; (add-to-list 'load-path "~/Code/claude/fragment")
 ;; (require 'fragment-demo)
 
 ;;Set logging config BEFORE loading vaibe
 ;; (setq vaibe-log-buffer-enabled t
 ;;       vaibe-log-file-enabled nil)
 
-;;(add-to-list 'load-path "/Users/hiep/Code/claude/vaibe-mode")
+;;(add-to-list 'load-path "~/Code/claude/vaibe-mode")
 ;; (require 'vaibe)
 ;; (require 'vaibe-tools)
 ;; (setq vaibe-api-streaming-enabled t

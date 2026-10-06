@@ -15,7 +15,7 @@
 ;;       :hook (prog-mode . copilot-mode)
 ;;       :custom
 ;;       (copilot-idle-delay 0.2)
-;;       (copilot-server-executable "/Users/hiep/.asdf/installs/nodejs/18.19.0/bin/copilot-language-server")
+;;       (copilot-server-executable "~/.asdf/installs/nodejs/18.19.0/bin/copilot-language-server")
 ;;       (copilot-enable-predicates '(copilot--buffer-changed))
 ;;       (copilot-disable-predicates '(copilot--current-line-empty-p))
 ;;       :config
@@ -61,7 +61,7 @@
 ;;         ;; Use pipes instead of network processes in terminal
 ;;         (setq copilot-use-native-json-parsing nil)
 ;;         ;; Ensure we're using the right executable
-;;         ;; (setq copilot-node-executable "/Users/hiep/.asdf/installs/nodejs/22.16.0/bin/node")
+;;         ;; (setq copilot-node-executable "~/.asdf/installs/nodejs/22.16.0/bin/node")
 ;;         )
 
 ;;       (advice-add 'copilot--infer-indentation-offset :around
