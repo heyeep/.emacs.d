@@ -143,15 +143,9 @@ Argument PACKAGE is the package name for the class."
   (interactive
    (list
     (read-string "Class name: ")
-    (read-string "Package: " (if (fboundp 'lsp-java-get-package-name)
-                                (lsp-java-get-package-name)
-                              ""))))
-  (let* ((src-dirs (if (fboundp 'lsp-java-get-source-paths)
-                      (lsp-java-get-source-paths)
-                    (list "./src/main/java")))
-         (src-dir (if (= (length src-dirs) 1)
-                     (car src-dirs)
-                   (completing-read "Source directory: " src-dirs)))
+    (read-string "Package: ")))
+  (let* ((src-dir (expand-file-name "src/main/java"
+                                    (or (projectile-project-root) default-directory)))
          (package-path (replace-regexp-in-string "\\." "/" package))
          (dir-path (expand-file-name package-path src-dir))
          (file-path (expand-file-name (concat classname ".java") dir-path)))
