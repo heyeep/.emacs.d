@@ -153,7 +153,8 @@
     ;; Ensure flycheck is enabled
     (flycheck-mode +1)
     ;; Set the checkers for this buffer
-    (setq-local flycheck-checkers '(typescript-tide typescript-tsc)))
+    (setq-local flycheck-checkers '(typescript-tide typescript-tsc))
+    (setq-local flycheck-check-syntax-automatically '(save mode-enabled)))
   (add-hook 'typescript-mode-hook #'nh/setup-tide-mode)
 
   (add-hook 'js2-mode-hook
@@ -174,8 +175,6 @@
   :config
   ;; Configure Flycheck to use both tide and tsc checkers
   (with-eval-after-load 'flycheck
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    
     ;; Add Tide support to modes.
     ;; js2-mode/rjsx-mode are included so tide diagnostics work in .js
     ;; buffers too (nh/setup-tide-mode attaches tide there when a
