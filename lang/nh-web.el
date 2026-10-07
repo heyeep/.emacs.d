@@ -153,7 +153,7 @@
     ;; Ensure flycheck is enabled
     (flycheck-mode +1)
     ;; Set the checkers for this buffer
-    (setq-local flycheck-checkers '(typescript-tide typescript-tsc))
+    (setq-local flycheck-checkers '(typescript-tide))
     (setq-local flycheck-check-syntax-automatically '(save mode-enabled)))
   (add-hook 'typescript-mode-hook #'nh/setup-tide-mode)
 
@@ -173,7 +173,6 @@
                   (yas-activate-extra-mode 'typescript-mode))
                 (nh/setup-tide-mode))))
   :config
-  ;; Configure Flycheck to use both tide and tsc checkers
   (with-eval-after-load 'flycheck
     ;; Add Tide support to modes.
     ;; js2-mode/rjsx-mode are included so tide diagnostics work in .js
@@ -183,27 +182,7 @@
     (flycheck-add-mode 'typescript-tide 'web-mode)
     (flycheck-add-mode 'typescript-tide 'typescript-mode)
     (flycheck-add-mode 'typescript-tide 'js2-mode)
-    (flycheck-add-mode 'typescript-tide 'rjsx-mode)
-
-    ;; Define a proper typescript-tsc checker if it doesn't exist.
-    ;; NOTE: web-mode is used for .tsx here (there is no `tsx-mode'), so the
-    ;; checker must list web-mode or it never runs in .tsx buffers.
-    (unless (flycheck-valid-checker-p 'typescript-tsc)
-      (flycheck-define-checker typescript-tsc
-        "TypeScript compiler for type checking."
-        :command ("tsc" "--noEmit" "--pretty" "false"
-                  "--jsx" "react"
-                  "--skipLibCheck"
-                  source-inplace)
-        :error-patterns
-        ((error line-start (file-name) "(" line "," column "): error TS" (id (one-or-more digit)) ": " (message) line-end))
-        :modes (typescript-mode web-mode)))
-
-    ;; Ensure the tsc checker is also recognized in web-mode (.tsx) buffers
-    (flycheck-add-mode 'typescript-tsc 'web-mode)
-
-    ;; Chain the checkers: run tsc after tide
-    (flycheck-add-next-checker 'typescript-tide 'typescript-tsc 'append)))
+    (flycheck-add-mode 'typescript-tide 'rjsx-mode)))
 
 ;; Prettier JS: Format JavaScript code using Prettier
 ;; Automatically formats JavaScript, TypeScript, and JSX code on save using the
