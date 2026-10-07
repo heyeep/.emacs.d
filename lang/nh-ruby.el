@@ -527,7 +527,6 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
   ;; Use :around advice instead of :override to avoid recursion
   (advice-add 'robe-start :around #'nh/robe-start-with-env)
 
-  (add-to-list 'completion-at-point-functions #'robe-complete-at-point)
   ;; Add a function to check Robe status
   (defun nh/robe-check-status ()
     "Check if Robe is running and show status."
