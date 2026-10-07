@@ -55,17 +55,14 @@
   (setq lsp-ruby-lsp-use-bundler nil)
 
   ;; ruby-lsp code-lens "Run" buttons execute ./rspec, which fails unless a
-  ;; binstub exists.  Intercept test lenses in spec buffers and run them via
-  ;; `nh/run-rspec-at-point' (bundle exec) instead.
-  (advice-add 'lsp-execute-code-action :around
-              (lambda (orig-fun action &rest args)
-                (let ((cmd (ignore-errors (lsp-get (lsp-get action :command) :command))))
-                  (if (and cmd buffer-file-name
-                           (derived-mode-p 'ruby-mode 'enh-ruby-mode)
-                           (string-match-p "_spec\\.rb\\'" buffer-file-name)
-                           (string-match-p "test\\|spec" cmd))
-                      (nh/run-rspec-at-point)
-                    (apply orig-fun action args)))))
+  ;; binstub exists, so run the lens command through bundle exec instead.
+  (advice-add 'lsp-ruby-lsp--run-test :filter-args
+              (lambda (args)
+                (let ((arguments (gethash "arguments" (car args))))
+                  (aset arguments 2 (replace-regexp-in-string
+                                     "\\`\\(?:\\./\\|bin/\\)?rspec\\_>" "bundle exec rspec"
+                                     (aref arguments 2))))
+                args))
 
   ;; Create rspec binstub if needed
   (defun nh/ensure-rspec-binstub ()
