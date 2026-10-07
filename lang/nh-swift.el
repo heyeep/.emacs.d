@@ -67,30 +67,27 @@
 (defun nh/swift-create-new-project ()
   "Create a new Swift project using Swift Package Manager."
   (interactive)
-  (let ((project-name (read-string "Project name: ")))
-    (shell-command (format "swift package init --type executable %s" project-name))
-    (find-file (format "%s/Sources/%s/main.swift" project-name project-name))))
+  (let* ((project-name (read-string "Project name: "))
+         (default-directory (file-name-as-directory (expand-file-name project-name))))
+    (make-directory default-directory t)
+    (shell-command (format "swift package init --type executable --name %s"
+                           (shell-quote-argument project-name)))
+    (find-file "Sources/main.swift")))
 
 (defun nh/swift-create-new-package ()
   "Create a new Swift package using Swift Package Manager."
   (interactive)
-  (let ((package-name (read-string "Package name: ")))
-    (shell-command (format "swift package init --type library %s" package-name))
-    (find-file (format "%s/Sources/%s/%s.swift" package-name package-name package-name))))
-
-(defun nh/swift-create-ios-app ()
-  "Create a new iOS app project using Xcode command line tools."
-  (interactive)
-  (let ((app-name (read-string "App name: ")))
-    (shell-command
-     (format "mkdir -p %s && cd %s && xcodegen generate" app-name app-name))
-    (find-file (format "%s/%s.xcodeproj/project.pbxproj" app-name app-name))))
+  (let* ((package-name (read-string "Package name: "))
+         (default-directory (file-name-as-directory (expand-file-name package-name))))
+    (make-directory default-directory t)
+    (shell-command (format "swift package init --type library --name %s"
+                           (shell-quote-argument package-name)))
+    (find-file (format "Sources/%s/%s.swift" package-name package-name))))
 
 ;; Add utility keybindings
 (with-eval-after-load 'swift-mode
   (define-key swift-mode-map (kbd "C-c C-n") 'nh/swift-create-new-project)
   (define-key swift-mode-map (kbd "C-c C-p") 'nh/swift-create-new-package)
-  (define-key swift-mode-map (kbd "C-c C-i") 'nh/swift-create-ios-app)
   (define-key swift-mode-map (kbd "C-c C-s") 'nh/swift-list-simulators)
   (define-key swift-mode-map (kbd "C-c C-d") 'nh/swift-run-simulator)
   (define-key swift-mode-map (kbd "C-c C-x") 'nh/swift-build-and-run))
