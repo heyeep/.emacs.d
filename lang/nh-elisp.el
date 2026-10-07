@@ -160,20 +160,14 @@
     (insert (format "%S" value))))
 
 (defun nh/eval-buffer-with-feedback ()
-  "Evaluate entire buffer and show result in minibuffer with error location."
+  "Evaluate entire buffer and show the result or error in the minibuffer."
   (interactive)
   (condition-case err
       (progn
         (eval-buffer)
         (message "Buffer evaluated successfully"))
     (error
-     (let ((error-line (save-excursion
-                         (goto-char (point-min))
-                         (forward-line (1- (cadr err)))
-                         (line-number-at-pos))))
-       (message "Buffer eval error at line %s: %s"
-                (if error-line error-line "unknown")
-                (error-message-string err))))))
+     (message "Buffer eval error: %s" (error-message-string err)))))
 
 ;; Development utility functions for enhanced productivity
 (defun nh/elisp-find-library ()
