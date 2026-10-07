@@ -1,43 +1,37 @@
 ;;; init.el --- Emacs configuration -*- lexical-binding: t; -*-
 
-;;; Prevent package.el from automatically loading packages at startup
 (setq package-enable-at-startup nil)
 (setq load-prefer-newer t)
 
-;;; Store installed packages in a versioned elpa directory for each Emacs major version
+;; Packages compiled by one Emacs major version don't load in another, so keep them apart.
 (setq package-user-dir
       (format "%selpa/%s/" user-emacs-directory emacs-major-version))
 
-;;; Optimize garbage collection for faster startup and efficient runtime
-(setq gc-cons-threshold (* 128 1024 1024))  ; 128MB during startup
+(setq gc-cons-threshold (* 128 1024 1024))
 (setq gc-cons-percentage 0.6)
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold 100000000) ; 100MB after startup
+            (setq gc-cons-threshold 100000000)
             (setq gc-cons-percentage 0.1)))
 
-;; Run garbage collection when Emacs loses focus
+;; Collect garbage while Emacs is unfocused, so pauses don't happen while typing.
 (add-function :after after-focus-change-function
               (lambda ()
                 (unless (frame-focus-state)
                   (garbage-collect-maybe 4))))
 
-;; Ensure our submodule version of transient is loaded FIRST.
-;; This must go before normal-top-level-add-subdirs-to-load-path,
-;; because that function prepends all subdirectories (including elpa, site-lisp, etc.)
-;; to the load-path. If we add our submodule after, it will be at the end and Emacs
-;; will find the built-in or ELPA version first, causing version mismatches.
+;; Add the transient submodule before the subdirectory scan below. That scan puts
+;; package folders first, so Emacs would otherwise load an older transient.
 (add-to-list 'load-path (expand-file-name "submodules/transient/lisp" user-emacs-directory))
 
-;; Prevent loading of ELPA transient by marking it as loaded
+;; Mark the package-archive transient's autoloads as loaded, so they never run.
 (provide 'transient-autoloads)
 
-;;; Add all subdirectories of ~/.emacs.d/ to the load-path
 (let ((default-directory "~/.emacs.d/"))
   (normal-top-level-add-subdirs-to-load-path))
 
-;; Remove any ELPA transient directories from load-path
+;; Disabled: remove package-archive transient folders from load-path.
 ;; (require 'cl-lib)  ; Required for cl-remove-if
 ;; (setq load-path
 ;;       (cl-remove-if (lambda (path)
@@ -48,7 +42,6 @@
 ;; ;; Load transient from submodule immediately to prevent conflicts
 ;; (require 'transient nil t)
 
-;;; Set up package repositories (GNU, MELPA, MELPA Stable, Org)
 (require 'package)
 (setq package-archives
       '(("gnu"          . "https://elpa.gnu.org/packages/")
@@ -56,54 +49,49 @@
         ("melpa-stable" . "https://stable.melpa.org/packages/")
         ("org"          . "https://orgmode.org/elpa/")))
 
-;;; Set package archive priorities: org > melpa/melpa-stable > gnu
+;; When an archive offers the same package, prefer Org, then MELPA, then GNU.
 (setq package-archive-priorities
       '(("org"          . 20)
         ("melpa"        . 10)
         ("melpa-stable" . 10)
         ("gnu"          . 5)))
 
-;;; Bootstrap use-package and diminish
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-;;; Ensure diminish is installed for use-package :diminish and runtime use
 (unless (package-installed-p 'diminish)
   (package-refresh-contents)
   (package-install 'diminish))
 
-;;; Require diminish at compile time so :diminish works in use-package declarations
+;; :diminish in use-package needs diminish loaded at compile time.
 (eval-when-compile
   (require 'use-package)
   (require 'bind-key)
   (require 'diminish nil t))
 
-;;; Require diminish at runtime in case it is used outside of use-package
 (require 'diminish nil t)
 
 (setq use-package-always-ensure t)
 
-;;; Prevent certain packages from being byte-compiled (they have bugs)
+;; These packages break when byte-compiled.
 (defun nh/maybe-skip-package-compile (orig-fun pkg-desc)
   "Skip compilation for packages that have bugs in their compilation."
   (let ((pkg-name (package-desc-name pkg-desc)))
     (if (memq pkg-name '(rake tide))
-        nil  ;; Skip compilation
+        nil
       (funcall orig-fun pkg-desc))))
 
 (advice-add 'package--compile :around #'nh/maybe-skip-package-compile)
 
-;;; Install any missing packages from package-list
 (defvar package-list nil
   "List of packages to ensure are installed at startup.")
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
 
-;;; Set up exec-path-from-shell early to ensure PATH is correct
-;;; This needs to happen before any other packages that depend on external programs
-;;; Note: This is particularly important on macOS and Linux where PATH may not be set correctly in GUI Emacs
+;; A GUI Emacs on macOS doesn't inherit the shell's PATH. Copy it before any
+;; package that runs an external program.
 (use-package exec-path-from-shell
   :ensure t
   :if (memq window-system '(mac ns x))
@@ -123,11 +111,9 @@
                                      "COPYFILE_DISABLE" "DISABLE_AUTO_TITLE"
                                      "LC_COLLATE" "LC_ALL" "LANG" "LANGUAGE")))
 
-;; Track loading statistics
 (defvar nh/load-stats '(:success 0 :failed 0 :errors nil)
   "Statistics for module loading.")
 
-;; Function to show loading summary
 (defun nh/show-load-summary ()
   "Display a summary of module loading statistics."
   (let ((success (plist-get nh/load-stats :success))
@@ -145,7 +131,6 @@
         (message "    - %s: %s" (car error) (cdr error))))
     (message "════════════════════════════════════════")))
 
-;; Debug function for tracking module loading
 (defun nh/require-with-log (feature)
   "Require FEATURE with logging and error tracking."
   (let ((start-time (current-time)))
@@ -163,23 +148,21 @@
                   (append (plist-get nh/load-stats :errors)
                           (list (cons feature (error-message-string err)))))))))
 
-;; Set font early before loading other modules
+;; Disabled: set the font before other modules load.
 ;;(set-face-attribute 'default nil
 ;;                    :font "Iosevka Etoile"
 ;;                    :height 140)
 ;;(add-to-list 'default-frame-alist '(font . "Iosevka Etoile-14"))
 
-;; Load core configuration files immediately
 (message "[init.el] Starting configuration load...")
 (nh/require-with-log 'nh-env)
-(nh/require-with-log 'nh-default)  ;; This contains inhibit-startup-screen setting
+(nh/require-with-log 'nh-default)
 
 (add-hook 'after-init-hook
           (lambda ()
             (load "server") ;; server-running-p is not autoloaded.
             (unless (server-running-p)
               (server-start))
-            ;; Load remaining configuration files
             (nh/require-with-log 'nh-helpers)
             (nh/require-with-log 'nh-commands)
             (nh/require-with-log 'nh-theme)
@@ -194,20 +177,18 @@
             (nh/require-with-log 'nh-copilot-ai)
             (nh/require-with-log 'nh-aider-ai)
             (nh/require-with-log 'nh-agent-ai)
-            ;; Load all language-specific configuration files
             (if (fboundp 'nh/load-directory)
                 (nh/load-directory (expand-file-name "lang" user-emacs-directory))
               (message "[init.el] ✗ Cannot load language files - nh/load-directory not defined"))
-            ;; Load all experiment configuration files
+            ;; Disabled: load the experiments folder.
             ;; (if (fboundp 'nh/load-directory)
             ;;     (nh/load-directory (expand-file-name "experiments" user-emacs-directory))
             ;;   (message "[init.el] ✗ Cannot load experiment files - nh/load-directory not defined"))
-            ;; Display loading summary
             (nh/show-load-summary)))
 
-(setq byte-compile-warnings nil)  ; Suppress all byte-compilation warnings
+(setq byte-compile-warnings nil)
 
-;; Suppress the specific make-network-process warning
+;; Hide a byte-compiler warning about make-network-process that some packages trigger.
 (advice-add 'display-warning :around
             (lambda (orig-fun type message &optional level buffer-name)
               (unless (and (eq type 'bytecomp)
@@ -222,7 +203,7 @@
 ;; (add-to-list 'load-path "~/Code/claude/fragment")
 ;; (require 'fragment-demo)
 
-;;Set logging config BEFORE loading vaibe
+;; Disabled: vaibe logging must be set before vaibe loads.
 ;; (setq vaibe-log-buffer-enabled t
 ;;       vaibe-log-file-enabled nil)
 
@@ -234,7 +215,7 @@
 ;;       vaibe-logging-level 'trace
 ;;       vaibe-logging-categories 'all)
 
-;;Auto-run vaibe API test after Emacs starts
+;; Disabled: run a vaibe test after startup.
 ;; (add-hook 'after-init-hook
 ;;          (lambda ()
 ;;            (vaibe-test-markdown-folding)))

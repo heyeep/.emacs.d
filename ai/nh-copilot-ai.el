@@ -1,13 +1,13 @@
 ;;; nh-copilot-ai.el --- AI code completion and chat tools -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Configuration for AI-powered code completion and chat in Emacs.
+;; GitHub Copilot setup, currently disabled.
 
 ;;; Code:
 
-;; GitHub Copilot integration for Emacs
+;; Disabled: copilot.el, GitHub Copilot completions as you type.
 ;; https://github.com/copilot-emacs/copilot.el
-;; Only load copilot in GUI mode due to terminal compatibility issues
+;; GUI only, because Copilot misbehaved in terminal Emacs.
 ;; (when (display-graphic-p)
 ;;   (use-package copilot
 ;;       :ensure t
@@ -74,9 +74,8 @@
 ;;                   ("C-<return>" . 'copilot-accept-completion)
 ;;                   ("C-<right>" . 'copilot-accept-completion-by-word))
 ;;       ))
-                                        ; End of use-package and when
 
-;; Only set these in GUI mode
+;; Stop copilot.el from guessing the indent width.
 (when (display-graphic-p)
   (setq copilot-indent-offset nil)
   (defun copilot--infer-indentation-offset () nil))
