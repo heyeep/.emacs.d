@@ -4,7 +4,6 @@
 
 ;;; Code:
 
-;; Custom function to handle CocoaPods files
 (defun nh/ruby-check-for-cocoapods ()
   "Check if the Ruby file is a CocoaPods file and disable flycheck if needed."
   (when (and buffer-file-name
@@ -13,44 +12,35 @@
       (flycheck-mode -1)
       (message "Flycheck disabled for CocoaPods file"))))
 
-;; Enhanced Ruby mode settings
 (defun nh/ruby-mode-setup ()
   "Setup function for Ruby mode enhancements."
-  ;; Indentation preferences
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 2)
   (setq-local ruby-indent-level 2)
 
-  ;; Better comment behavior
   (setq-local comment-start "# ")
   (setq-local comment-start-skip "#+\\s-*")
 
-  ;; Enable auto-pairing for Ruby
   (when (fboundp 'electric-pair-local-mode)
     (electric-pair-local-mode 1))
 
-  ;; Reduce LSP sensitivity for .rake files to prevent position errors
+  ;; ruby-lsp often reports position errors in .rake files, so ask it less.
   (when (and buffer-file-name (string-match-p "\\.rake\\'" buffer-file-name))
-    (setq-local lsp-response-timeout 2)  ; Shorter timeout for rake files
-    (setq-local lsp-eldoc-render-all nil)  ; Reduce eldoc updates
+    (setq-local lsp-response-timeout 2)
+    (setq-local lsp-eldoc-render-all nil)
     (message "Configured reduced LSP sensitivity for .rake file")))
 
-;; Setup Ruby with LSP and Flycheck working together
 (defun nh/setup-ruby-lsp-flycheck ()
   "Setup Ruby with LSP and Flycheck working together."
   (setq-local lsp-diagnostics-provider :flycheck)
-  ;; Explicitly disable all Ruby-related checkers except LSP
+  ;; Let ruby-lsp be the only source of Ruby diagnostics.
   (setq-local flycheck-disabled-checkers '(ruby-rubocop ruby-reek ruby-rubylint ruby))
   (flycheck-mode 1)
   (lsp-deferred))
 
-;; Configure LSP for Ruby modes - using ruby-lsp only
-;; (lsp-mode ships the ruby-lsp-ls client in lsp-ruby-lsp.el; the custom
-;; client registration, command-handler advice stack, and global
-;; shell-command rewriting that used to live here were broken or dead and
-;; have been removed.)
+;; Ruby uses only ruby-lsp, whose client ships with lsp-mode.
 (with-eval-after-load 'lsp-mode
-  ;; Disable RuboCop diagnostics globally
+  ;; Start the RuboCop and ruby-lsp servers without bundle exec.
   (setq lsp-rubocop-use-bundler nil)
   (setq lsp-ruby-lsp-use-bundler nil)
 
@@ -64,7 +54,6 @@
                                      (aref arguments 2))))
                 args))
 
-  ;; Create rspec binstub if needed
   (defun nh/ensure-rspec-binstub ()
     "Ensure rspec binstub exists in current project."
     (interactive)
@@ -83,9 +72,7 @@
           (set-file-modes rspec-bin #o755)
           (message "Created %s" rspec-bin))))))
 
-;; Ruby Mode: Major mode for editing Ruby files
-;; Built-in Ruby major mode providing syntax highlighting, indentation, and
-;; basic editing features for Ruby programming with support for various Ruby file types.
+;; ruby-mode: Emacs's built-in Ruby mode, for Ruby files and Ruby-based config files.
 (use-package ruby-mode
   :ensure t
   :mode (("\\.rb\\'" . ruby-mode)
@@ -124,22 +111,18 @@
               ("C-c r f n" . flycheck-next-error)
               ("C-c r f p" . flycheck-previous-error)
               ("C-c r f l" . flycheck-list-errors)
-              ;; RSpec bindings
               ("C-c r p f" . nh/rspec-run-current-file)
               ("C-c r p p" . nh/rspec-run-at-point)
               ("C-c r p r" . nh/rspec-rerun-last)
               ("C-c r p a" . nh/rspec-run-all))
   :config
-  ;; Do not insert encoding magic comment in new Ruby files
   (setq ruby-insert-encoding-magic-comment nil)
 
-  ;; Better alignment for Ruby method calls
+  ;; Line up chained method calls and the end of block keywords.
   (setq ruby-align-to-stmt-keywords '(begin if unless while until case for def class module))
   (setq ruby-align-chained-calls t))
 
-;; Enhanced Ruby Mode: More features for Ruby editing
-;; Advanced Ruby major mode with enhanced syntax highlighting, better
-;; indentation, and additional features beyond the built-in ruby-mode.
+;; enh-ruby-mode: alternative Ruby mode that parses with Ruby itself.
 ;; GitHub: https://github.com/zenspider/enhanced-ruby-mode
 (use-package enh-ruby-mode
   :ensure t
@@ -184,45 +167,36 @@
               ("C-c r N" . nh/inf-ruby-rails-console-no-spring)
               ("C-c r d" . nh/rails-console-development)
               ("C-c r D" . nh/debug-rails-directory)
-              ;; RSpec bindings
               ("C-c r p f" . nh/rspec-run-current-file)
               ("C-c r p p" . nh/rspec-run-at-point)
               ("C-c r p r" . nh/rspec-rerun-last)
               ("C-c r p a" . nh/rspec-run-all))
   :config
-  ;; Enhanced Ruby mode specific settings
   (setq enh-ruby-add-encoding-comment-on-save nil)
   (setq enh-ruby-deep-indent-paren nil)
   (setq enh-ruby-hanging-brace-indent-level 2))
 
-;; Better Rails console auto-detection that bypasses inf-ruby prompts
+;; inf-ruby's own detection asks which environment to use; this starts straight away.
 (defun nh/inf-ruby-console-auto ()
   "Start appropriate Ruby console WITHOUT any environment prompts."
   (interactive)
   (require 'inf-ruby nil t)
-  ;; First, find the project root
   (let* ((buffer-dir (if buffer-file-name
                         (file-name-directory buffer-file-name)
                       default-directory))
-         ;; Try multiple methods to find project root
          (project-root (or
-                       ;; Try projectile first
                        (and (fboundp 'projectile-project-root)
                             (ignore-errors (projectile-project-root)))
-                       ;; Try finding Gemfile
                        (locate-dominating-file buffer-dir "Gemfile")
-                       ;; Try finding .git
                        (locate-dominating-file buffer-dir ".git")))
-         ;; Set working directory
          (default-directory (if project-root
                               (file-name-as-directory project-root)
                             buffer-dir)))
 
     (message "Console directory: %s" default-directory)
 
-    ;; Determine project type and start appropriate console
     (cond
-     ;; Rails project detection - check multiple indicators
+     ;; Any of these files marks a Rails project.
      ((and (file-exists-p (expand-file-name "Gemfile" default-directory))
            (or (file-exists-p (expand-file-name "config/application.rb" default-directory))
                (file-exists-p (expand-file-name "config/environment.rb" default-directory))
@@ -230,25 +204,19 @@
                (file-exists-p (expand-file-name "config.ru" default-directory))
                (file-exists-p (expand-file-name "app/controllers" default-directory))))
       (message "Rails project detected - starting Rails console in development mode...")
-      ;; Set environment and start console directly - no prompting!
       (let ((process-environment (cons "RAILS_ENV=development"
                                      (cons "DISABLE_SPRING=1" process-environment)))
-            ;; Ensure we use the inf-ruby buffer name format
             (inf-ruby-buffer-name "rails"))
-        ;; Start the console directly with run-ruby
         (run-ruby "bundle exec rails console" "rails")))
 
-     ;; Ruby project with Gemfile (non-Rails)
      ((file-exists-p (expand-file-name "Gemfile" default-directory))
       (message "Ruby project detected - starting IRB with bundler...")
       (run-ruby "bundle exec irb" "ruby"))
 
-     ;; Plain Ruby project
      (t
       (message "Starting plain IRB...")
       (run-ruby "irb" "ruby")))))
 
-;; Debug function to check project detection
 (defun nh/ruby-debug-project-root ()
   "Debug function to show current directory and detected project root."
   (interactive)
@@ -264,38 +232,28 @@
              (or gemfile-root "not found")
              (or rails-root "not found"))))
 
-;; Inf Ruby: Interactive Ruby REPL
-;; Provides an interactive Ruby REPL within Emacs, supporting various Ruby
-;; implementations and automatic detection of Rails projects for console access.
+;; inf-ruby: Ruby and Rails consoles inside Emacs.
 ;; GitHub: https://github.com/nonsequitur/inf-ruby
 (use-package inf-ruby
   :ensure t
   :hook ((ruby-mode enh-ruby-mode) . inf-ruby-minor-mode)
   :config
-  ;; Better REPL setup
   (setq inf-ruby-default-implementation "pry")
   (setq inf-ruby-eval-binding "Pry.toplevel_binding")
 
-  ;; Make inf-ruby buffer read-only except at the prompt
+  ;; Keep console output read-only so only the input line can be edited.
   (add-hook 'inf-ruby-mode-hook
             (lambda ()
-              ;; Make the buffer read-only except for the input area
               (setq-local comint-prompt-read-only t)
-              ;; Prevent insertion before the process mark
               (setq-local comint-insert-mode t)
-              ;; Move to end of buffer on input
               (setq-local comint-scroll-to-bottom-on-input t)
-              ;; Keep the prompt at the bottom
               (setq-local comint-scroll-to-bottom-on-output t)
-              ;; Highlight the prompt
               (setq-local comint-highlight-prompt t)
 
-              ;; Add local keybinding to jump to prompt
               (local-set-key (kbd "C-c C-a") 'comint-bol)
               (local-set-key (kbd "C-c C-u") 'comint-kill-input)
               (local-set-key (kbd "C-c M-o") 'comint-clear-buffer)
 
-              ;; Function to move to end of buffer if trying to type in read-only area
               (defun nh/inf-ruby-send-input-or-goto-end ()
                 "If at prompt, send input. Otherwise, go to end of buffer."
                 (interactive)
@@ -303,12 +261,10 @@
                     (comint-send-input)
                   (goto-char (point-max))))
 
-              ;; Override RET to use our function
               (local-set-key (kbd "RET") 'nh/inf-ruby-send-input-or-goto-end)))
 
-  ;; REMOVED: advice-add was causing environment prompts - we'll use our own function instead
 
-  ;; Modern advice to ensure inf-ruby runs from project root
+  ;; Start consoles from the project root, so Bundler finds the Gemfile.
   (advice-add 'inf-ruby-console-rails :around
               (lambda (orig-fun &rest args)
                 "Run Rails console from project root or current directory."
@@ -321,7 +277,6 @@
                            (if project-root "" " (no project root found)"))
                   (apply orig-fun args))))
 
-  ;; Also ensure regular inf-ruby runs from project root
   (advice-add 'inf-ruby :around
               (lambda (orig-fun &rest args)
                 "Run inf-ruby from project root if in a project, otherwise current directory."
@@ -331,7 +286,6 @@
                        (default-directory (or project-root default-directory)))
                   (apply orig-fun args))))
 
-  ;; Force Rails console to use project root
   (defun nh/inf-ruby-rails-console ()
     "Start Rails console from project root (or current dir) in development environment."
     (interactive)
@@ -348,7 +302,7 @@
           (run-ruby "bundle exec rails console development" "rails")
         (async-shell-command "bundle exec rails console development"))))
 
-  ;; Rails console without Spring (to avoid fork issues on macOS)
+  ;; Spring's process forking causes problems on macOS, so skip it here.
   (defun nh/inf-ruby-rails-console-no-spring ()
     "Start Rails console without Spring from project root (or current dir) in development environment."
     (interactive)
@@ -366,7 +320,6 @@
           (run-ruby "bundle exec rails console development" "rails-no-spring")
         (async-shell-command "bundle exec rails console development"))))
 
-  ;; Debug what directory inf-ruby-console-auto actually uses
   (defun nh/debug-rails-directory ()
     "Debug function to show what directories are being detected."
     (interactive)
@@ -382,7 +335,6 @@
                               "config/boot.rb"
                               "app/controllers"))
            (rails-root nil))
-      ;; Find Rails root
       (dolist (indicator rails-indicators)
         (when (not rails-root)
           (let ((found (locate-dominating-file buffer-dir indicator)))
@@ -409,41 +361,30 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
                (and gemfile-root (file-exists-p (expand-file-name "config/environment.rb" gemfile-root)))
                (and gemfile-root (file-exists-p (expand-file-name "config/boot.rb" gemfile-root)))))
 
-    ;; Bind to C-c r D for easy access
     (global-set-key (kbd "C-c r D") 'nh/debug-rails-directory))
 
-  ;; Direct Rails console function that works
   (defun nh/rails-console-development ()
     "Start Rails console in development mode - no prompts, just works."
     (interactive)
     (require 'inf-ruby nil t)
-    ;; Get proper directory for file
     (let* ((buffer-dir (if buffer-file-name
                           (file-name-directory buffer-file-name)
                         default-directory))
-           ;; Find project root
            (project-root (or
-                         ;; Try projectile
                          (and (fboundp 'projectile-project-root)
                               (ignore-errors (projectile-project-root)))
-                         ;; Try Gemfile
                          (locate-dominating-file buffer-dir "Gemfile")
-                         ;; Last resort
                          buffer-dir))
-           ;; Set directory
            (default-directory (file-name-as-directory project-root))
-           ;; Set environment
            (process-environment (cons "RAILS_ENV=development"
                                     (cons "DISABLE_SPRING=1" process-environment))))
 
       (message "Rails console starting in: %s" default-directory)
 
-      ;; Verify it's a Rails project
       (if (and (file-exists-p (expand-file-name "Gemfile" default-directory))
                (or (file-exists-p (expand-file-name "config/application.rb" default-directory))
                    (file-exists-p (expand-file-name "config/environment.rb" default-directory))
                    (file-exists-p (expand-file-name "config/boot.rb" default-directory))))
-          ;; Start console directly
           (run-ruby "bundle exec rails console" "rails-dev")
         (error "Not in a Rails project! Current directory: %s" default-directory))))
 
@@ -458,32 +399,26 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
               ("C-c r b" . ruby-send-buffer)
               ("C-c r R" . ruby-send-region)))
 
-;; Robe: IDE-like code navigation and documentation for Ruby
-;; Provides intelligent code completion, navigation, and documentation for Ruby
-;; development with REPL-based introspection and method lookup capabilities.
+;; Robe: completion, jump-to-definition and docs from a running Ruby console.
 ;; GitHub: https://github.com/dgutov/robe
 (use-package robe
   :ensure t
   :hook (((ruby-mode enh-ruby-mode) . robe-mode))
-  :diminish " Ⓡ"  ;; Show Ⓡ in modeline when Robe is active
+  :diminish " Ⓡ"
   :config
-  ;; Visual indicator when Robe is running
   (defun nh/robe-update-modeline ()
     "Update modeline to show Robe status."
     (setq robe-mode-string
           (if (robe-running-p)
-              " Ⓡ✓"  ;; Green checkmark when running
-            " Ⓡ⚠"))  ;; Warning when not running
+              " Ⓡ✓"
+            " Ⓡ⚠"))
     (force-mode-line-update))
 
-  ;; Update modeline when Robe starts/stops
   (add-hook 'robe-mode-hook #'nh/robe-update-modeline)
   (advice-add 'robe-start :after (lambda (&rest _) (nh/robe-update-modeline)))
 
-  ;; Enable company-mode for better completion UI if available
   (when (fboundp 'company-mode)
     (add-hook 'robe-mode-hook 'company-mode))
-  ;; Better Robe start with environment setup
   (defun nh/robe-start-with-env (orig-fun &rest args)
     "Advice to ensure Robe starts with proper environment."
     (let ((default-directory (or (and (fboundp 'projectile-project-root)
@@ -492,12 +427,11 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
                                  default-directory))
           (orig-path (getenv "PATH")))
 
-      ;; Ensure asdf shims are in the PATH
       (when (file-exists-p "~/.asdf/shims")
         (setenv "PATH" (concat orig-path ":" (expand-file-name "~/.asdf/shims")))
         (setq exec-path (append exec-path (list (expand-file-name "~/.asdf/shims")))))
 
-      ;; Start inf-ruby first if not running
+      ;; Robe needs a running console to talk to.
       (unless (and (boundp 'inf-ruby-buffer)
                    inf-ruby-buffer
                    (comint-check-proc inf-ruby-buffer))
@@ -507,7 +441,6 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
            (message "Starting fallback Ruby REPL for Robe...")
            (inf-ruby))))
 
-      ;; Now call the original robe-start
       (unwind-protect
           (condition-case err
               (progn
@@ -516,13 +449,11 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
             (error
              (message "Robe error: %s" (error-message-string err))
              (display-warning 'robe (format "Failed to start Robe: %s" (error-message-string err)))))
-        ;; Always restore environment
         (setenv "PATH" orig-path))))
 
-  ;; Use :around advice instead of :override to avoid recursion
+  ;; :override would call itself through robe-start; :around avoids that loop.
   (advice-add 'robe-start :around #'nh/robe-start-with-env)
 
-  ;; Add a function to check Robe status
   (defun nh/robe-check-status ()
     "Check if Robe is running and show status."
     (interactive)
@@ -536,14 +467,12 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
           (message "✗ Robe mode is enabled but NOT running. Run M-x robe-start or C-c r S"))
       (message "✗ Robe mode is NOT enabled in this buffer")))
 
-  ;; Test Robe functionality
   (defun nh/robe-test ()
     "Test Robe is working by checking completion."
     (interactive)
     (if (robe-running-p)
         (progn
           (message "Testing Robe...")
-          ;; Try a simple completion test
           (let ((completions (robe-complete-thing "Array" nil)))
             (if completions
                 (message "✓ Robe works! Found %d completions for 'Array'. Try typing 'Array.' in a Ruby buffer!"
@@ -551,7 +480,6 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
               (message "✗ Robe might be having issues - try restarting with C-c r S"))))
       (message "✗ Robe not running! Start it with M-x robe-start")))
 
-  ;; Simple visual test
   (defun nh/robe-quick-test ()
     "Quick visual test - insert Array. and trigger completion."
     (interactive)
@@ -562,7 +490,6 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
         (completion-at-point))
       (message "If you see completions popup, Robe is working!")))
 
-  ;; Diagnostic info
   (defun nh/robe-diagnostics ()
     "Show diagnostic information about Robe setup."
     (interactive)
@@ -596,7 +523,6 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
               ("C-c r Q" . nh/robe-quick-test)
               ("C-c r ?" . nh/robe-diagnostics)))
 
-;; LSP diagnostic functions
 (defun nh/check-ruby-lsp-status ()
   "Check which Ruby LSP server is active and its configuration."
   (interactive)
@@ -644,7 +570,6 @@ Current checker: %s"
        (message "Ruby-LSP config: %s" config))
      :mode 'detached)))
 
-;; Function to set up keybindings for Ruby modes
 (defun nh/setup-ruby-keybindings (mode-map)
   "Set up keybindings for ruby MODE-MAP."
   (define-key mode-map (kbd "C-c l s") 'nh/check-ruby-lsp-status)
@@ -654,19 +579,16 @@ Current checker: %s"
   (define-key mode-map (kbd "C-c l R") 'nh/ruby-lsp-disable-rubocop)
   (define-key mode-map (kbd "C-c l E") 'nh/ruby-lsp-env-disable-rubocop))
 
-;; Apply keybindings to both Ruby modes
 (with-eval-after-load 'ruby-mode
   (nh/setup-ruby-keybindings ruby-mode-map))
 
 (with-eval-after-load 'enh-ruby-mode
   (nh/setup-ruby-keybindings enh-ruby-mode-map))
 
-;; Function to check what's actually providing diagnostics
 (defun nh/ruby-check-diagnostics-source ()
   "Check what's providing diagnostics in the current Ruby buffer."
   (interactive)
   (let ((messages '()))
-    ;; Check LSP
     (when (bound-and-true-p lsp-mode)
       (push (format "LSP Mode: Active (Server: %s)"
                     (or (when (lsp-workspaces)
@@ -674,7 +596,6 @@ Current checker: %s"
                         "None"))
             messages))
 
-    ;; Check Flycheck
     (when (bound-and-true-p flycheck-mode)
       (push (format "Flycheck: Active (Checker: %s)" (or flycheck-checker "auto"))
             messages)
@@ -683,13 +604,11 @@ Current checker: %s"
       (when flycheck-disabled-checkers
         (push (format "  Disabled: %s" flycheck-disabled-checkers) messages)))
 
-    ;; Check for rubocop process
     (let ((procs (process-list)))
       (dolist (proc procs)
         (when (string-match-p "rubocop" (process-name proc))
           (push (format "RuboCop process found: %s" (process-name proc)) messages))))
 
-    ;; Check ruby-lsp settings
     (when (and (bound-and-true-p lsp-mode) (lsp-workspaces))
       (let ((workspace (car (lsp-workspaces))))
         (when workspace
@@ -700,7 +619,6 @@ Current checker: %s"
     (message "%s" (string-join (reverse messages) "\n"))))
 
 
-;; Function to create .ruby-lsp.yml to disable RuboCop
 (defun nh/ruby-lsp-disable-rubocop ()
   "Create or update .ruby-lsp.yml in project root to disable RuboCop."
   (interactive)
@@ -726,7 +644,6 @@ features:
       (write-region config-content nil config-file)
       (message "Created %s - Please restart LSP with M-x lsp-restart-workspace" config-file))))
 
-;; Alternative: Set environment variable to disable RuboCop
 (defun nh/ruby-lsp-env-disable-rubocop ()
   "Set environment variable to disable RuboCop in ruby-lsp."
   (interactive)
@@ -735,7 +652,7 @@ features:
   (message "Set environment to disable RuboCop. Restart LSP with M-x lsp-restart-workspace"))
 
 
-;; Configure compilation mode to handle ANSI color codes
+;; Show ANSI color codes, such as RSpec's, as colors in compilation buffers.
 (require 'ansi-color)
 (defun nh/colorize-compilation-buffer ()
   "Colorize ANSI escape sequences in compilation buffer."
@@ -743,7 +660,6 @@ features:
 
 (add-hook 'compilation-filter-hook 'nh/colorize-compilation-buffer)
 
-;; Create a simple RSpec runner function
 (defun nh/run-rspec-at-point ()
   "Run RSpec test at point using code lens."
   (interactive)
@@ -756,9 +672,7 @@ features:
          (relative-path (file-relative-name file-path project-root)))
     (compile (format "bundle exec rspec %s:%d" relative-path line-number))))
 
-;; Projectile Rails: Rails-specific project navigation
-;; Enhances Projectile with Rails-specific navigation commands for quickly
-;; jumping between models, views, controllers, and other Rails components.
+;; projectile-rails: jump between models, views, controllers and specs.
 ;; GitHub: https://github.com/asok/projectile-rails
 (use-package projectile-rails
   :ensure t
@@ -767,7 +681,6 @@ features:
   ;; dependency) into .tsx/.html buffers, breaking their mode hooks.
   :hook ((ruby-mode enh-ruby-mode) . projectile-rails-on)
   :config
-  ;; Enhanced Rails navigation
   (setq projectile-rails-add-keywords t)
   (setq projectile-rails-discover-bind "C-c r f")
 
@@ -794,7 +707,6 @@ features:
                                default-directory)))
     (async-shell-command (format "bundle exec %s" command))))
 
-;; RuboCop integration
 (defun nh/ruby-rubocop-check-current-file ()
   "Run RuboCop on the current file."
   (interactive)
@@ -815,7 +727,6 @@ features:
                         (with-current-buffer buffer
                           (revert-buffer t t t))))))))
 
-;; Rails-specific functions
 (defun nh/rails-routes ()
   "Show Rails routes."
   (interactive)
@@ -846,7 +757,6 @@ features:
           (view-mode 1))
         (switch-to-buffer-other-window buffer-name)))))
 
-;; RSpec functions
 (defun nh/rspec-run-current-file ()
   "Run RSpec on the current file."
   (interactive)
@@ -896,7 +806,6 @@ features:
 ;;;###autoload
 (defun nh/ruby-mode ()
   "Bootstrap Ruby mode configuration."
-  ;; Update auto-mode-alist entries that point to this function
   (dolist (alist auto-mode-alist)
     (when (eq (cdr alist) 'nh/ruby-mode)
       (setf (cdr alist) 'ruby-mode)))

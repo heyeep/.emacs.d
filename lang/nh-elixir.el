@@ -4,8 +4,7 @@
 
 ;;; Code:
 
-;; Elixir Mode: Major mode for editing Elixir files
-;; Provides syntax highlighting, indentation, and basic editing features.
+;; elixir-mode: major mode for Elixir files.
 ;; https://github.com/elixir-editors/emacs-elixir
 (use-package elixir-mode
   :ensure t
@@ -13,50 +12,39 @@
          ("\\.ex\\'" . elixir-mode)
          ("\\.exs\\'" . elixir-mode))
   :config
-  ;; Add hook for Elixir mode configuration
   (add-hook 'elixir-mode-hook #'nh/elixir-mode-setup))
 
-;; Alchemist: Elixir Tooling Integration
-;; Provides project management, documentation lookup, testing framework, and more.
+;; Alchemist: runs Mix tests, looks up docs and talks to IEx.
 ;; https://github.com/tonini/alchemist.el
 (use-package alchemist
   :ensure t
   :commands alchemist-mode
   :hook (elixir-mode . alchemist-mode)
   :config
-  ;; Prevent asking about saving before running tests
   (setq alchemist-test-ask-about-save nil)
 
-  ;; Configure source directories for better navigation
+  ;; Local Elixir and Erlang sources, used when jumping to definitions.
   (setq alchemist-goto-elixir-source-dir "~/.source/elixir/elixir-1.4.1")
   (setq alchemist-goto-erlang-source-dir "~/.source/erlang/otp_src_19.2")
 
-  ;; Add hook for alchemist mode-specific setup
   (add-hook 'alchemist-mode-hook #'nh/alchemist-mode-setup)
 
-  ;; Enhanced Erlang integration for better navigation
   (add-hook 'erlang-mode-hook #'nh/elixir-erlang-mode-hook))
 
-;; LSP Mode integration for Elixir (optional)
-;; ElixirLS provides advanced features like autocompletion, go to definition, etc.
+;; Uses ElixirLS when lsp-mode is loaded.
 (when (boundp 'lsp-mode)
   (add-hook 'elixir-mode-hook #'lsp-deferred))
 
-;; Setup functions
 (defun nh/elixir-mode-setup ()
   "Setup function for Elixir mode."
-  ;; Set indentation preferences
   (setq-local tab-width 2)
   (setq-local indent-tabs-mode nil)
 
-  ;; Setup electric pair mode for auto-closing delimiters
   (when (fboundp 'electric-pair-local-mode)
     (electric-pair-local-mode 1)))
 
 (defun nh/alchemist-mode-setup ()
   "Setup function for alchemist mode."
-  ;; Set up keybindings for alchemist
-
   (local-set-key (kbd "C-c t t") #'alchemist-mix-test)
   (local-set-key (kbd "C-c t f") #'alchemist-mix-test-current-file)
   (local-set-key (kbd "C-c t b") #'alchemist-mix-test-this-buffer)
@@ -66,7 +54,6 @@
   (local-set-key (kbd "C-c e r") #'alchemist-iex-send-region)
   (local-set-key (kbd "C-c e b") #'alchemist-iex-send-buffer))
 
-;; Utility functions
 (defun nh/elixir-erlang-pop-back ()
   "Pop back definition function for Erlang mode.
 Handles both Erlang and Elixir navigation."

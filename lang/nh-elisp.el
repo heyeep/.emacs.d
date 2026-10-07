@@ -6,24 +6,21 @@
 
 (require 'bind-key)
 
-;; Elisp Mode: Built-in Emacs Lisp mode enhancements
-;; Provides syntax highlighting, indentation, and core editing features for
-;; Emacs Lisp development with enhanced debugging and evaluation capabilities.
+;; elisp-mode: Emacs Lisp editing, evaluation and debugging settings.
 (use-package elisp-mode
   :ensure nil
   :config
-  ;; Enhanced evaluation and debugging settings for better development experience
-  (setq load-prefer-newer t                        ;; Prefer newer .el over .elc files
-        edebug-trace nil                           ;; Don't trace by default
-        edebug-print-length 80                     ;; Longer print length for debugging
-        eval-expression-print-length 50            ;; More generous printing in eval
-        eval-expression-print-level 10)            ;; Allow deeper nesting in eval output
+  (setq load-prefer-newer t
+        edebug-trace nil
+        edebug-print-length 80
+        eval-expression-print-length 50
+        eval-expression-print-level 10)
 
-  ;; Enhanced debugger settings for Emacs 30.1
+  ;; Show backtrace frames as Lisp lists, which are easier to read.
   (when (boundp 'debugger-stack-frame-as-list)
     (setq debugger-stack-frame-as-list t))
 
-  ;; Auto-recompile .elc files when .el files are saved for faster loading
+  ;; Keep an existing .elc in step with its .el, so Emacs never loads stale code.
   (defun nh/recompile-elc-on-save ()
     "If there is a corresponding elc file, recompile after save."
     (when (and buffer-file-name
@@ -33,34 +30,29 @@
       (message "Recompiled %s" (file-name-nondirectory buffer-file-name))))
 
   :hook ((emacs-lisp-mode . (lambda ()
-                              ;; Enhanced indentation and formatting
                               (setq-local indent-tabs-mode nil
                                           tab-width 2)
 
-                              ;; Enhanced function signature display
                               (when (fboundp 'eldoc-mode)
                                 (eldoc-mode 1)
                                 (setq-local eldoc-idle-delay 0.2))
 
-                              ;; Enable outline minor mode for better code navigation
+                              ;; Fold the file by its ;;; section headings.
                               (outline-minor-mode 1)
                               (setq-local outline-regexp ";;;\\(;* \\)")
 
-                              ;; Enhanced font-lock for development keywords
+                              ;; Highlight TODO-style tags and quoted symbols.
                               (font-lock-add-keywords
                                nil
                                '(("\\<\\(FIXME\\|TODO\\|BUG\\|HACK\\|NOTE\\|XXX\\|TEMP\\|KLUDGE\\):"
                                   1 'font-lock-warning-face t)
                                  ("'\\(\\sw\\|\\s_\\)+" . 'font-lock-constant-face)))
 
-                              ;; Auto-recompile setup
                               (add-hook 'after-save-hook #'nh/recompile-elc-on-save nil t)))
 
          (lisp-interaction-mode . (lambda ()
-                                    ;; Enable eldoc in scratch buffer for function signatures
                                     (when (fboundp 'eldoc-mode)
                                       (eldoc-mode 1)))))
-  ;; Enhanced evaluation keybindings with better error handling
   :bind (:map emacs-lisp-mode-map
               ("C-c e e" . eval-last-sexp)
               ("C-c e E" . nh/eval-last-sexp-with-error-display)
@@ -81,16 +73,14 @@
               ("C-c e b" . nh/eval-buffer-with-feedback)
               ("C-c e R" . nh/eval-and-replace)))
 
-;; Eval Sexp Fu: Visual feedback when evaluating expressions
-;; Provides visual highlighting when evaluating Lisp expressions, making it
-;; easy to see what code was just executed with customizable flash effects.
+;; eval-sexp-fu: flashes the expression you just evaluated.
 ;; GitHub: https://github.com/hchbaw/eval-sexp-fu.el
 (use-package eval-sexp-fu
   :ensure t
   :hook ((emacs-lisp-mode . eval-sexp-fu-flash-mode)
          (lisp-interaction-mode . eval-sexp-fu-flash-mode))
   :config
-  ;; Automatically adjust highlighting colors to match current theme
+  ;; Recolor the flash after each theme change so it stays visible.
   (defun nh/eval-sexp-fu-set-face ()
     "Set `eval-sexp-fu' face to match current theme."
     (set-face-attribute 'eval-sexp-fu-flash nil
@@ -102,9 +92,7 @@
   (nh/eval-sexp-fu-set-face)
   (add-hook 'after-load-theme-hook #'nh/eval-sexp-fu-set-face))
 
-;; Elisp Slime Nav: Enhanced navigation for Elisp symbols
-;; Provides SLIME-like navigation features for Emacs Lisp development, allowing
-;; you to jump to definitions and get documentation for symbols at point.
+;; elisp-slime-nav: jump to the definition or docs of the symbol at point.
 ;; GitHub: https://github.com/purcell/elisp-slime-nav
 (use-package elisp-slime-nav
   :ensure t
@@ -115,34 +103,29 @@
               ("C-c e d" . elisp-slime-nav-find-elisp-thing-at-point)
               ("C-c e h" . elisp-slime-nav-describe-elisp-thing-at-point))
   :config
-  ;; Auto-focus help window after opening documentation for better UX
+  ;; Move focus to the help window so you can read and close it at once.
   (advice-add 'elisp-slime-nav-describe-elisp-thing-at-point
               :after (lambda (&rest _)
                        (when (get-buffer "*Help*")
                          (pop-to-buffer "*Help*")))))
 
-;; Elisp Refs: Find references to Elisp symbols
-;; Search for references to functions, variables, and other symbols across your
-;; Emacs configuration and packages to understand code dependencies.
+;; elisp-refs: find every use of a function, variable or macro.
 ;; GitHub: https://github.com/Wilfred/elisp-refs
 (use-package elisp-refs
   :ensure t
   :bind (:map emacs-lisp-mode-map
-              ("C-c F f" . elisp-refs-function)    ;; Find function references
-              ("C-c F v" . elisp-refs-variable)    ;; Find variable references
-              ("C-c F s" . elisp-refs-symbol)      ;; Find symbol references
-              ("C-c F m" . elisp-refs-macro)       ;; Find macro references
-              ("C-c F S" . elisp-refs-special)))   ;; Find special form references
+              ("C-c F f" . elisp-refs-function)
+              ("C-c F v" . elisp-refs-variable)
+              ("C-c F s" . elisp-refs-symbol)
+              ("C-c F m" . elisp-refs-macro)
+              ("C-c F S" . elisp-refs-special)))
 
-;; Edebug X: Enhanced debugging features for edebug
-;; Provides additional features and improvements for Emacs's built-in debugger,
-;; including better breakpoint management and enhanced debuggging UI.
+;; edebug-x: extra breakpoint and display commands for edebug.
 ;; GitHub: https://github.com/ScottyB/edebug-x
 (use-package edebug-x
   :ensure t
   :after edebug)
 
-;; Custom evaluation functions with enhanced error handling and feedback
 (defun nh/eval-last-sexp-with-error-display ()
   "Evaluate the last sexp and display errors clearly in minibuffer with line number."
   (interactive)
@@ -169,7 +152,6 @@
     (error
      (message "Buffer eval error: %s" (error-message-string err)))))
 
-;; Development utility functions for enhanced productivity
 (defun nh/elisp-find-library ()
   "Find and open an Elisp library file using completion."
   (interactive)

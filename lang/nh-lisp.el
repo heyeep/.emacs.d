@@ -1,12 +1,10 @@
 ;;; nh-lisp.el --- Common Lisp development configuration -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Modern Common Lisp development configuration for Emacs 30.1
-;; Focused on essential SLIME IDE features with proper syntax and indentation.
+;; Common Lisp editing with SLIME, plus Geiser for Scheme.
 
 ;;; Code:
 
-;; Required dependencies
 (require 'nh-env)
 
 (defcustom nh/lisp-implementation-paths
@@ -25,114 +23,90 @@
   "Find the first available Common Lisp implementation for this system."
   (let ((paths (alist-get nh-env/system nh/lisp-implementation-paths)))
     (or (cl-find-if #'executable-find paths)
-        "sbcl")))  ;; Final fallback
+        "sbcl")))
 
-;; Lisp Mode: Built-in Lisp mode enhancements for Common Lisp
-;; Provides syntax highlighting, indentation, and basic editing features for
-;; Common Lisp development with enhanced indentation and electric features.
+;; lisp-mode: Emacs's built-in mode for Common Lisp files.
 (use-package lisp-mode
   :ensure nil
   :config
-  ;; Enhanced indentation for Common Lisp - uses proper CL indentation rules
-  ;; instead of Emacs Lisp indentation which differs in some cases
+  ;; Common Lisp indents some forms differently from Emacs Lisp.
   (setq lisp-indent-function #'common-lisp-indent-function)
 
-  ;; Improved electric features for Emacs 30.1
-  ;; Electric quote mode can interfere with Lisp symbols, so disable it
-  ;; Electric pair mode helps with balanced parentheses
+  ;; Smart quotes turn ' into a curly quote, which breaks quoted symbols.
   (when (boundp 'electric-quote-mode)
     (add-hook 'lisp-mode-hook
               (lambda ()
-                (electric-quote-local-mode -1)  ;; Disable smart quotes in Lisp
-                (electric-pair-local-mode 1))))  ;; Enable smart parens
+                (electric-quote-local-mode -1)
+                (electric-pair-local-mode 1))))
 
   :hook ((lisp-mode . (lambda ()
-                        ;; Enhanced display settings for better parentheses visibility
-                        (setq-local show-paren-delay 0)        ;; Instant paren highlighting
-                        (setq-local show-paren-style 'expression) ;; Highlight entire expression
+                        (setq-local show-paren-delay 0)
+                        (setq-local show-paren-style 'expression)
 
-                        ;; Enhanced font-lock for Common Lisp specific features
                         (font-lock-add-keywords
                          nil
-                         '(;; Display lambda as λ symbol for better readability
+                         '(;; Show lambda as λ.
                            ("\\<lambda\\>" 0 (prog1 ()
                                                (compose-region (match-beginning 0)
                                                                (match-end 0) "λ")))
-                           ;; Highlight CLOS (Common Lisp Object System) keywords
+                           ;; Highlight Common Lisp Object System (CLOS) definitions.
                            ("\\<\\(defclass\\|defgeneric\\|defmethod\\|defpackage\\)\\>"
                             1 font-lock-keyword-face)))))))
 
-;; SLIME: Superior Lisp Interaction Mode for Emacs
-;; The premier Common Lisp development environment providing REPL, debugger,
-;; inspector, cross-references, and comprehensive IDE features for Lisp development.
+;; SLIME: REPL, debugger and inspector for Common Lisp.
 ;; GitHub: https://github.com/slime/slime
 (use-package slime
   :ensure t
   :init
-  ;; Set up the Lisp implementation - automatically detected based on OS
   (setq inferior-lisp-program (nh/find-lisp-implementation))
 
-  ;; Enhanced startup settings for better user experience
-  (setq slime-startup-animation nil)           ;; Disable startup animation for faster loading
-  (setq slime-kill-without-query-p t)          ;; Don't prompt when killing SLIME process
-  (setq slime-description-autofocus t)         ;; Auto-focus help/description windows
+  (setq slime-startup-animation nil)
+  (setq slime-kill-without-query-p t)
+  (setq slime-description-autofocus t)
 
-  ;; Use UTF-8 encoding for proper Unicode support in REPL
   (setq slime-net-coding-system 'utf-8-unix)
 
   :config
-  ;; Configure essential SLIME contribs (contributions/extensions)
-  (setq slime-contribs '(slime-fancy           ;; Enhanced REPL with syntax highlighting
-                         slime-indentation     ;; Proper Common Lisp indentation
-                         slime-sbcl-exts       ;; SBCL-specific debugging extensions
-                         slime-asdf))          ;; ASDF (build system) integration
+  (setq slime-contribs '(slime-fancy
+                         slime-indentation
+                         slime-sbcl-exts
+                         slime-asdf))
 
-  ;; Initialize SLIME with the selected contributions
   (slime-setup slime-contribs)
 
-  ;; Enhanced completion settings for better productivity
-  (setq slime-complete-symbol*-fancy t)        ;; Use fancy completion with descriptions
-  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol) ;; Fuzzy matching
+  (setq slime-complete-symbol*-fancy t)
+  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
-  ;; REPL history settings for persistent command history
-  (setq slime-repl-history-file "~/.slime-history")      ;; Save history to file
-  (setq slime-repl-history-size 1000)                   ;; Keep 1000 commands in history
-  (setq slime-repl-history-remove-duplicates t)         ;; Remove duplicate entries
+  (setq slime-repl-history-file "~/.slime-history")
+  (setq slime-repl-history-size 1000)
+  (setq slime-repl-history-remove-duplicates t)
 
   :bind (:map slime-mode-map
-              ;; Evaluation commands - execute Lisp code interactively
-              ("C-c e e" . slime-eval-last-expression)  ;; Eval expression before point
-              ("C-c e r" . slime-eval-region)           ;; Eval selected region
-              ("C-c e b" . slime-eval-buffer)           ;; Eval entire buffer
-              ("C-c e f" . slime-eval-defun)            ;; Eval current function
+              ("C-c e e" . slime-eval-last-expression)
+              ("C-c e r" . slime-eval-region)
+              ("C-c e b" . slime-eval-buffer)
+              ("C-c e f" . slime-eval-defun)
 
-              ;; Navigation commands - jump to definitions and back
-              ("M-." . slime-edit-definition)           ;; Jump to definition
-              ("M-," . slime-pop-find-definition-stack) ;; Return from definition
+              ("M-." . slime-edit-definition)
+              ("M-," . slime-pop-find-definition-stack)
 
-              ;; Documentation commands - get help on symbols
-              ("C-c D d" . slime-describe-symbol)       ;; Describe symbol at point
-              ("C-c D a" . slime-apropos)               ;; Search for symbols by name
+              ("C-c D d" . slime-describe-symbol)
+              ("C-c D a" . slime-apropos)
 
-              ;; Compilation commands - compile Lisp code
-              ("C-c k" . slime-compile-defun)           ;; Compile current function
-              ("C-c c" . slime-compile-file)            ;; Compile current file
-              ("C-c l" . slime-load-file)               ;; Load file into Lisp image
+              ("C-c k" . slime-compile-defun)
+              ("C-c c" . slime-compile-file)
+              ("C-c l" . slime-load-file)
 
-              ;; REPL access - switch to interactive Lisp environment
               ("C-c C-z" . slime-repl)))
 
-;; Geiser: Interactive development environment for Scheme
-;; Provides REPL, evaluation, documentation, and debugging for multiple Scheme
-;; dialects including Guile, Chicken, Racket with IDE-like features.
+;; Geiser: REPL and docs for Scheme, using Guile by default.
 ;; GitHub: https://github.com/jaor/geiser
 (use-package geiser
   :ensure t
 
   :config
-  ;; Configure supported Scheme implementations
-  (setq geiser-active-implementations '(guile chicken)) ;; Enable Guile and Chicken Scheme
-  (setq geiser-default-implementation 'guile))          ;; Use Guile as default
+  (setq geiser-active-implementations '(guile chicken))
+  (setq geiser-default-implementation 'guile))
 
 (defun +commonlisp-mode ()
   "Bootstrap Common Lisp mode - maintained for compatibility."

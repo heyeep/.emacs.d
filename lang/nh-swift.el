@@ -1,8 +1,7 @@
 ;;; lang/nh-swift.el --- Swift configuration -*- lexical-binding: t; -*-
 
-;; This file configures Emacs for working with Swift files.
+;; Swift editing, formatting and iOS simulator commands.
 
-;; Xcode simulator utilities
 (defun nh/swift-list-simulators ()
   "List available iOS simulators."
   (interactive)
@@ -24,9 +23,7 @@
     (async-shell-command
      (format "xcodebuild -scheme %s -destination 'platform=iOS Simulator,name=iPhone 14' build" scheme))))
 
-;; Swift Mode: Major mode for editing Swift files
-;; Provides syntax highlighting, indentation, and basic editing support for
-;; Swift programming with Xcode integration and LSP server configuration.
+;; swift-mode: major mode for Swift files. Xcode files open as XML.
 ;; GitHub: https://github.com/swift-emacs/swift-mode
 (use-package swift-mode
   :ensure t
@@ -42,28 +39,22 @@
   (setq swift-mode:multiline-statement-offset 4)
   (setq swift-mode:basic-offset 4)
 
-  ;; Electric pairs in Swift buffers only (the global mode was being
-  ;; switched on for everyone the first time a Swift file opened)
+  ;; Use the local mode: the global one turned pairing on in every buffer.
   (add-hook 'swift-mode-hook 'electric-pair-local-mode)
 
-  ;; Enable flycheck for Swift
   (add-hook 'swift-mode-hook 'flycheck-mode))
-  ;; NOTE: for Swift LSP, make sure the `lsp-sourcekit' package is installed.
+  ;; Swift LSP needs the lsp-sourcekit package.
 
-;; Format All: Universal code formatter
-;; Provides automatic code formatting for multiple languages including Swift
-;; with format-on-save functionality and support for various formatters.
+;; format-all: formats Swift files on save.
 ;; GitHub: https://github.com/lassik/emacs-format-all-the-code
 (use-package format-all
   :ensure t
   :config
   (add-hook 'swift-mode-hook 'format-all-mode)
-  ;; format-all's Swift formatter id is `swiftformat' (the old
-  ;; `swift-format' name made format-all-mode error on every save)
+  ;; The formatter id is swiftformat. The old swift-format id errored on every save.
   (setq format-all-formatters
         '(("Swift" swiftformat))))
 
-;; Project creation utilities
 (defun nh/swift-create-new-project ()
   "Create a new Swift project using Swift Package Manager."
   (interactive)
@@ -84,7 +75,6 @@
                            (shell-quote-argument package-name)))
     (find-file (format "Sources/%s/%s.swift" package-name package-name))))
 
-;; Add utility keybindings
 (with-eval-after-load 'swift-mode
   (define-key swift-mode-map (kbd "C-c C-n") 'nh/swift-create-new-project)
   (define-key swift-mode-map (kbd "C-c C-p") 'nh/swift-create-new-package)

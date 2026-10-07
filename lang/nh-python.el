@@ -1,136 +1,111 @@
 ;;; nh-python.el --- Python development configuration -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Modern Python development configuration for Emacs 30.1
-;; Includes intelligent completion, debugging, and interactive development features.
+;; Python editing, shell, debugging and anaconda-mode setup.
 
 ;;; Code:
 
 (require 'nh-env)
 
-;; Python Mode: Built-in Python mode enhancements
-;; Provides syntax highlighting, indentation, and core Python editing features
-;; with enhanced shell integration and automatic interpreter detection.
+;; python: Emacs's built-in Python mode, plus shell and interpreter setup.
 (use-package python
   :ensure nil
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
   :init
-  ;; Enhanced Python shell setup with automatic interpreter detection
   (defun nh/setup-python-interpreter ()
     "Set up Python interpreter based on available versions and OS."
     (cond
-     ;; On macOS, prefer python3 but fall back to python2 if needed
      (nh-env/is-mac
       (cond
        ((executable-find "python3") (setq python-shell-interpreter "python3"))
        ((executable-find "python2") (setq python-shell-interpreter "python2"))
        (t (setq python-shell-interpreter "python"))))
-     ;; On other systems, prefer python3
      (t
       (cond
        ((executable-find "python3") (setq python-shell-interpreter "python3"))
        (t (setq python-shell-interpreter "python"))))))
 
-  ;; Launch Python shell in background for interactive development
   (defun nh/setup-inferior-python ()
     "Launch Python shell in background for immediate availability."
     (nh/setup-python-interpreter)
     (unless (python-shell-get-buffer)
       (save-selected-window
-        (let ((python-shell-prompt-detect-enabled nil))  ;; Disable prompt detection for startup
+        (let ((python-shell-prompt-detect-enabled nil))
           (run-python (python-shell-calculate-command) nil nil)))))
 
   :config
-  ;; Enhanced Python development settings
-  (setq python-indent-offset 4                    ;; Standard Python indentation
-        python-indent-guess-indent-offset t       ;; Auto-detect indentation
-        python-shell-completion-native-enable nil  ;; Disable native completion (issues in Emacs 30.1)
-        python-shell-prompt-detect-enabled t      ;; Auto-detect prompts
-        python-shell-prompt-detect-failure-warning nil) ;; Reduce noise
-
-  ;; Remove the custom completion function since it conflicts with Emacs 30.1
-  ;; The built-in version handles this correctly
+  (setq python-indent-offset 4
+        python-indent-guess-indent-offset t
+        python-shell-completion-native-enable nil  ;; Native completion breaks in Emacs 30.1.
+        python-shell-prompt-detect-enabled t
+        python-shell-prompt-detect-failure-warning nil)
 
   :hook ((python-mode . (lambda ()
-                          ;; Enhanced display and editing settings
                           (setq-local tab-width 4
                                       indent-tabs-mode nil
-                                      fill-column 88)  ;; Black formatter standard
+                                      fill-column 88)  ;; Black's line length.
 
-                          ;; Enable useful minor modes
                           (when (fboundp 'eldoc-mode)
                             (eldoc-mode 1))
                           (when (fboundp 'electric-pair-local-mode)
                             (electric-pair-local-mode 1))
 
-                          ;; Set up Python interpreter but don't auto-start shell
+                          ;; Pick the interpreter, but don't start a shell yet.
                           (nh/setup-python-interpreter)
 
-                          ;; Enhanced font-lock for Python development
+                          ;; Highlight TODO-style tags and decorators.
                           (font-lock-add-keywords
                            nil
                            '(("\\<\\(TODO\\|FIXME\\|BUG\\|HACK\\|NOTE\\|XXX\\):"
                               1 'font-lock-warning-face t)
-                             ;; Highlight common Python decorators
                              ("@\\(\\sw\\|\\s_\\)+" . 'font-lock-preprocessor-face))))))
 
   :bind (:map python-mode-map
-              ;; Standard Python mode keybindings
-              ("C-c C-e" . python-shell-send-statement)     ;; Send current statement
-              ("C-c C-r" . python-shell-send-region)        ;; Send region
-              ("C-c C-b" . python-shell-send-buffer)        ;; Send buffer
-              ("C-c C-f" . python-shell-send-defun)         ;; Send function/class
-              ("C-c C-p" . run-python)                      ;; Start Python shell
-              ("C-c C-z" . python-shell-switch-to-shell)    ;; Switch to Python shell
-              ("C-c C-c" . python-shell-send-buffer)        ;; Quick buffer execution
+              ("C-c C-e" . python-shell-send-statement)
+              ("C-c C-r" . python-shell-send-region)
+              ("C-c C-b" . python-shell-send-buffer)
+              ("C-c C-f" . python-shell-send-defun)
+              ("C-c C-p" . run-python)
+              ("C-c C-z" . python-shell-switch-to-shell)
+              ("C-c C-c" . python-shell-send-buffer)
 
-              ;; Additional evaluation commands with custom prefix
-              ("C-c e e" . python-shell-send-statement)     ;; Send current statement
-              ("C-c e b" . python-shell-send-buffer)        ;; Send entire buffer
-              ("C-c e f" . python-shell-send-defun)         ;; Send current function
-              ("C-c e s" . python-shell-send-string)        ;; Send custom string
-              ("C-c e R" . python-shell-send-region)        ;; Send selected region
+              ("C-c e e" . python-shell-send-statement)
+              ("C-c e b" . python-shell-send-buffer)
+              ("C-c e f" . python-shell-send-defun)
+              ("C-c e s" . python-shell-send-string)
+              ("C-c e R" . python-shell-send-region)
 
-              ;; Navigation and documentation
-              ("C-c D d" . python-describe-at-point)        ;; Describe symbol at point
+              ("C-c D d" . python-describe-at-point)
 
-              ;; Debugging
-              ("C-c D b" . pdb)                             ;; Start Python debugger
-              ("C-c D t" . python-shell-send-file)))       ;; Send file to shell
+              ("C-c D b" . pdb)
+              ("C-c D t" . python-shell-send-file)))
 
-;; Anaconda Mode: Advanced Python development environment
-;; Provides intelligent code completion, navigation, and documentation using
-;; Jedi for static analysis with IDE-like features for Python development.
+;; anaconda-mode: completion, navigation and docs for Python through Jedi.
 ;; GitHub: https://github.com/pythonic-emacs/anaconda-mode
 (use-package anaconda-mode
   :ensure t
   :hook ((python-mode . anaconda-mode)
-         (python-mode . anaconda-eldoc-mode))   ;; Enable eldoc integration
+         (python-mode . anaconda-eldoc-mode))
   :config
-  ;; Configure anaconda server installation directory
+  ;; Keep a separate server install for each Emacs major version.
   (setq anaconda-mode-installation-directory
         (expand-file-name (format "anaconda-mode/%s" emacs-major-version)
                           user-emacs-directory))
 
-  ;; Enhanced server settings for better performance
-  (setq anaconda-mode-eldoc-as-single-line t     ;; Cleaner eldoc display
-        anaconda-mode-server-command "python")   ;; Use system Python
+  (setq anaconda-mode-eldoc-as-single-line t
+        anaconda-mode-server-command "python")
 
   :bind (:map anaconda-mode-map
-              ;; Navigation commands - jump to definitions and references
-              ("M-." . anaconda-mode-find-definitions)      ;; Go to definition
-              ("M-," . anaconda-mode-go-back)               ;; Return from definition
-              ("C-c F r" . anaconda-mode-find-references)   ;; Find references
-              ("C-c F a" . anaconda-mode-find-assignments)  ;; Find assignments
+              ("M-." . anaconda-mode-find-definitions)
+              ("M-," . anaconda-mode-go-back)
+              ("C-c F r" . anaconda-mode-find-references)
+              ("C-c F a" . anaconda-mode-find-assignments)
 
-              ;; Documentation commands
-              ("C-c D s" . anaconda-mode-show-doc)          ;; Show documentation
+              ("C-c D s" . anaconda-mode-show-doc)
 
-              ;; Code completion
               ("C-c c c" . anaconda-mode-complete)))
 
-;; Python debugging utilities for enhanced development workflow
 (defun nh/python-insert-breakpoint ()
   "Insert a Python breakpoint at current line."
   (interactive)
@@ -161,14 +136,13 @@
     (python-shell-send-file buffer-file-name)
     (message "Executed %s" (file-name-nondirectory buffer-file-name))))
 
-;; Additional Python development keybindings
 (with-eval-after-load 'python
   (define-key python-mode-map (kbd "C-c D p") #'nh/python-insert-breakpoint)
   (define-key python-mode-map (kbd "C-c D i") #'nh/python-insert-ipdb-breakpoint)
   (define-key python-mode-map (kbd "C-c D r") #'nh/python-remove-breakpoints)
   (define-key python-mode-map (kbd "C-c r r") #'nh/python-run-file))
 
-;; Legacy compatibility function
+;; Old entry point some auto-mode-alist entries may still name.
 (defun +python-mode ()
   "Bootstrap Python mode - maintained for compatibility."
   (setq auto-mode-alist (rassq-delete-all #'+python-mode auto-mode-alist))

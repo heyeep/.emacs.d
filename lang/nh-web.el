@@ -1,13 +1,11 @@
 ;;; nh-web.el --- Web development configuration -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Configuration for web development (HTML, CSS, JS, etc.)
+;; HTML, CSS, JavaScript and TypeScript setup.
 
 ;;; Code:
 
-;; Web Mode: Major mode for editing web templates
-;; Provides syntax highlighting and indentation for HTML, CSS, JavaScript, and
-;; various template languages like PHP, JSP, and ERB.
+;; web-mode: edits HTML templates (ERB, PHP, JSP and others) and .tsx files.
 ;; GitHub: https://github.com/fxbois/web-mode
 (use-package web-mode
   :ensure t
@@ -36,17 +34,13 @@
       (setq-local web-mode-code-indent-offset n))))
 
 
-;; Emmet Mode: Fast HTML and CSS writing using abbreviations
-;; Allows rapid HTML and CSS development using shorthand syntax that expands
-;; into full markup (e.g., 'ul>li*3' becomes a list with three items).
+;; Disabled: emmet-mode expands shorthand like ul>li*3 into HTML.
 ;; GitHub: https://github.com/smihica/emmet-mode
 ;; (use-package emmet-mode
 ;;   :ensure t
 ;;   :hook ((web-mode css-mode html-mode) . emmet-mode))
 
-;; Mhtml Mode: Built-in mode for HTML with embedded JS and CSS
-;; Provides multi-mode editing capabilities for HTML files containing embedded
-;; JavaScript and CSS with proper syntax highlighting for each language.
+;; mhtml-mode: Emacs's built-in mode for HTML with embedded CSS and JavaScript.
 (use-package mhtml-mode
   :ensure nil
   :mode ("\\.[sx]?html?\\(\\.[a-zA-Z_]+\\)?\\'" . mhtml-mode)
@@ -58,9 +52,7 @@
     (setq-local js-indent-level 2)
     (setq-local sgml-basic-offset 2)))
 
-;; Rainbow Mode: Highlight color codes in CSS files
-;; Automatically displays color values (hex, RGB, HSL) with their actual colors
-;; as background, making it easy to visualize colors while editing stylesheets.
+;; rainbow-mode: shows CSS color codes in their own color.
 ;; GitHub: https://github.com/emacsmirror/rainbow-mode
 (use-package rainbow-mode
   :ensure t
@@ -73,13 +65,10 @@
     (setq css-indent-offset 2)
     (rainbow-mode 1)))
 
-;; JS2 Mode: Advanced JavaScript editing
-;; Enhanced JavaScript major mode with better syntax highlighting, error
-;; detection, and support for modern JavaScript features including ES6+ syntax.
+;; js2-mode: JavaScript mode with its own parser and error checking.
 ;; GitHub: https://github.com/mooz/js2-mode
-;; NOTE: .js is owned by rjsx-mode (below), which derives from js2-mode.
-;; js2-mode is loaded as the base library but does not claim .js itself,
-;; to avoid a three-way auto-mode-alist fight (js2 / js2-jsx / rjsx).
+;; rjsx-mode below owns .js files. js2-mode loads only as its base library,
+;; so js2, js2-jsx and rjsx don't compete for .js in auto-mode-alist.
 (use-package js2-mode
   :ensure t
   :hook (js2-mode . nh/js2-setup)
@@ -88,28 +77,24 @@
   (js2-basic-offset 2)
   (js2-highlight-level 3)
   (js2-idle-timer-delay 0.5)
-  ;; Show real syntax errors (e.g. a mangled `const'), but keep strict
-  ;; warnings off: they flag "missing ; after statement" on every line of
-  ;; semicolon-less (ASI-style) code, which is valid JS.
+  ;; Show syntax errors, but not strict warnings. Those flag every line of
+  ;; valid JavaScript written without semicolons.
   (js2-mode-show-parse-errors t)
   (js2-mode-show-strict-warnings nil)
-  ;; Extra guard: never warn about omitted semicolons.
   (js2-strict-missing-semi-warning nil)
   :config
   (defun nh/js2-setup ()
     "Custom setup for js2-mode."
     (setq mode-name "JS2")))
 
-;; RJSX Mode: React JSX syntax highlighting
-;; Specialized major mode for React JSX files with enhanced support for JSX
-;; syntax, automatic tag completion, and proper indentation for React components.
+;; rjsx-mode: JavaScript and React JSX files.
 ;; GitHub: https://github.com/felipeochoa/rjsx-mode
 (use-package rjsx-mode
   :ensure t
   :mode (("\\.js[x]?\\'" . rjsx-mode))
   :interpreter ("node" . rjsx-mode)
   :config
-  ;; Workaround: align closing bracket with opening bracket in JSX
+  ;; js-jsx indents a lone closing > one level too deep; pull it back.
   (defun nh/js-jsx-indent-line-align-closing-bracket ()
     "Align closing JSX bracket with opening bracket."
     (save-excursion
@@ -117,14 +102,12 @@
       (when (looking-at-p "^ +/?> *$")
         (delete-char sgml-basic-offset))))
   (advice-add #'js-jsx-indent-line :after #'nh/js-jsx-indent-line-align-closing-bracket)
-  ;; Restore standard Emacs behavior for < and C-d in rjsx-mode
+  ;; rjsx rebinds < and C-d to insert tags; keep Emacs's normal keys.
   (with-eval-after-load 'rjsx-mode
     (define-key rjsx-mode-map "<" nil)
     (define-key rjsx-mode-map (kbd "C-d") nil)))
 
-;; TypeScript Mode: Major mode for TypeScript
-;; Provides syntax highlighting, indentation, and basic editing support for
-;; TypeScript files with type annotations and modern JavaScript features.
+;; typescript-mode: major mode for TypeScript files.
 ;; GitHub: https://github.com/emacs-typescript/typescript.el
 (use-package typescript-mode
   :ensure t
@@ -134,7 +117,7 @@
             (lambda ()
               (setq-local typescript-indent-level 2))))
 
-;; Tide: TypeScript Interactive Development Environment (also works for JS)
+;; Tide: TypeScript language support through tsserver, also used for JavaScript.
 ;; https://github.com/ananthakumaran/tide
 (use-package tide
   :ensure t
@@ -151,7 +134,6 @@
                             (string-match-p "\\.d\\.ts\\'" buffer-file-name))
                        -1
                      +1))
-    ;; Set the checkers for this buffer
     (setq-local flycheck-checkers '(typescript-tide))
     (setq-local flycheck-check-syntax-automatically '(save mode-enabled)))
   (add-hook 'typescript-mode-hook #'nh/setup-tide-mode)
@@ -165,7 +147,6 @@
 
   (add-hook 'web-mode-hook
             (lambda ()
-              ;; Set up Tide mode if Typescript.
               (when (string-equal "tsx" (file-name-extension buffer-file-name))
                 (setq-local web-mode-enable-auto-quoting nil)
                 (when (fboundp 'yas-activate-extra-mode)
@@ -173,21 +154,15 @@
                 (nh/setup-tide-mode))))
   :config
   (with-eval-after-load 'flycheck
-    ;; Add Tide support to modes.
-    ;; js2-mode/rjsx-mode are included so tide diagnostics work in .js
-    ;; buffers too (nh/setup-tide-mode attaches tide there when a
-    ;; jsconfig.json/tsconfig.json exists; without these entries flycheck
-    ;; refuses to run the checker in those modes).
+    ;; Flycheck only runs a checker in modes it lists. Tide also runs in
+    ;; JavaScript buffers when the project has a tsconfig or jsconfig file.
     (flycheck-add-mode 'typescript-tide 'web-mode)
     (flycheck-add-mode 'typescript-tide 'typescript-mode)
     (flycheck-add-mode 'typescript-tide 'js2-mode)
     (flycheck-add-mode 'typescript-tide 'rjsx-mode)))
 
-;; Prettier JS: Format JavaScript code using Prettier
-;; Automatically formats JavaScript, TypeScript, and JSX code on save using the
-;; Prettier code formatter for consistent code style across projects.
+;; Disabled to avoid formatting on save: prettier-js runs Prettier on JS and TS.
 ;; GitHub: https://github.com/prettier/prettier-emacs
-;; DISABLED: Uncommenting below to prevent auto-formatting on save
 ;; (use-package prettier-js
 ;;   :ensure t
 ;;   :hook ((js2-mode . prettier-js-mode)
@@ -195,7 +170,7 @@
 ;;          (rjsx-mode . prettier-js-mode)))
 
 
-;; Nodes Path
+;; Disabled: adds the project's node_modules/.bin to the command path.
 ;; (use-package add-node-modules-path
 ;;   :ensure t
 ;;   :commands (add-node-modules-path)
@@ -211,10 +186,7 @@
 
 ;;;; JS Indentation
 
-;; Don't line up function parameters / list continuations under the opening
-;; paren; indent them one level instead.
-;; (Emacs 26+ variable; the old Emacs-25 `js--proper-indentation' override
-;; that used to live here was dead code on this Emacs and has been removed.)
+;; Indent continued arguments one level, instead of under the opening paren.
 (setq js-indent-align-list-continuation nil)
 
 (provide 'nh-web)

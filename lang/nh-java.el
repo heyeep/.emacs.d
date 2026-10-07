@@ -4,43 +4,39 @@
 
 ;;; Code:
 
-;; Java Mode: Built-in Java major mode
-;; Provides syntax highlighting, indentation, and core Java editing features.
+;; java-mode: Emacs's built-in Java mode.
 ;; https://www.gnu.org/software/emacs/manual/html_node/ccmode/
 (use-package cc-mode
   :ensure nil
   :mode ("\\.java\\'" . java-mode))
 
-;; Javadoc Lookup: Quick access to Java API documentation
+;; javadoc-lookup: open Java API docs for a class name.
 ;; https://github.com/nicferrier/emacs-javadoc-lookup
 (use-package javadoc-lookup
   :ensure t
   :commands (javadoc-lookup))
 
-;; LSP Java: Java support for lsp-mode using Eclipse JDT Language Server
+;; lsp-java: Java language server support through Eclipse JDT.
 ;; https://github.com/emacs-lsp/lsp-java
 (use-package lsp-java
   :ensure t
   :after lsp-mode
   :config
-  ;; Enhanced Java LSP configuration
   (add-hook 'java-mode-hook #'lsp-java-lens-mode)
 
-  ;; Performance optimizations - crucial for larger Java projects
-  ;; These settings significantly improve responsiveness and reduce memory usage
-  (setq lsp-java-vmargs '("-Xmx2G"             ;; More memory for JDT server
-                          "-XX:+UseG1GC"       ;; Modern garbage collector
+  ;; The JDT server needs more memory than the default on large projects.
+  (setq lsp-java-vmargs '("-Xmx2G"
+                          "-XX:+UseG1GC"
                           "-XX:+UseStringDeduplication"))
 
-  ;; Code generation settings - improve productivity with automatic code generation
-  (setq lsp-java-completion-generate-parameters t    ;; Generate method parameters
-        lsp-java-completion-generate-constructor t)  ;; Generate constructors
+  (setq lsp-java-completion-generate-parameters t
+        lsp-java-completion-generate-constructor t)
 
-  ;; Maven and Gradle setup - enable source downloads for better navigation
-  (setq lsp-java-maven-download-sources t      ;; Download Maven sources
-        lsp-java-gradle-download-sources t))   ;; Download Gradle sources
+  ;; Download library sources so jump-to-definition opens real code.
+  (setq lsp-java-maven-download-sources t
+        lsp-java-gradle-download-sources t))
 
-;; IntelliJ Style: Indentation and formatting to match IntelliJ IDEA
+;; Indent Java the way IntelliJ IDEA does.
 (c-add-style
  "intellij"
  '("Java"
@@ -61,7 +57,6 @@
     (inher-cont     . ++)
     (func-decl-cont . ++))))
 
-;; Maven and Gradle integration
 (defun nh/java-run-maven-command (command)
   "Run a Maven command in the project root directory.
 Argument COMMAND is the Maven command to run (e.g., 'clean install')."
@@ -76,7 +71,6 @@ Argument COMMAND is the Gradle command to run (e.g., 'build')."
   (let ((default-directory (or (projectile-project-root) default-directory)))
     (compile (format "./gradlew %s" command))))
 
-;; Auto-detect build system and run appropriate command
 (defun nh/java-run-build-command (command)
   "Run build command based on available build system (Maven or Gradle).
 Argument COMMAND is the build command to run."
@@ -94,28 +88,24 @@ Removes unused imports and sorts the remaining ones."
   (interactive)
   (lsp-execute-code-action-by-kind "source.organizeImports"))
 
-;; Generate constructor, getters, setters using LSP
 (defun nh/java-generate-constructor ()
   "Generate class constructor using LSP.
 Creates constructors for the current class using available fields."
   (interactive)
   (lsp-execute-code-action-by-kind "source.generate.constructor"))
 
-;; Generate getters and setters with LSP
 (defun nh/java-generate-getters-setters ()
   "Generate getters and setters using LSP.
 Creates accessor methods for the current class's fields."
   (interactive)
   (lsp-execute-code-action-by-kind "source.generate.accessors"))
 
-;; Import class at point
 (defun nh/java-import-class-at-point ()
   "Import class at point using LSP.
 Detects the unresolved class name and adds the appropriate import."
   (interactive)
   (call-interactively 'lsp-java-add-import))
 
-;; Toggle between test and implementation files
 (defun nh/java-toggle-test-impl ()
   "Toggle between Java test and implementation files."
   (interactive)
@@ -135,7 +125,6 @@ Detects the unresolved class name and adds the appropriate import."
         (find-file new-filename)
       (message "Target file does not exist: %s" new-filename))))
 
-;; Create a new Java class
 (defun nh/java-create-class (classname package)
   "Create a new Java class with the given name and package.
 Argument CLASSNAME is the name of the class to create.
@@ -150,14 +139,11 @@ Argument PACKAGE is the package name for the class."
          (dir-path (expand-file-name package-path src-dir))
          (file-path (expand-file-name (concat classname ".java") dir-path)))
 
-    ;; Create directory if it doesn't exist
     (unless (file-exists-p dir-path)
       (make-directory dir-path t))
 
-    ;; Create and visit the file
     (find-file file-path)
 
-    ;; Insert class template
     (insert (format "package %s;\n\n" package))
     (insert (format "public class %s {\n\n" classname))
     (insert "    public " classname "() {\n")
@@ -165,39 +151,31 @@ Argument PACKAGE is the package name for the class."
     (insert "    }\n\n")
     (insert "}")
 
-    ;; Position cursor inside constructor
     (goto-char (point-min))
     (search-forward "// TODO: Initialize")))
 
-;; Main Java mode setup function that configures everything for each Java buffer
 (defun nh/java-mode-setup ()
   "Setup function for Java mode enhancements.
 Configures indentation, LSP features, and keybindings for Java development."
-  ;; Apply IntelliJ indentation style
   (c-set-style "intellij")
   (setq-local tab-width 4)
   (setq-local indent-tabs-mode nil)
 
-  ;; Enable electric pair mode for automatic parenthesis/bracket closing
   (when (fboundp 'electric-pair-local-mode)
     (electric-pair-local-mode 1))
 
-  ;; Navigation bindings
   (local-set-key (kbd "C-c j t") #'nh/java-toggle-test-impl)
 
-  ;; Build tool bindings
   (local-set-key (kbd "C-c j b") #'nh/java-run-build-command)
   (local-set-key (kbd "C-c j m") #'nh/java-run-maven-command)
   (local-set-key (kbd "C-c j g") #'nh/java-run-gradle-command)
 
-  ;; Code generation and refactoring bindings
   (local-set-key (kbd "C-c j o") #'nh/java-organize-imports)
   (local-set-key (kbd "C-c j i") #'nh/java-import-class-at-point)
   (local-set-key (kbd "C-c j c") #'nh/java-create-class)
-  (local-set-key (kbd "C-c j C") #'nh/java-generate-constructor)  ;; Changed from gc to C
-  (local-set-key (kbd "C-c j G") #'nh/java-generate-getters-setters))  ;; Changed from gg to G
+  (local-set-key (kbd "C-c j C") #'nh/java-generate-constructor)
+  (local-set-key (kbd "C-c j G") #'nh/java-generate-getters-setters))
 
-;; Add hooks for Java mode
 (add-hook 'java-mode-hook #'nh/java-mode-setup)
 
 (provide 'nh-java)
