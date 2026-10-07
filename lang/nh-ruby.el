@@ -818,8 +818,15 @@ features:
   "Run RuboCop with auto-correct on the current file."
   (interactive)
   (when buffer-file-name
-    (nh/ruby-bundle-exec (format "rubocop -a %s" (shell-quote-argument buffer-file-name)))
-    (revert-buffer t t)))
+    (save-buffer)
+    (let ((buffer (current-buffer)))
+      (nh/ruby-bundle-exec (format "rubocop -a %s" (shell-quote-argument buffer-file-name)))
+      ;; Revert only after RuboCop has rewritten the file.
+      (add-function :after (process-sentinel (get-buffer-process shell-command-buffer-name-async))
+                    (lambda (_process _event)
+                      (when (buffer-live-p buffer)
+                        (with-current-buffer buffer
+                          (revert-buffer t t t))))))))
 
 ;; Rails-specific functions
 (defun nh/rails-routes ()
