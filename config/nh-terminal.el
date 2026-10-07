@@ -28,7 +28,8 @@
   (define-key vterm-mode-map [down-mouse-1] #'nh/vterm-mouse-select)
   (define-key vterm-copy-mode-map (kbd "M-w") #'vterm-copy-mode-done)
   (define-key vterm-copy-mode-map (kbd "M-c") #'vterm-copy-mode-done)
-  (define-key vterm-copy-mode-map (kbd "C-g") #'nh/vterm-cancel-selection))
+  (define-key vterm-copy-mode-map (kbd "C-g") #'nh/vterm-cancel-selection)
+  (define-key vterm-copy-mode-map [mouse-1] #'nh/vterm-mouse-click))
 
 ;; Selecting in vterm only works in copy mode, because redraws move point back
 ;; to the terminal cursor and normal keys go to the shell.
@@ -43,6 +44,14 @@
   (interactive "e")
   (vterm-copy-mode 1)
   (mouse-drag-region event))
+
+(defun nh/vterm-mouse-click (event)
+  "Move point to EVENT, and leave `vterm-copy-mode' if nothing is selected.
+A plain click to focus the window then doesn't leave the terminal frozen."
+  (interactive "e")
+  (mouse-set-point event)
+  (unless (use-region-p)
+    (nh/vterm-cancel-selection)))
 
 (defun nh/vterm-cancel-selection ()
   "Leave `vterm-copy-mode' without copying."
