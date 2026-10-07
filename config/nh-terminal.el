@@ -4,26 +4,22 @@
 
 ;;; Code:
 
-;; Set up shell environment for vterm compilation
+;; vterm compiles a native module on first load and needs Homebrew's tools on PATH.
 (setenv "PATH" (concat "/opt/homebrew/bin:/opt/homebrew/sbin:" (getenv "PATH")))
 (setenv "SHELL" "/bin/zsh")
 
-;; Ensure CMake is available for vterm
 (setq vterm-cmake-path "/opt/homebrew/bin/cmake")
 
-;; Vterm: Fully-featured terminal emulator
-;; Provides a fast, feature-complete terminal emulator within Emacs using
-;; libvterm, supporting complex terminal applications and true color output.
+;; vterm: a full terminal inside Emacs, built on libvterm.
 ;; GitHub: https://github.com/akermu/emacs-libvterm
 (use-package vterm
   :ensure t
   :commands vterm
-  ;; C-c v, not C-c t: the old global-set-key in :config silently stole
-  ;; C-c t from consult-theme the first time vterm loaded.
+  ;; Not C-c t, which belongs to consult-theme.
   :bind (("C-c v" . vterm))
   :config
-  (setq vterm-shell "/bin/zsh")              ;; Use zsh as the default shell
-  (setq vterm-max-scrollback 200000)         ;; Increase scrollback buffer
+  (setq vterm-shell "/bin/zsh")
+  (setq vterm-max-scrollback 200000)
   ;; Command is Meta here, so Cmd+C/Cmd+V arrive as M-c/M-v, which vterm
   ;; would otherwise pass to the shell instead of copying and pasting.
   (define-key vterm-mode-map (kbd "M-c") #'ignore)
@@ -54,15 +50,12 @@
   (deactivate-mark)
   (vterm-copy-mode -1))
 
-;; Multi Vterm: Manage multiple vterm buffers
-;; Provides enhanced management for multiple vterm instances with easy
-;; switching between terminals and project-specific terminal sessions.
+;; multi-vterm: open and switch between several vterm buffers.
 ;; GitHub: https://github.com/suonlight/multi-vterm
 (use-package multi-vterm
   :ensure t
   :bind (("C-c V" . multi-vterm))
   :config
-  ;; Keybindings for multi-vterm navigation and creation
   (define-key vterm-mode-map (kbd "C-c n") 'multi-vterm-next)
   (define-key vterm-mode-map (kbd "C-c p") 'multi-vterm-prev)
   (define-key vterm-mode-map (kbd "C-c c") 'multi-vterm))

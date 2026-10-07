@@ -10,7 +10,7 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
-;; Make title bar transparent and match the theme
+;; macOS: let the title bar take the theme's colors.
 (when (memq window-system '(mac ns))
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark)))
@@ -19,23 +19,17 @@
                     :font (font-spec :family "Iosevka Etoile"
                                      :size 12
                                      :weight 'normal
-                                     ))  ; Force monospace
+                                     ))
 
-;; Gotham Theme: A very dark Emacs theme
-;; Provides a dark, low-contrast color scheme inspired by Batman's Gotham City,
-;; designed for comfortable long-term use with excellent syntax highlighting.
+;; gotham-theme: a very dark, low-contrast theme.
 ;; GitHub: https://github.com/wasamasa/gotham-theme
 (use-package gotham-theme :defer :ensure t)
 
-;; Spacemacs Theme: Color themes megapack for Emacs
-;; Offers a collection of modern, colorful themes originally from Spacemacs,
-;; providing both light and dark variants with vibrant syntax highlighting.
+;; spacemacs-theme: the light and dark themes from Spacemacs.
 ;; GitHub: https://github.com/nashamri/spacemacs-theme
 (use-package spacemacs-theme :defer :ensure t)
 
-;; Solarized Theme: The Solarized colour theme
-;; Provides the popular Solarized color scheme with carefully balanced colors
-;; designed to reduce eye strain and work well in both light and dark variants.
+;; solarized-theme: the Solarized light and dark themes.
 ;; GitHub: https://github.com/bbatsov/solarized-emacs
 (use-package solarized-theme
   :ensure t
@@ -43,19 +37,17 @@
   (setq solarized-distinct-fringe-background t)
   (setq solarized-use-less-bold t))
 
-;; Modus Themes: Highly accessible themes for Emacs
-;; Provides meticulously designed light and dark themes (modus-operandi and modus-vivendi)
-;; that meet the highest accessibility standards (WCAG AAA) for color contrast.
+;; modus-themes: high-contrast light and dark themes.
 ;; GitHub: https://github.com/protesilaos/modus-themes
 (use-package modus-themes
   :ensure t
   :config
-  ;; Add customizations before loading the themes
+  ;; These must be set before a modus theme loads.
   (setq modus-themes-italic-constructs t
         modus-themes-bold-constructs t
         modus-themes-mixed-fonts t
         modus-themes-variable-pitch-ui t
-        modus-themes-fringes nil  ; or 'subtle
+        modus-themes-fringes nil
         modus-themes-org-blocks 'gray-background
         modus-themes-paren-match '(bold intense)
         modus-themes-region '(bg-only accented)
@@ -63,25 +55,18 @@
         modus-themes-completions
         '((matches . (extrabold underline))
           (selection . (semibold italic)))
-        ;; Mode line customization
         modus-themes-mode-line '(accented 3d padded moody)
-        ;; Diffs
         modus-themes-diffs 'desaturated
-        ;; Markup (bold, italic in markdown, org, etc)
         modus-themes-markup '(bold italic)
-        ;; Subtle line numbers
         modus-themes-subtle-line-numbers t)
 
-  ;; Comprehensive palette overrides
   (setq modus-themes-common-palette-overrides
-        '(;; Fix fringe to match background
+        '(;; Give the fringe the normal background.
           (fringe unspecified)
-          ;; Line numbers
           (bg-line-number-inactive unspecified)
           (bg-line-number-active bg-hover)
           (fg-line-number-inactive fg-dim)
           (fg-line-number-active fg-main)
-          ;; Completion matches - colorful highlighting
           (fg-completion-match-0 blue)
           (fg-completion-match-1 magenta-warmer)
           (fg-completion-match-2 cyan)
@@ -92,9 +77,7 @@
           (bg-completion-match-3 bg-red-nuanced))))
 
 
-;; Circadian: Theme-switching based on daytime
-;; Automatically switches between light and dark themes based on sunrise and
-;; sunset times, providing a natural rhythm that matches your daily schedule.
+;; circadian: switches between light and dark themes at sunrise and sunset.
 ;; GitHub: https://github.com/guidoschmidt/circadian.el
 (use-package circadian
   :ensure t
@@ -105,17 +88,13 @@
   (setq calendar-longitude -122.2711)
   (circadian-setup))
 
-;; Solaire Mode: Distinguish "real" buffers from "special" buffers
-;; Makes file-visiting buffers slightly brighter than special buffers like
-;; sidebars, popup windows, and help buffers for better visual hierarchy.
+;; solaire-mode: gives file buffers a slightly different background from popups and sidebars.
 ;; GitHub: https://github.com/hlissner/emacs-solaire-mode
 (use-package solaire-mode
   :ensure t
   :config
-  ;; Enable solaire-mode in all buffers
   (solaire-global-mode +1))
 
-;; Custom solaire-mode faces for modus themes
 (defun nh/modus-themes-solaire-faces (&rest _)
   "Set custom solaire-mode faces for modus themes."
   (modus-themes-with-colors
@@ -133,30 +112,28 @@
 
 (defun nh/update-theme ()
   "Update various UI elements when theme change."
-  ;; Update title bar appearance based on theme
+  ;; Dark title bar for dark themes, light for light ones.
   (when (memq window-system '(mac ns))
     (let* ((bg-color (face-attribute 'default :background))
            (is-dark (< (apply '+ (color-values bg-color))
                       (* 0.5 (apply '+ (color-values "white"))))))
       (modify-all-frames-parameters
        (list (cons 'ns-appearance (if is-dark 'dark 'light))))))
-  ;; Make modeline taller, use a modern font, and add a subtle border.
+  ;; A border in the mode line's own color makes it taller.
   (dolist (sym '(mode-line mode-line-inactive))
     (set-face-attribute
      sym nil
      :height 120
      :font "Iosevka Etoile"
      :box `(:line-width 4 :color ,(face-attribute sym :background))))
-  ;; Org-mode tweaks
   (with-eval-after-load 'org-faces
     (set-face-background 'org-hide (face-attribute 'default :background))
     (set-face-foreground 'org-hide (face-attribute 'default :background)))
-  ;; Force fringe to inherit from default face
+  ;; Themes often shade the fringe; keep it the same as the text area.
   (set-face-attribute 'fringe nil
                       :inherit 'default
                       :background 'unspecified
                       :foreground 'unspecified)
-  ;; Fix line numbers to use the same background as default with subtle foreground
   (when (fboundp 'display-line-numbers-mode)
     (let ((subtle-fg (face-attribute 'shadow :foreground))
           (highlight-bg (face-attribute 'highlight :background)))
@@ -168,7 +145,6 @@
                           :foreground (face-attribute 'default :foreground)
                           :weight 'bold
                           :extend t)))
-  ;; Make line numbers fill the gutter
   (setq-default display-line-numbers-width-start t)
   )
 
@@ -208,15 +184,12 @@
 (add-hook 'kill-emacs-hook #'nh/reset-terminal-background)
 (nh/sync-terminal-background)
 
-;; Rainbow Delimiters: Color-coding for parentheses and brackets
-;; Colors nested delimiters with different colors based on their depth, making
-;; it easier to match parentheses and understand code structure in Lisp-like languages.
+;; rainbow-delimiters: colors each level of nested parentheses differently.
 ;; GitHub: https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
   :ensure t
   :commands (rainbow-delimiters-mode)
   :init
-  ;; Bold the parens for all depths
   (defun nh/bold-rainbow-parens ()
     "Make rainbow delimiters bold for all depths that exist."
     (let ((colors '("#7f8c8d" "#e74c3c" "#f1c40f" "#2ecc71" "#3498db" "#9b59b6" "#1abc9c" "#e67e22" "#e84393" "#636e72" "#fdcb6e" "#00b894")))
@@ -224,9 +197,8 @@
         (let ((face (intern (format "rainbow-delimiters-depth-%d-face" (1+ i)))))
           (when (facep face)
             (set-face-attribute face nil :bold t :foreground (nth i colors)))))))
-  ;; Ensure bolding and colors are applied after theme changes
+  ;; Theme changes reset these faces, so reapply them.
   (add-hook 'after-load-theme-hook #'nh/bold-rainbow-parens)
-  ;; Enable rainbow-delimiters-mode in all Lisp-related modes
   (dolist (hook (nh/lisp-hooks))
     (add-hook hook #'rainbow-delimiters-mode))
   :config
@@ -237,30 +209,23 @@
                       :underline t)
   (nh/bold-rainbow-parens))
 
-;; Paren: Built-in parentheses highlighting
-;; Highlights matching parentheses when the cursor is positioned on them,
-;; helping to identify matching pairs and catch syntax errors quickly.
+;; Disabled: paren, Emacs's built-in matching-paren highlight.
 ;; (use-package paren
 ;;   :ensure nil
 ;;   :config
 ;;   (show-paren-mode t))
 
-;; Highlight Parentheses: Highlight surrounding parentheses
-;; Continuously highlights all parentheses around the cursor position with
-;; different colors based on nesting level, providing constant visual feedback.
+;; highlight-parentheses: highlights every pair of parentheses around point.
 ;; GitHub: https://github.com/tsdh/highlight-parentheses.el
 (use-package highlight-parentheses
   :ensure t
   :diminish t
   :commands (highlight-parentheses-mode)
   :init
-  ;; Enable highlight-parentheses-mode in all Lisp-related modes
   (dolist (hook (nh/lisp-hooks))
     (add-hook hook #'highlight-parentheses-mode)))
 
-;; Smartparens: Minor mode for dealing with pairs in Emacs
-;; Provides intelligent handling of paired characters like parentheses, quotes,
-;; and brackets with structural editing commands for navigating and manipulating code.
+;; Disabled: smartparens, structural editing for paired characters.
 ;; GitHub: https://github.com/Fuco1/smartparens
 ;; (use-package smartparens
 ;;   :ensure t
@@ -295,7 +260,6 @@
 ;;   (define-key smartparens-mode-map (kbd "C-M-<delete>") 'sp-splice-sexp-killing-forward)
 ;;   (define-key smartparens-mode-map (kbd "C-M-<backspace>") 'sp-splice-sexp-killing-backward))
 
-;; Diminish modeline clutter.
 (when (require 'diminish nil 'noerror)
   (diminish 'subword-mode)
   (diminish 'visual-line-mode)
@@ -307,21 +271,17 @@
   (eval-after-load "autorevert"
     '(diminish 'auto-revert-mode)))
 
-;; Uniquify: Unique buffer names by directory
-;; Makes buffer names unique by adding directory paths when multiple buffers
-;; have the same filename, eliminating confusion when editing similar files.
+;; uniquify: adds the folder name when two buffers share a file name.
 (use-package uniquify
-  :ensure nil  ;; Built-in package, no need to install
+  :ensure nil
   :config
-  (setq uniquify-buffer-name-style 'reverse)  ;; Show directory after filename
-  (setq uniquify-separator "|")              ;; Use | as separator
-  (setq uniquify-after-kill-buffer-p t)       ;; Rename buffers after killing
-  (setq uniquify-ignore-buffers-re "^\\*")   ;; Ignore special buffers
+  (setq uniquify-buffer-name-style 'reverse)
+  (setq uniquify-separator "|")
+  (setq uniquify-after-kill-buffer-p t)
+  (setq uniquify-ignore-buffers-re "^\\*")
 )
 
-;; Highlight Symbol: Automatic highlighting of symbol at point
-;; Automatically highlights all occurrences of the symbol at point throughout
-;; the buffer, making it easy to see where variables and functions are used.
+;; highlight-symbol: highlights other uses of the symbol at point.
 ;; GitHub: https://github.com/nschum/highlight-symbol.el
 (use-package highlight-symbol
   :ensure t
@@ -330,17 +290,14 @@
   :custom
   (highlight-symbol-idle-delay 0.5)
   :config
-  ;; Make highlight-symbol-face look like the standard highlight face
   (defun nh/highlight-symbol-face ()
     (set-face-attribute 'highlight-symbol-face nil
                         :background 'unspecified
                         :foreground 'unspecified
                         :inherit 'highlight))
 
-  ;; Set face after theme changes
   (add-hook 'after-load-theme-hook #'nh/highlight-symbol-face)
 
-  ;; Enable highlight-symbol-mode in all programming modes except typescript
   (defun nh/enable-highlight-symbol-mode ()
     (unless (member major-mode '(typescript-mode))
       (nh/highlight-symbol-face)
@@ -348,9 +305,7 @@
   :hook
   (prog-mode . nh/enable-highlight-symbol-mode))
 
-;; Spacious Padding: Increase the padding/spacing of Emacs frames and windows
-;; Provides a more comfortable reading experience by adding padding around
-;; windows, mode lines, tab bars, and other UI elements for better visual clarity.
+;; spacious-padding: adds space around windows and the mode line.
 ;; GitHub: https://github.com/protesilaos/spacious-padding
 (use-package spacious-padding
   :ensure t
@@ -366,30 +321,26 @@
   (setq spacious-padding-subtle-mode-line nil)
   (spacious-padding-mode 1))
 
-;; Powerline: Emacs version of the Vim powerline
-;; Provides a modern, customizable mode-line with angled separators and better
-;; visual organization of mode-line information, inspired by Vim's powerline.
+;; powerline: a mode line with angled separators, like Vim's powerline.
 ;; GitHub: https://github.com/milkypostman/powerline
 (use-package powerline
   :ensure t
   :config
   (powerline-default-theme))
 
-;; Remove text clutter from modeline
 (setq-default mode-line-buffer-identification
               '(:eval (propertize "%b" 'face 'mode-line-buffer-id)))
 
-;; Shorter VC info (remove "Git:" prefix and simplify branch name)
+;; Drop the "Git:" prefix from the branch name.
 (advice-add 'vc-git-mode-line-string :filter-return
             (lambda (str)
               (when str
                 (replace-regexp-in-string "^Git[:\-]" "" str))))
 
-;; Simplify position info - just show percentage
 (setq mode-line-percent-position '(-3 "%p"))
 (setq mode-line-position-column-line-format '(" %l:%c"))
 
-;; Remove "of" from line number display
+;; Show Top, Bot or a percentage for the position in the buffer.
 (setq mode-line-position
       '((:eval (if (>= (point) (point-max))
                    " Bot"
@@ -398,20 +349,20 @@
                    (format " %d%%" (/ (- (point) (point-min)) 0.01
                                      (- (point-max) (point-min)))))))))
 
-;; Hide encoding/EOL info unless it's not UTF-8
+;; Show the file encoding only when it isn't UTF-8.
 (setq-default mode-line-mule-info
               '(:eval (if (and buffer-file-coding-system
                                (eq buffer-file-coding-system 'utf-8-unix))
                           ""  ; Hide for UTF-8
                         " %z")))  ; Show for other encodings
 
-;; Remove the modification indicator [**] and just use color
+;; Show an orange dot for unsaved changes instead of **.
 (setq-default mode-line-modified
               '(:eval (if (buffer-modified-p)
                           (propertize "●" 'face '(:foreground "orange"))
                         "")))
 
-;; Hide all minor modes from the modeline completely
+;; Show only the major mode, not minor modes.
 (setq mode-line-modes
       (list (propertize "%[" 'help-echo "Recursive edit, type C-M-c to get out")
             '(:eval (propertize (format-mode-line mode-name)
@@ -420,16 +371,15 @@
             (propertize "%]" 'help-echo "Recursive edit, type C-M-c to get out")
             " "))
 
-;; Hide minor mode lighters (text indicators)
 (use-package diminish
   :ensure t
   :config
-  ;; Only diminish built-in modes that don't have use-package declarations
+  ;; Built-in modes have no use-package block to put :diminish in.
   (with-eval-after-load 'eldoc (diminish 'eldoc-mode))
   (with-eval-after-load 'autorevert (diminish 'auto-revert-mode))
   (with-eval-after-load 'outline (diminish 'outline-minor-mode)))
 
-;; Force header-line face via custom-set-faces as last resort
+;; Give the header line the normal background.
 (custom-set-faces
  '(header-line ((t (:inherit default :background unspecified)))))
 

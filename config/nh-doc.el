@@ -1,5 +1,4 @@
-;; TODO
-;; PDF Support
+;; Disabled: PDF support.
 ;; (use-package let-alist
 ;;   :ensure t)
 

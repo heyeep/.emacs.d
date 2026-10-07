@@ -4,7 +4,6 @@
 
 ;;; Code:
 
-;; Custom group for our configuration
 (defgroup nh-autocompletion nil
   "Autocompletion configuration with global file exclusions."
   :group 'convenience
@@ -27,7 +26,6 @@ These are added to `completion-ignored-extensions'."
   :type '(repeat string)
   :group 'nh-autocompletion)
 
-;; Command builders for different tools
 (defun nh--build-find-command ()
   "Build find command arguments as a list for consult-find."
   (append
@@ -51,19 +49,15 @@ These are added to `completion-ignored-extensions'."
    (mapcan (lambda (dir) (list "--glob" (format "!%s" dir)))
            nh/globally-ignored-directories)))
 
-;; Apply global exclusions to completion systems
 (defun nh--configure-global-completion ()
   "Configure global file completion to respect our exclusion patterns."
-  ;; Add file extensions to global ignore list
   (setq completion-ignored-extensions
         (append completion-ignored-extensions nh/globally-ignored-file-extensions))
 
-  ;; Configure ido if present
   (when (boundp 'ido-ignore-directories)
     (setq ido-ignore-directories
           (append ido-ignore-directories nh/globally-ignored-directories))))
 
-;; Helper function for building shell command strings (for projectile)
 (defun nh--build-fd-shell-command ()
   "Build fd shell command string for projectile."
   (mapconcat (lambda (dir) (format "--exclude %s" dir))
@@ -74,21 +68,17 @@ These are added to `completion-ignored-extensions'."
   (mapconcat (lambda (dir) (format "--glob '!%s'" dir))
              nh/globally-ignored-directories " "))
 
-;; Initialize global completion configuration
 (nh--configure-global-completion)
 
-;; Vertico: Vertical interactive completion
-;; Provides a minimalist vertical completion interface with fast fuzzy matching,
-;; better than ivy/helm with cleaner UI and excellent performance for selection.
+;; vertico: shows minibuffer completions as a vertical list.
 ;; GitHub: https://github.com/minad/vertico
 (use-package vertico
   :ensure t
   :demand
   :init
-  ;; Show completions immediately without any input
-  (setq completion-auto-select 'second-tab)  ;; Don't auto-select, but show candidates
-  (setq completion-show-help t)              ;; Show completions immediately
-  (setq completion-auto-help t)              ;; Automatically show completions
+  (setq completion-auto-select 'second-tab)
+  (setq completion-show-help t)
+  (setq completion-auto-help t)
   (defun  nh/vertico-insert ()
     (interactive)
     (let* ((mb (minibuffer-contents-no-properties))
@@ -98,13 +88,12 @@ These are added to `completion-ignored-extensions'."
             (t (self-insert-command 1 ?/)))))
   :config
   (setq vertico-cycle t)
-  ;; currently requires melpa version of vertico
+  ;; vertico-preselect 'directory needs the MELPA version of vertico.
   (setq vertico-preselect 'directory)
-  (setq vertico-count 15)  ;; Show up to 15 candidates like ivy-height
-  (setq vertico-resize t)  ;; Dynamically resize minibuffer
-  (vertico-mode)  ;; Enable vertico after package is loaded
+  (setq vertico-count 15)
+  (setq vertico-resize t)
+  (vertico-mode)
 
-  ;; Load and configure directory extension
   (require 'vertico-directory)
   (define-key vertico-map (kbd "DEL") #'vertico-directory-delete-char)
   (define-key vertico-map (kbd "M-DEL") #'vertico-directory-delete-word)
@@ -112,16 +101,14 @@ These are added to `completion-ignored-extensions'."
 
   :bind (:map vertico-map
               ("/" . #'nh/vertico-insert)
-              ("TAB" . #'vertico-next)       ;; TAB cycles to next candidate
-              ("S-TAB" . #'vertico-previous) ;; Shift-TAB cycles to previous candidate
-              ("C-j" . #'vertico-exit)       ;; Like ivy-done
-              ("RET" . #'vertico-directory-enter) ;; Like ivy-alt-done for directories
-              ("M-p" . #'vertico-previous)   ;; Explicit previous for history navigation
-              ("M-n" . #'vertico-next)))     ;; Explicit next for history navigation
+              ("TAB" . #'vertico-next)
+              ("S-TAB" . #'vertico-previous)
+              ("C-j" . #'vertico-exit)
+              ("RET" . #'vertico-directory-enter)
+              ("M-p" . #'vertico-previous)
+              ("M-n" . #'vertico-next)))
 
-;; Orderless: Advanced completion style
-;; Provides flexible completion matching with space-separated components that
-;; can match in any order, supporting regexp, literal, and fuzzy matching styles.
+;; orderless: matches space-separated words in any order.
 ;; GitHub: https://github.com/oantolin/orderless
 (use-package orderless
   :ensure t
@@ -132,67 +119,57 @@ These are added to `completion-ignored-extensions'."
   (orderless-smart-case t)
   (orderless-component-separator #'orderless-escapable-split-on-space))
 
-;; Marginalia: Rich annotations in the minibuffer
-;; Adds helpful annotations and metadata to minibuffer completions, showing file
-;; sizes, documentation strings, and other contextual information for candidates.
+;; marginalia: adds notes beside minibuffer items, like file sizes and docstrings.
 ;; GitHub: https://github.com/minad/marginalia
 (use-package marginalia
   :ensure t
   :config
-  (marginalia-mode)  ;; Enable after package is loaded
+  (marginalia-mode)
   :custom
   (marginalia-align 'right)
   (marginalia-max-relative-age 0))
 
-;; Persist history over Emacs restarts - Direct configuration to ensure it works
+;; Save minibuffer history across restarts.
 (require 'savehist)
 (setq history-length 1000)
-(setq history-delete-duplicates t)        ;; Remove duplicates from history
-(setq savehist-save-minibuffer-history t) ;; Save all minibuffer histories
-(setq savehist-autosave-interval 300)     ;; Autosave every 5 minutes
+(setq history-delete-duplicates t)
+(setq savehist-save-minibuffer-history t)
+(setq savehist-autosave-interval 300)
 
-;; Additional history variables to save
 (setq savehist-additional-variables
-      '(mark-ring                          ;; Mark ring history
-        global-mark-ring                   ;; Global mark ring
-        search-ring                        ;; Search history
-        regexp-search-ring                 ;; Regexp search history
-        extended-command-history           ;; M-x command history
-        file-name-history                  ;; File name history
-        buffer-name-history                ;; Buffer name history
-        minibuffer-history                 ;; General minibuffer history
-        query-replace-history              ;; Query replace history
-        read-expression-history            ;; Expression evaluation history
-        org-read-date-history              ;; Org mode date history
-        kill-ring))                        ;; Kill ring (clipboard history)
+      '(mark-ring
+        global-mark-ring
+        search-ring
+        regexp-search-ring
+        extended-command-history
+        file-name-history
+        buffer-name-history
+        minibuffer-history
+        query-replace-history
+        read-expression-history
+        org-read-date-history
+        kill-ring))
 
-;; Force enable savehist-mode
 (savehist-mode 1)
 
-;; Recent F: Track recently opened files
-;; Maintains a list of recently opened files for quick access, with customizable
-;; cleanup and size limits to improve file navigation workflow.
+;; recentf: remembers recently opened files.
 (use-package recentf
   :init
   (recentf-mode 1)
   (setq recentf-max-saved-items 1000
         recentf-auto-cleanup 'never))
 
-;; Embark: Context menu and actions
-;; Provides context-aware actions and menus for completion candidates, allowing
-;; you to perform operations on selected items with customizable action sets.
+;; embark: act on the item at point or the current completion.
 ;; GitHub: https://github.com/oantolin/embark
 (use-package embark
   :ensure t
   :bind
-  (("C-." . embark-act)         ;; main action menu
-   ("C-;" . embark-dwim)        ;; smarter default actions
-   ("C-h B" . embark-bindings)) ;; describe bindings
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim)
+   ("C-h B" . embark-bindings))
   :init
-  ;; Use Embark to show contextual help
   (setq prefix-help-command #'embark-prefix-help-command)
   :config
-  ;; Optionally replace `describe-bindings` with `embark`
   (setq embark-verbose-indicator-display-action
         '(display-buffer-at-bottom))
 
@@ -202,9 +179,7 @@ These are added to `completion-ignored-extensions'."
           #'which-key--hide-popup-ignore-command))
   (setq embark-become-indicator embark-action-indicator))
 
-;; Embark Consult: Consult integration for Embark
-;; Integrates Embark with Consult to provide enhanced actions for search results
-;; and completion candidates, enabling seamless workflow between the two packages.
+;; embark-consult: Embark actions for Consult results.
 ;; GitHub: https://github.com/oantolin/embark
 (use-package embark-consult
   :ensure t
@@ -212,83 +187,63 @@ These are added to `completion-ignored-extensions'."
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; Consult: Useful search and navigation commands
-;; Provides a comprehensive set of search and navigation commands with live
-;; preview, enhanced with filtering, grouping, and integration with completion systems.
+;; consult: search and navigation commands with live preview.
 ;; GitHub: https://github.com/minad/consult
 (use-package consult
   :ensure t
   :bind (
-         ;; Replace standard commands with Consult equivalents (like Counsel did)
-         ;; Note: M-x is automatically enhanced by consult when present
-         ("C-x b" . consult-buffer)          ;; Enhanced switch-buffer
-         ;; C-x C-r, not C-c r: lang modes (ruby/go/python) use C-c r as
-         ;; their own prefix and would shadow this.
-         ("C-x C-r" . consult-recent-file)   ;; counsel-recentf equivalent
+         ("C-x b" . consult-buffer)
+         ;; Not C-c r, which Ruby, Go and Python buffers use as a prefix.
+         ("C-x C-r" . consult-recent-file)
 
-         ;; Search commands (replaces Swiper)
-         ("C-s" . consult-line)              ;; swiper equivalent
+         ("C-s" . consult-line)
 
-         ;; File finding and project commands
-         ("C-c f" . consult-find)            ;; Find files by name/path (like counsel-find-file enhancement)
-         ("C-c d" . consult-fd)              ;; Alternative fast find (if fd is available)
-         ;; C-c L, not C-c l: C-c l is the LSP prefix (lsp-ui-mode-map)
-         ;; and shadows a global binding in every LSP buffer.
-         ("C-c L" . consult-locate)          ;; Locate files (counsel-locate equivalent)
+         ("C-c f" . consult-find)
+         ("C-c d" . consult-fd)
+         ;; Not C-c l, which is the LSP prefix in LSP buffers.
+         ("C-c L" . consult-locate)
 
-         ;; Grep and search commands
-         ("C-c k" . consult-ripgrep)         ;; counsel-rg equivalent
-         ("C-c g" . consult-grep)            ;; counsel-ag equivalent
-         ("C-c G" . consult-git-grep)        ;; counsel-git-grep equivalent
+         ("C-c k" . consult-ripgrep)
+         ("C-c g" . consult-grep)
+         ("C-c G" . consult-git-grep)
 
-         ;; Additional consult commands
-         ("C-M-l" . consult-imenu)           ;; Enhanced imenu
-         ("M-y" . consult-yank-pop)          ;; Enhanced yank-pop
-         ("C-c h" . consult-history)         ;; History for current buffer
-         ("C-c m" . consult-man)             ;; Man pages
-         ("C-c i" . consult-info)            ;; Info search
-         ("C-c o" . consult-outline)         ;; Navigate headings
-         ("C-c t" . consult-theme)           ;; Theme selection with preview
+         ("C-M-l" . consult-imenu)
+         ("M-y" . consult-yank-pop)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ("C-c o" . consult-outline)
+         ("C-c t" . consult-theme)
 
-         ;; Resume functionality
-         ("C-c C-r" . consult-history)       ;; Use history as resume-like functionality
+         ("C-c C-r" . consult-history)
          )
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
   :init
-  ;; Configure xref to use consult (only if consult is available)
   (when (fboundp 'consult-xref)
     (setq xref-show-xrefs-function #'consult-xref
           xref-show-definitions-function #'consult-xref))
 
   :config
-  ;; Configure consult search command arguments with comprehensive exclusions
   (setq consult-find-args (nh--build-find-command))
   (setq consult-fd-args (nh--build-fd-command))
   (setq consult-ripgrep-args (nh--build-ripgrep-command))
 
-  ;; Make search results appear immediately (like Ivy/Swiper)
-  (setq consult-async-min-input 0)           ;; Start searching immediately, no minimum input
-  (setq consult-async-input-throttle 0.1)    ;; Very fast response time
-  (setq consult-async-input-debounce 0.1)    ;; Quick debounce for responsive typing
+  (setq consult-async-min-input 0)
+  (setq consult-async-input-throttle 0.1)
+  (setq consult-async-input-debounce 0.1)
 
-  ;; Show all candidates immediately when command is invoked
-  (setq consult-async-refresh-delay 0.0)     ;; No delay in refreshing results
-  (setq consult-preview-key 'any)            ;; Preview immediately on any key
+  (setq consult-async-refresh-delay 0.0)
+  (setq consult-preview-key 'any)
 
-  ;; Configure project function
   (setq consult-project-function #'consult--default-project-function)
 
-  ;; Configure async splitting style (for grep commands)
   (setq consult-async-split-style 'perl)
 
-  ;; Make consult-line start from current position (more like swiper)
   (setq consult-line-start-from-top nil))
 
-;; Consult Dir: Directory jumping with Consult
-;; Provides quick directory navigation and switching with consult integration,
-;; allowing you to jump between frequently used directories with preview support.
+;; consult-dir: jump to a recent or bookmarked folder.
 ;; GitHub: https://github.com/karthink/consult-dir
 (use-package consult-dir
   :ensure t
@@ -296,16 +251,12 @@ These are added to `completion-ignored-extensions'."
          :map vertico-map
          ("C-x C-j" . consult-dir-jump-file)))
 
-;; Ag: The Silver Searcher for Emacs
-;; Fast text search tool integration providing high-performance full-text
-;; search across project files with support for various file types and patterns.
+;; ag: search with The Silver Searcher.
 ;; GitHub: https://github.com/Wilfred/ag.el
 (use-package ag
   :ensure t)
 
-;; Projectile: Project management and navigation
-;; Comprehensive project management package providing file navigation, search,
-;; compilation, and testing commands with support for multiple project types.
+;; projectile: find files, search and run commands per project.
 ;; GitHub: https://github.com/bbatsov/projectile
 (use-package projectile
   :ensure t
@@ -317,7 +268,6 @@ These are added to `completion-ignored-extensions'."
         projectile-completion-system 'default
         projectile-enable-caching t
         projectile-indexing-method 'alien
-        ;; Add more project root files for better detection
         projectile-project-root-files '(".projectile" ".git" ".hg" ".svn" ".bzr" "_darcs"
                                          "package.json" "Gemfile" "requirements.txt"
                                          "setup.py" "pom.xml" "build.gradle" "Cargo.toml"
@@ -326,13 +276,11 @@ These are added to `completion-ignored-extensions'."
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :config
-  ;; Apply global exclusions to projectile
   (dolist (dir nh/globally-ignored-directories)
     (add-to-list 'projectile-globally-ignored-directories dir))
   (dolist (pattern nh/globally-ignored-file-extensions)
     (add-to-list 'projectile-globally-ignored-files pattern))
 
-  ;; Configure projectile to use better tools with exclusions
   (when (executable-find "fd")
     (setq projectile-generic-command
           (concat "fd . -0 --type f --color=never " (nh--build-fd-shell-command))))
@@ -340,15 +288,12 @@ These are added to `completion-ignored-extensions'."
     (setq projectile-generic-command
           (concat "rg --files --null --color=never " (nh--build-ripgrep-shell-command))))
 
-  ;; Warn if external 'ag' tool is missing
   (unless (executable-find "ag")
     (message "[Projectile] Warning: 'ag' (The Silver Searcher) is not installed."))
 
   (projectile-mode 1))
 
-;; Flycheck: On-the-fly syntax checking
-;; Real-time syntax checking and error reporting with support for multiple
-;; programming languages and customizable checker configurations.
+;; flycheck: checks code for errors as you edit.
 ;; GitHub: https://github.com/flycheck/flycheck
 (use-package flycheck
   :ensure t
@@ -358,9 +303,9 @@ These are added to `completion-ignored-extensions'."
   :custom
   (flycheck-idle-change-delay 1)
   (flycheck-emacs-lisp-load-path 'inherit)
-  (flycheck-disabled-checkers '())                    ;; Enable all checkers for better feedback
+  (flycheck-disabled-checkers '())
   (flycheck-display-errors-delay 0.5)
-  (flycheck-check-syntax-automatically '(save idle-change mode-enabled)) ;; More frequent checking
+  (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
   :bind (:map flycheck-mode-map
               ("M-n" . flycheck-next-error)
               ("M-p" . flycheck-previous-error)
@@ -368,27 +313,19 @@ These are added to `completion-ignored-extensions'."
               ("C-c ! c" . flycheck-buffer)
               ("C-c ! v" . flycheck-verify-setup))
   :config
-  ;; Enable more comprehensive checking for Elisp
-  (setq flycheck-emacs-lisp-check-declare t)          ;; Check declare-function statements
+  (setq flycheck-emacs-lisp-check-declare t)
 
-  ;; Always pop up the Flycheck errors buffer when there are errors
   (add-to-list 'display-buffer-alist
                '("\\*Flycheck errors\\*" (display-buffer-pop-up-window)))
-  ;; Always pop up the Warnings buffer when there are warnings
   (add-to-list 'display-buffer-alist
                '("\\*Warnings\\*" (display-buffer-pop-up-window)))
 
-  ;; Elisp-specific enhancements
   (add-hook 'emacs-lisp-mode-hook
             (lambda ()
-              ;; Enable all available checkers for Elisp
               (setq-local flycheck-disabled-checkers '())
-              ;; More aggressive checking for development
               (setq-local flycheck-idle-change-delay 0.5))))
 
-;; Flycheck Pos Tip: Show Flycheck errors in tooltips
-;; Displays Flycheck error messages in graphical tooltips instead of the
-;; echo area, providing better visibility and context for syntax errors.
+;; flycheck-pos-tip: shows Flycheck errors in a tooltip.
 ;; GitHub: https://github.com/flycheck/flycheck-pos-tip
 (use-package flycheck-pos-tip
   :ensure t
@@ -397,20 +334,18 @@ These are added to `completion-ignored-extensions'."
   :config
   (flycheck-pos-tip-mode))
 
-;; Corfu: In-buffer completion
-;; Modern completion UI that displays candidates directly in the buffer with
-;; automatic triggering, preview support, and integration with completion backends.
+;; corfu: completion popup inside the buffer.
 ;; GitHub: https://github.com/minad/corfu
 (use-package corfu
   :ensure t
   :custom
-  (corfu-cycle t)                ;; TAB cycles
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-prefix 2)          ;; Auto complete after 2 chars
-  (corfu-preview-delay 0.2)      ;; Delay before showing preview
-  (corfu-popupinfo-mode 1)       ;; Show detailed candidate info
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-prefix 2)
+  (corfu-preview-delay 0.2)
+  (corfu-popupinfo-mode 1)
   (corfu-popupinfo-delay '(0.5 . 0.2))
-  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-separator ?\s)
   (corfu-quit-at-boundary 'separator)
   (corfu-scroll-margin 5)
   :init
@@ -421,15 +356,12 @@ These are added to `completion-ignored-extensions'."
             (lambda ()
               (add-to-list 'completion-at-point-functions #'cape-elisp-symbol))))
 
-;; Cape: Completion at point extensions
-;; Provides additional completion backends for various content types including
-;; files, keywords, symbols, and dynamic abbreviations with modular design.
+;; cape: extra completion sources such as file names and words from open buffers.
 ;; GitHub: https://github.com/minad/cape
 (use-package cape
   :ensure t
   :defer t
   :init
-  ;; Cape's capfs are autoloaded, so adding them here loads cape on first use.
   (add-hook 'completion-at-point-functions #'cape-file t)
   (add-hook 'completion-at-point-functions #'cape-dabbrev t)
   (add-hook 'completion-at-point-functions #'cape-keyword t)
@@ -437,9 +369,7 @@ These are added to `completion-ignored-extensions'."
             (lambda ()
               (add-hook 'completion-at-point-functions #'cape-elisp-symbol t t))))
 
-;; Kind Icon: Icons for Corfu and Cape completions
-;; Adds VSCode-style icons to completion candidates in Corfu, providing visual
-;; distinction between different types of completions like functions and variables.
+;; kind-icon: icons in the Corfu popup for each kind of completion.
 ;; GitHub: https://github.com/jdtsmith/kind-icon
 (use-package kind-icon
   :ensure t
@@ -447,19 +377,14 @@ These are added to `completion-ignored-extensions'."
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-;; Yasnippet: Template system for Emacs
-;; Powerful template expansion system allowing you to insert code snippets with
-;; placeholders, transformations, and dynamic content for faster coding.
+;; yasnippet: expands short keys into code templates.
 ;; GitHub: https://github.com/joaotavora/yasnippet
 (use-package yasnippet
   :ensure t
   :diminish yas-minor-mode
   :config
   (yas-global-mode 1)
-  ;; Load snippets from a community collection
-  ;; Yasnippet Snippets: Collection of yasnippet snippets
-  ;; Community-maintained collection of snippet templates for various programming
-  ;; languages and frameworks, providing ready-to-use code templates.
+  ;; yasnippet-snippets: a community collection of snippets.
   ;; GitHub: https://github.com/AndreaCrotti/yasnippet-snippets
   (use-package yasnippet-snippets
     :ensure t
@@ -467,17 +392,13 @@ These are added to `completion-ignored-extensions'."
     :config
     (yasnippet-snippets-initialize)))
 
-;; LSP Mode: Language Server Protocol client
-;; Comprehensive LSP client providing IDE-like features including code completion,
-;; diagnostics, navigation, and refactoring for multiple programming languages.
+;; lsp-mode: Language Server Protocol client.
 ;; GitHub: https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
   :hook ((prog-mode . (lambda ()
-                        ;; Exclude modes handled by tide (typescript/js/jsx/tsx).
-                        ;; web-mode covers .tsx here; without this both tide and
-                        ;; ts-ls attach to the same buffer and clobber fontification.
+                        ;; Tide handles these modes. If ts-ls attaches too, the two break highlighting.
                         (unless (or (derived-mode-p 'emacs-lisp-mode)
                                     (derived-mode-p 'typescript-mode)
                                     (derived-mode-p 'js2-mode)
@@ -495,19 +416,16 @@ These are added to `completion-ignored-extensions'."
   (setq lsp-disabled-clients '(rubocop-ls sorbet-ls typeprof-ls steep-ls ruby-syntax-tree-ls semgrep-ls solargraph))
   (setq lsp-warn-no-matched-clients t)
 
-  ;; Configure project detection for LSP
-  (setq lsp-auto-guess-root t)  ;; Automatically detect project root
-  (setq lsp-prefer-workspace-root t)  ;; Prefer workspace root for operations
+  (setq lsp-auto-guess-root t)
+  (setq lsp-prefer-workspace-root t)
 
-  ;; Define project root patterns
   (setq lsp-project-root-files '(".git" ".projectile" "package.json" "Gemfile"
                                   "Cargo.toml" "go.mod" "pom.xml" "build.gradle"
                                   "tsconfig.json" "jsconfig.json" ".env"
                                   "Makefile" "CMakeLists.txt" ".gitignore"))
 
-  ;; Configure workspace folders
-  (setq lsp-enable-file-watchers t)  ;; Watch files for changes
-  (setq lsp-file-watch-threshold 1000)  ;; Increase file watch limit
+  (setq lsp-enable-file-watchers t)
+  (setq lsp-file-watch-threshold 1000)
 
   (require 'lsp-headerline)
   (require 'lsp-modeline)
@@ -516,7 +434,6 @@ These are added to `completion-ignored-extensions'."
   (add-hook 'lsp-mode-hook #'lsp-modeline-workspace-status-mode)
   (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 
-  ;; Configure LSP UI features
   (setq lsp-modeline-code-actions-enable t)
   (setq lsp-modeline-diagnostics-enable t)
   (setq lsp-signature-auto-activate t)
@@ -524,15 +441,14 @@ These are added to `completion-ignored-extensions'."
   (setq lsp-hover-enable t)
   (setq lsp-eldoc-enable-hover t)
 
-  ;; Enable flycheck integration with LSP
   (setq lsp-diagnostics-provider :flycheck)
   (setq lsp-flycheck-live-reporting t)
 
-  ;; Suppress certain LSP errors
-  (setq lsp-print-io nil)  ;; Disable IO logging for performance
-  (setq lsp-log-io nil)    ;; Disable IO logging
+  ;; IO logging slows LSP down.
+  (setq lsp-print-io nil)
+  (setq lsp-log-io nil)
 
-  ;; Add advice to handle nil positions in LSP responses
+  ;; Some servers send text edits with nil positions; skip those instead of erroring.
   (defadvice lsp--apply-text-edit (around lsp-handle-nil-positions activate)
     "Handle nil positions in LSP text edits."
     (condition-case err
@@ -541,7 +457,6 @@ These are added to `completion-ignored-extensions'."
        (message "LSP: Ignoring text edit with invalid position: %s" err)
        nil)))
 
-  ;; Wrap LSP hover to handle errors gracefully
   (with-eval-after-load 'lsp-mode
     (defun nh/safe-lsp-hover ()
       "Safe wrapper around lsp-hover that handles errors."
@@ -551,11 +466,9 @@ These are added to `completion-ignored-extensions'."
         (error
          (message "LSP hover error: %s" (error-message-string err)))))
 
-    ;; Replace the default hover keybinding
     (define-key lsp-mode-map [remap xref-find-definitions] 'lsp-find-definition)
     (define-key lsp-mode-map (kbd "C-c l h") 'nh/safe-lsp-hover))
 
-  ;; Helper functions for debugging LSP project awareness
   (defun nh/lsp-describe-workspace ()
     "Describe the current LSP workspace and project root."
     (interactive)
@@ -573,15 +486,12 @@ These are added to `completion-ignored-extensions'."
       (lsp-workspace-restart (lsp--read-workspace))
       (message "LSP workspace restarted"))))
 
-;; LSP UI: Enhanced UI for LSP diagnostics and features
-;; Provides rich UI components for LSP including documentation popups, diagnostic
-;; overlays, code actions, and peek functionality for definitions and references.
+;; lsp-ui: popups and sideline notes for LSP results.
 ;; GitHub: https://github.com/emacs-lsp/lsp-ui
 (use-package lsp-ui
   :ensure t
   :after lsp-mode
   :custom
-  ;; LSP UI Doc settings
   (lsp-ui-doc-enable t)
   (lsp-ui-doc-show-with-cursor nil)
   (lsp-ui-doc-show-with-mouse t)
@@ -590,55 +500,43 @@ These are added to `completion-ignored-extensions'."
   (lsp-ui-doc-max-height 15)
   (lsp-ui-doc-use-childframe t)
   (lsp-ui-doc-use-webkit nil)
-  ;; Ensure text rendering uses proper backgrounds
   (lsp-ui-doc-text-scale-level 0)
   (lsp-ui-doc-header t)
   (lsp-ui-doc-include-signature t)
-  ;; Offset the documentation box position
   (lsp-ui-doc-alignment 'window)
-  ;; Add spacing between cursor and documentation box
   (lsp-ui-doc-position 'top)  ; Position above cursor
   (lsp-ui-doc-delay 0.2)  ; Small delay before showing
-  ;; Border configuration - can be a color string or nil for no border
   (lsp-ui-doc-border (face-attribute 'vertical-border :foreground))
-  ;; Frame parameters including internal padding
   (lsp-ui-doc-frame-parameters
    '((internal-border-width . 15)
      (left-fringe . 10)
      (right-fringe . 10)))
 
   :config
-  ;; Simple spacing solution using built-in margin
   (setq lsp-ui-doc-child-frame-border-width 3)  ; Add spacing around the frame
 
-  ;; Working solution: Advise the actual move function to add offset
+  ;; Push the doc popup away from point so it doesn't cover the current line.
   (defun nh/lsp-ui-doc-move-with-offset (orig-fun &rest args)
     "Add offset when moving the doc frame."
-    ;; First call the original function
     (apply orig-fun args)
-    ;; Then adjust position if frame exists
     (when (and (boundp 'lsp-ui-doc--frame)
                lsp-ui-doc--frame
                (frame-live-p lsp-ui-doc--frame))
       (let* ((frame-pos (frame-position lsp-ui-doc--frame))
              (x (car frame-pos))
              (y (cdr frame-pos))
-             ;; Add offset based on position
              (offset (if (eq lsp-ui-doc-position 'top)
-                        -80  ; Move up 80 pixels when on top
+                        -80
                       80)))  ; Move down 80 pixels when on bottom
         (set-frame-position lsp-ui-doc--frame x (+ y offset)))))
 
-  ;; Apply the advice after lsp-ui loads
   (with-eval-after-load 'lsp-ui-doc
     (advice-add 'lsp-ui-doc--move-frame :around #'nh/lsp-ui-doc-move-with-offset))
 
-  ;; LSP UI Flycheck (diagnostics) settings
   (setq lsp-ui-flycheck-enable t)
   (setq lsp-ui-flycheck-list-position 'right)
   (setq lsp-ui-flycheck-live-reporting t)
 
-  ;; LSP UI Sideline settings
   (setq lsp-ui-sideline-enable t)
   (setq lsp-ui-sideline-show-code-actions t)
   (setq lsp-ui-sideline-show-diagnostics t)
@@ -647,13 +545,11 @@ These are added to `completion-ignored-extensions'."
   (setq lsp-ui-sideline-ignore-duplicate t)
   (setq lsp-ui-sideline-delay 0.5)
 
-  ;; LSP UI Peek settings
   (setq lsp-ui-peek-enable t)
   (setq lsp-ui-peek-peek-height 20)
   (setq lsp-ui-peek-list-width 50)
   (setq lsp-ui-peek-fontify 'on-demand)
 
-  ;; LSP UI Imenu settings
   (setq lsp-ui-imenu-enable t)
   (setq lsp-ui-imenu-kind-position 'top)
 
@@ -670,66 +566,49 @@ These are added to `completion-ignored-extensions'."
   :hook (lsp-mode . lsp-ui-mode)
 
   :config
-  ;; Custom face definitions to match current theme
   (defun nh/configure-lsp-ui-faces ()
     "Configure lsp-ui faces to match the current theme."
-    ;; Get actual colors from the current theme
     (let* ((default-bg (face-attribute 'default :background))
            (mode-line-bg (face-attribute 'mode-line :background))
            (mode-line-inactive-bg (face-attribute 'mode-line-inactive :background))
-           ;; Swap the colors - darker for header, lighter for doc
            (header-bg mode-line-inactive-bg)  ; Use darker background for header
            (doc-bg default-bg))  ; Use main background for documentation
 
-      ;; Apply the faces - ONLY for lsp-ui-doc faces
       (custom-set-faces
-       ;; Header face - bold with darker background
        `(lsp-ui-doc-header ((t (:inherit font-lock-keyword-face
                                :background ,header-bg
                                :foreground ,(face-attribute 'font-lock-keyword-face :foreground)
                                :weight bold
                                :height 1.1  ; Slightly larger
                                :box (:line-width (4 . 4) :color ,header-bg)))))  ; Padding around text
-       ;; Main documentation face - this is the key one
        `(lsp-ui-doc-background ((t (:background ,doc-bg))))
-       ;; URL and link faces
        `(lsp-ui-doc-url ((t (:inherit link :background ,doc-bg))))
-       ;; Child frame face
        `(lsp-ui-doc ((t (:background ,doc-bg))))
-       ;; Markdown code blocks in lsp-ui-doc
        `(lsp-ui-doc-markdown-code-block-face ((t (:background ,doc-bg)))))
 
-      ;; Additional configuration
       (setq lsp-ui-doc-border (face-attribute 'vertical-border :foreground))
 
-      ;; Debug message to check colors
       (message "LSP-UI colors set: header=%s, doc=%s" header-bg doc-bg))
 
-    ;; Force refresh of child frames to apply new colors
     (when (and (fboundp 'lsp-ui-doc--delete-frame)
                (boundp 'lsp-ui-doc--frame)
                lsp-ui-doc--frame)
       (lsp-ui-doc--delete-frame)))
 
-  ;; Apply the face configuration
   (nh/configure-lsp-ui-faces)
 
-  ;; Re-apply when theme changes
   (add-hook 'after-load-theme-hook #'nh/configure-lsp-ui-faces)
 
-  ;; Configure webkit rendering if used
   (when lsp-ui-doc-use-webkit
     (setq lsp-ui-doc-webkit-background-color
           (face-attribute 'mode-line-inactive :background))))
 
-  ;; Override markdown rendering in lsp-ui-doc
   (with-eval-after-load 'lsp-ui-doc
-    ;; Custom CSS for webkit rendering
     (when lsp-ui-doc-use-webkit
       (setq lsp-ui-doc-webkit-background-color
             (face-attribute 'mode-line-inactive :background)))
 
-    ;; Override the markdown rendering to remove code block backgrounds
+    ;; Markdown rendering gives code blocks a white background; remove it.
     (defun nh/lsp-ui-doc-remove-code-background (orig-fn &rest args)
       "Remove white background from code blocks in lsp-ui-doc."
       (let ((result (apply orig-fn args)))
@@ -737,7 +616,6 @@ These are added to `completion-ignored-extensions'."
           (with-current-buffer " *lsp-ui-doc*"
             (let ((inhibit-read-only t)
                   (doc-bg (face-attribute 'mode-line-inactive :background)))
-              ;; Find all code blocks and remove their background
               (save-excursion
                 (goto-char (point-min))
                 (while (re-search-forward "`[^`]+`" nil t)
@@ -745,7 +623,6 @@ These are added to `completion-ignored-extensions'."
                         (end (match-end 0)))
                     (add-face-text-property start end
                                           `(:background ,doc-bg) t)))
-                ;; Also handle triple backtick code blocks
                 (goto-char (point-min))
                 (while (re-search-forward "```[^`]*```" nil t)
                   (let ((start (match-beginning 0))
@@ -756,7 +633,6 @@ These are added to `completion-ignored-extensions'."
 
     (advice-add 'lsp-ui-doc--render-buffer :around #'nh/lsp-ui-doc-remove-code-background))
 
-  ;; Interactive function to customize lsp-ui-doc colors
   ;; (defun nh/lsp-ui-doc-set-theme-colors ()
   ;;   "Interactively set lsp-ui-doc colors to match theme."
   ;;   (interactive)
@@ -788,7 +664,6 @@ These are added to `completion-ignored-extensions'."
   ;;     (lsp-ui-doc-hide)
   ;;     (message "Reopen documentation to see changes")))
 
-  ;; Function to customize border and padding
   (defun nh/lsp-ui-doc-set-border-padding ()
     "Interactively set border and padding for lsp-ui-doc."
     (interactive)
@@ -808,7 +683,6 @@ These are added to `completion-ignored-extensions'."
            (border-val (cdr (assoc border-choice border-options)))
            (padding-val (cdr (assoc padding-choice padding-options))))
 
-      ;; Set border
       (cond
        ((null border-val) (setq lsp-ui-doc-border nil))
        ((eq border-val 'custom)
@@ -816,23 +690,19 @@ These are added to `completion-ignored-extensions'."
        ((symbolp border-val)
         (setq lsp-ui-doc-border (face-attribute border-val :foreground))))
 
-      ;; Set padding
       (when (eq padding-val 'custom)
         (setq padding-val (read-number "Padding (pixels): " 10)))
 
       (setq lsp-ui-doc-frame-parameters
             `((internal-border-width . ,padding-val)))
 
-      ;; Force refresh
       (when (and (boundp 'lsp-ui-doc--frame) lsp-ui-doc--frame)
         (lsp-ui-doc--delete-frame))
 
       (message "Border: %s, Padding: %dpx. Hover to see changes."
                (or lsp-ui-doc-border "none") padding-val)))
 
-;; Whitespace: Highlight trailing whitespace and long lines
-;; Built-in package for visualizing whitespace issues including trailing spaces,
-;; tabs, and lines exceeding length limits to maintain code quality standards.
+;; whitespace: highlights trailing spaces and long lines.
 (use-package whitespace
   :ensure nil
   :diminish whitespace-mode
@@ -841,9 +711,7 @@ These are added to `completion-ignored-extensions'."
   :config
   (setq whitespace-style '(face trailing tabs lines-tail)))
 
-;; WS Butler: Intelligently trim whitespace
-;; Automatically removes trailing whitespace only from lines you've edited,
-;; avoiding unnecessary changes to files while maintaining clean code style.
+;; Disabled: ws-butler trims trailing spaces only on lines you edited.
 ;; GitHub: https://github.com/lewang/ws-butler
 ;; (use-package ws-butler
 ;;   :diminish ws-butler-mode
@@ -852,19 +720,16 @@ These are added to `completion-ignored-extensions'."
 ;;   (setq ws-butler-keep-whitespace-before-point nil)
 ;;   (ws-butler-global-mode))
 
-;; Reverse search function
 (defun nh/consult-line-reverse ()
   "Search backwards using consult-line."
   (interactive)
   (let ((current-line (line-number-at-pos))
         (consult-line-start-from-top nil))
     (consult-line)
-    ;; After consult-line completes, if we're still at same position,
-    ;; search backwards from current point
+    ;; If consult-line didn't move point, search backward instead.
     (when (eq current-line (line-number-at-pos))
       (isearch-backward))))
 
-;; Project-specific ripgrep function
 (defun nh/consult-ripgrep-project ()
   "Run `consult-ripgrep` in the project root, or current directory if no project."
   (interactive)
@@ -872,25 +737,20 @@ These are added to `completion-ignored-extensions'."
       (consult-ripgrep (project-root project))
     (consult-ripgrep default-directory)))
 
-;; Global keybindings
 (global-set-key (kbd "C-r") #'nh/consult-line-reverse)
 ;;(global-set-key (kbd "C-c p s") #'nh/consult-ripgrep-project)
 
-;; Add convenience bindings in isearch-mode for transitioning to consult
 (define-key isearch-mode-map (kbd "M-s l") #'consult-line)
 (define-key isearch-mode-map (kbd "M-s L") #'consult-line-multi)
 
-;; Enhance minibuffer history
 (define-key minibuffer-local-map (kbd "M-r") #'consult-history)
 
-;; Function to show M-x command history
 (defun nh/show-command-history ()
   "Show the extended command history (M-x history)."
   (interactive)
   (let ((command (completing-read "Recent commands: " extended-command-history)))
     (command-execute (intern command))))
 
-;; Function to clear specific histories
 (defun nh/clear-command-history ()
   "Clear the M-x command history."
   (interactive)
@@ -898,24 +758,21 @@ These are added to `completion-ignored-extensions'."
     (setq extended-command-history nil)
     (message "M-x command history cleared")))
 
-;; Enable recursive minibuffers and depth indication
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode 1)
 
-;; Configure completion behavior for fast, responsive interaction
-(setq completion-show-inline-help nil      ;; Don't show help immediately
-      completion-auto-help t               ;; Show completions immediately
-      completion-cycle-threshold 1         ;; Enable TAB cycling with just 1 candidate
-      completions-detailed t               ;; Show detailed completions when available
-      completion-show-help t               ;; Show completions right away
+(setq completion-show-inline-help nil
+      completion-auto-help t
+      completion-cycle-threshold 1
+      completions-detailed t
+      completion-show-help t
       read-file-name-completion-ignore-case t
       read-buffer-completion-ignore-case t
       completion-ignore-case t
-      completion-auto-select nil           ;; Don't auto-select first completion
-      completions-format 'one-column       ;; Better display format
-      tab-always-indent t)                 ;; Make TAB indent first, then complete if already indented
+      completion-auto-select nil
+      completions-format 'one-column
+      tab-always-indent t)
 
-;; NOTE: Elisp-specific development configuration is now in lang/nh-elisp.el
 
 (provide 'nh-autocompletion)
 
