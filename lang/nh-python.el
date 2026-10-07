@@ -121,9 +121,8 @@
               ;; Navigation commands - jump to definitions and references
               ("M-." . anaconda-mode-find-definitions)      ;; Go to definition
               ("M-," . anaconda-mode-go-back)               ;; Return from definition
-              ("C-c f r" . anaconda-mode-find-references)   ;; Find references
-              ("C-c f a" . anaconda-mode-find-assignments)  ;; Find assignments
-              ("C-c f f" . anaconda-mode-find-file)         ;; Find file
+              ("C-c F r" . anaconda-mode-find-references)   ;; Find references
+              ("C-c F a" . anaconda-mode-find-assignments)  ;; Find assignments
 
               ;; Documentation commands
               ("C-c d s" . anaconda-mode-show-doc)          ;; Show documentation

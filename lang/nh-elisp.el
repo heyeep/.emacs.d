@@ -128,11 +128,11 @@
 (use-package elisp-refs
   :ensure t
   :bind (:map emacs-lisp-mode-map
-              ("C-c f f" . elisp-refs-function)    ;; Find function references
-              ("C-c f v" . elisp-refs-variable)    ;; Find variable references
-              ("C-c f s" . elisp-refs-symbol)      ;; Find symbol references
-              ("C-c f m" . elisp-refs-macro)       ;; Find macro references
-              ("C-c f S" . elisp-refs-special)))   ;; Find special form references
+              ("C-c F f" . elisp-refs-function)    ;; Find function references
+              ("C-c F v" . elisp-refs-variable)    ;; Find variable references
+              ("C-c F s" . elisp-refs-symbol)      ;; Find symbol references
+              ("C-c F m" . elisp-refs-macro)       ;; Find macro references
+              ("C-c F S" . elisp-refs-special)))   ;; Find special form references
 
 ;; Edebug X: Enhanced debugging features for edebug
 ;; Provides additional features and improvements for Emacs's built-in debugger,
