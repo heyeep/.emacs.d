@@ -62,28 +62,6 @@
         (markdown-toggle-markup-hiding 1)
         (message "Markup hidden"))))
 
-  ;; Function to show raw markdown when cursor is on a markdown block
-  (defun nh/markdown-show-raw-on-markup ()
-    "Show raw markdown when cursor is on a markdown block."
-    (when (derived-mode-p 'markdown-mode)
-      (let ((pos_ (point))
-            ;; Regexp to match markdown syntax characters, ensuring they're not escaped
-            ;; Matches: # (headers), * and _ (emphasis), ` (code), ~ (strikethrough), [] and () (links)
-            (markup-regexp "\\(^\\|[^\\]\\)\\([#*_`~]\\|\\[\\|\\]\\|(\\|)\\)"))
-        (save-excursion
-          ;; Move to start of current line to search from there
-          (beginning-of-line)
-          ;; Check if current line contains any markdown syntax
-          (if (re-search-forward markup-regexp (line-end-position) t)
-              ;; If we found markup on this line, show the raw markdown
-              (when markdown-hide-markup
-                (setq markdown-hide-markup nil)
-                (markdown-toggle-markup-hiding 0))
-            ;; If no markup found, hide the raw markdown to show formatted text
-            (unless markdown-hide-markup
-              (setq markdown-hide-markup t)
-              (markdown-toggle-markup-hiding 1)))))))
-
   (with-eval-after-load 'markdown-mode
     ;; Set up keybindings for markdown-mode
     (define-key markdown-mode-map (kbd "C-c C-p") 'nh/markdown-toggle-preview)
@@ -102,10 +80,7 @@
               (run-with-idle-timer 0.1 nil
                                   (lambda ()
                                     (when (derived-mode-p 'markdown-mode)
-                                      (markdown-toggle-markup-hiding 1))))
-              ;; Add cursor movement hook to dynamically show/hide markup
-              ;; The 't' at the end makes this hook buffer-local (only affects current buffer)
-              (add-hook 'post-command-hook 'nh/markdown-show-raw-on-markup nil t)))
+                                      (markdown-toggle-markup-hiding 1))))))
 
 ;; Markdown Preview Mode: Live preview for Markdown files
 ;; Provides real-time HTML preview of Markdown files in a web browser with
