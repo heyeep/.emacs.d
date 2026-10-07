@@ -785,11 +785,9 @@ features:
               ("C-c r v" . projectile-rails-find-view)
               ("C-c r h" . projectile-rails-find-helper)
               ("C-c r s" . projectile-rails-find-spec)
-              ("C-c r t" . projectile-rails-find-test)
               ("C-c r M" . projectile-rails-find-migration)
               ("C-c r n" . projectile-rails-find-initializer)
-              ("C-c r g" . projectile-rails-goto-file-at-point)
-              ("C-c r R" . projectile-rails-console)))
+              ("C-c r g" . projectile-rails-goto-file-at-point)))
 
 (with-eval-after-load 'lsp-ui
   (setq lsp-ui-sideline-show-diagnostics t)
