@@ -589,16 +589,14 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
         (insert "2. Start Robe: C-c r S (or M-x robe-start)\n")
         (insert "3. Test it:\n")
         (insert "   - Type 'String.' and see method completions\n")
-        (insert "   - Put cursor on a method and press C-c r d for docs\n")
+        (insert "   - Put cursor on a method and press C-c C-d for docs\n")
         (insert "   - Put cursor on a method and press C-c r j to jump to definition\n")
         (insert "   - Use M-. as alternative to jump to definition\n")
         (display-buffer (current-buffer)))))
 
   :bind (:map robe-mode-map
-              ("C-c r d" . robe-doc)
               ("C-c r j" . robe-jump)
               ("C-c r J" . robe-jump-to-module)
-              ("C-c r s" . nh/robe-check-status)
               ("C-c r S" . robe-start)
               ("C-c r T" . nh/robe-test)
               ("C-c r Q" . nh/robe-quick-test)
