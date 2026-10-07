@@ -144,14 +144,13 @@
     (interactive)
     (when (locate-dominating-file default-directory "tsfmt.json")
       (add-hook 'before-save-hook #'tide-format-before-save nil t))
-    ;; Disable linting for Typescript Definition files.
-    (when (and (buffer-file-name)
-               (string-match-p ".d.ts$" (buffer-file-name)))
-      (flycheck-mode -1))
     (tide-setup)
     (tide-hl-identifier-mode +1)
-    ;; Ensure flycheck is enabled
-    (flycheck-mode +1)
+    ;; Don't lint TypeScript definition files.
+    (flycheck-mode (if (and buffer-file-name
+                            (string-match-p "\\.d\\.ts\\'" buffer-file-name))
+                       -1
+                     +1))
     ;; Set the checkers for this buffer
     (setq-local flycheck-checkers '(typescript-tide))
     (setq-local flycheck-check-syntax-automatically '(save mode-enabled)))
