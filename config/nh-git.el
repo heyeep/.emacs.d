@@ -4,35 +4,29 @@
 
 ;;; Code:
 
-;; We use (require 'transient) here instead of (use-package transient)
-;; because we are loading transient from a git submodule, not from ELPA/MELPA.
-;; Using use-package with :ensure t would try to install it from the package archives,
-;; which we do not want. This ensures we always use our submodule version.
+;; Transient comes from a git submodule. use-package with :ensure would
+;; install the package-archive copy instead, so require it directly.
 (require 'transient)
 
-;; Magit: A Git porcelain inside Emacs
-;; Provides a comprehensive Git interface within Emacs with intuitive staging,
-;; committing, branching, and history browsing capabilities through buffer-based UI.
+;; Magit: a full Git interface inside Emacs.
 ;; GitHub: https://github.com/magit/magit
 (use-package magit
   :ensure t
   :after transient
-  :commands (magit-toplevel   ; Show the top-level directory of the current Git repo
-               magit-status     ; Open the Magit status buffer for the current repo
-               magit-blame      ; Annotate lines in a file with commit info
-               magit-log)      ; Show the Git log for the current repo or file
+  :commands (magit-toplevel
+               magit-status
+               magit-blame
+               magit-log)
   :bind (("C-x g"   . magit-status)
          ("C-x C-g" . magit-status))
   :custom
-  ;; Show diffs in a separate buffer
+  ;; Open Magit in the current window, but show diffs in another one.
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  ;; Highlight word-level changes in diffs
+  ;; Highlight changed words in every hunk, not just the selected one.
   (magit-diff-refine-hunk 'all)
-   ;; Show more detailed logs
   (magit-log-section-arguments '("--graph" "--color" "--decorate" "-n256"))
   :config
-  ;; Remove deprecated magit-insert-bisect-output from status sections
-  ;; This function was removed in newer Magit versions
+  ;; Newer Magit removed this function, so drop it from the status sections.
   (when (boundp 'magit-status-sections-hook)
     (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-output)))
   ;; ;; Set default push behavior
@@ -44,7 +38,7 @@
   ;; ;; Show unpulled commits in status buffer
   ;; (add-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream))
 
-;; Show Git blame info as a tooltip for the current line using blamer.el
+;; Disabled: blamer shows Git blame for the current line in a tooltip.
 ;; (use-package blamer
 ;;   :ensure t
 ;;   :bind (("s-i" . blamer-show-commit-info))
