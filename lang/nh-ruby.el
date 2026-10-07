@@ -698,14 +698,15 @@ features:
   (setq lsp-ui-sideline-show-diagnostics t)
   (setq lsp-ui-doc-enable t))
 
-(defun nh/ruby-bundle-exec (command)
-  "Run COMMAND with bundle exec in the project root."
+(defun nh/ruby-bundle-exec (command &optional output-buffer)
+  "Run COMMAND with bundle exec in the project root.
+Output goes to OUTPUT-BUFFER, or to the usual async shell buffer when nil."
   (interactive "sBundle exec: ")
   (let ((default-directory (or (and (fboundp 'projectile-project-root)
                                    (projectile-project-root))
                                (locate-dominating-file default-directory "Gemfile")
                                default-directory)))
-    (async-shell-command (format "bundle exec %s" command))))
+    (async-shell-command (format "bundle exec %s" command) output-buffer)))
 
 (defun nh/ruby-rubocop-check-current-file ()
   "Run RuboCop on the current file."
@@ -719,9 +720,11 @@ features:
   (when buffer-file-name
     (save-buffer)
     (let ((buffer (current-buffer)))
-      (nh/ruby-bundle-exec (format "rubocop -a %s" (shell-quote-argument buffer-file-name)))
+      ;; A dedicated buffer, so the watch below can't land on another running command.
+      (nh/ruby-bundle-exec (format "rubocop -a %s" (shell-quote-argument buffer-file-name))
+                           "*RuboCop*")
       ;; Revert only after RuboCop has rewritten the file.
-      (add-function :after (process-sentinel (get-buffer-process shell-command-buffer-name-async))
+      (add-function :after (process-sentinel (get-buffer-process "*RuboCop*"))
                     (lambda (_process _event)
                       (when (buffer-live-p buffer)
                         (with-current-buffer buffer
