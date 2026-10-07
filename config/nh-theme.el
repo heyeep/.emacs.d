@@ -183,17 +183,24 @@
 
 ;; iTerm2's window padding sits outside the Emacs frame, so ask the terminal
 ;; itself to use the theme background (OSC 11) and restore it on exit (OSC 111).
+;; Terminals can't take a font from Emacs, so switch iTerm2 to an "Emacs"
+;; profile (Iosevka Term) first; a profile switch also resets the background.
 (defun nh/sync-terminal-background (&rest _)
-  "Set the terminal's background to the theme background."
+  "Use the Emacs iTerm2 profile and the theme background in the terminal."
   (unless (display-graphic-p)
+    (when (equal (getenv "TERM_PROGRAM") "iTerm.app")
+      (send-string-to-terminal "\e]1337;SetProfile=Emacs\a"))
     (let ((bg (face-attribute 'default :background)))
       (when (string-match-p "\\`#[[:xdigit:]]\\{6\\}\\'" bg)
         (send-string-to-terminal (format "\e]11;%s\a" bg))))))
 
 (defun nh/reset-terminal-background ()
-  "Restore the terminal's own background."
+  "Restore the terminal's own profile and background."
   (unless (display-graphic-p)
-    (send-string-to-terminal "\e]111\a")))
+    (send-string-to-terminal "\e]111\a")
+    (when (equal (getenv "TERM_PROGRAM") "iTerm.app")
+      (send-string-to-terminal
+       (format "\e]1337;SetProfile=%s\a" (or (getenv "ITERM_PROFILE") "Default"))))))
 
 (add-hook 'enable-theme-functions #'nh/sync-terminal-background)
 (add-hook 'suspend-resume-hook #'nh/sync-terminal-background)
