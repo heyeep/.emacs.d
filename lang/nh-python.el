@@ -93,11 +93,11 @@
               ("C-c e R" . python-shell-send-region)        ;; Send selected region
 
               ;; Navigation and documentation
-              ("C-c d d" . python-describe-at-point)        ;; Describe symbol at point
+              ("C-c D d" . python-describe-at-point)        ;; Describe symbol at point
 
               ;; Debugging
-              ("C-c d b" . pdb)                             ;; Start Python debugger
-              ("C-c d t" . python-shell-send-file)))       ;; Send file to shell
+              ("C-c D b" . pdb)                             ;; Start Python debugger
+              ("C-c D t" . python-shell-send-file)))       ;; Send file to shell
 
 ;; Anaconda Mode: Advanced Python development environment
 ;; Provides intelligent code completion, navigation, and documentation using
@@ -125,7 +125,7 @@
               ("C-c F a" . anaconda-mode-find-assignments)  ;; Find assignments
 
               ;; Documentation commands
-              ("C-c d s" . anaconda-mode-show-doc)          ;; Show documentation
+              ("C-c D s" . anaconda-mode-show-doc)          ;; Show documentation
 
               ;; Code completion
               ("C-c c c" . anaconda-mode-complete)))
@@ -163,9 +163,9 @@
 
 ;; Additional Python development keybindings
 (with-eval-after-load 'python
-  (define-key python-mode-map (kbd "C-c d p") #'nh/python-insert-breakpoint)
-  (define-key python-mode-map (kbd "C-c d i") #'nh/python-insert-ipdb-breakpoint)
-  (define-key python-mode-map (kbd "C-c d r") #'nh/python-remove-breakpoints)
+  (define-key python-mode-map (kbd "C-c D p") #'nh/python-insert-breakpoint)
+  (define-key python-mode-map (kbd "C-c D i") #'nh/python-insert-ipdb-breakpoint)
+  (define-key python-mode-map (kbd "C-c D r") #'nh/python-remove-breakpoints)
   (define-key python-mode-map (kbd "C-c r r") #'nh/python-run-file))
 
 ;; Legacy compatibility function

@@ -111,8 +111,8 @@
               ("M-," . slime-pop-find-definition-stack) ;; Return from definition
 
               ;; Documentation commands - get help on symbols
-              ("C-c d d" . slime-describe-symbol)       ;; Describe symbol at point
-              ("C-c d a" . slime-apropos)               ;; Search for symbols by name
+              ("C-c D d" . slime-describe-symbol)       ;; Describe symbol at point
+              ("C-c D a" . slime-apropos)               ;; Search for symbols by name
 
               ;; Compilation commands - compile Lisp code
               ("C-c k" . slime-compile-defun)           ;; Compile current function

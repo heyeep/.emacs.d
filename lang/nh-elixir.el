@@ -61,7 +61,7 @@
   (local-set-key (kbd "C-c t f") #'alchemist-mix-test-current-file)
   (local-set-key (kbd "C-c t b") #'alchemist-mix-test-this-buffer)
   (local-set-key (kbd "C-c t a") #'alchemist-mix-test-at-point)
-  (local-set-key (kbd "C-c d d") #'alchemist-help-search-at-point)
+  (local-set-key (kbd "C-c D d") #'alchemist-help-search-at-point)
   (local-set-key (kbd "C-c e e") #'alchemist-iex-send-current-line)
   (local-set-key (kbd "C-c e r") #'alchemist-iex-send-region)
   (local-set-key (kbd "C-c e b") #'alchemist-iex-send-buffer))
