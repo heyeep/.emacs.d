@@ -490,16 +490,12 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
                                      (ignore-errors (projectile-project-root)))
                                  (locate-dominating-file default-directory "Gemfile")
                                  default-directory))
-          (orig-path (getenv "PATH"))
-          (orig-rubyopt (getenv "RUBYOPT")))
+          (orig-path (getenv "PATH")))
 
       ;; Ensure asdf shims are in the PATH
       (when (file-exists-p "~/.asdf/shims")
         (setenv "PATH" (concat orig-path ":" (expand-file-name "~/.asdf/shims")))
         (setq exec-path (append exec-path (list (expand-file-name "~/.asdf/shims")))))
-
-      ;; Set environment variables to help Robe find gems
-      (setenv "RUBYOPT" "-rpry -rpry-doc")
 
       ;; Start inf-ruby first if not running
       (unless (and (boundp 'inf-ruby-buffer)
@@ -521,8 +517,7 @@ Rails files exist: app.rb=%s env.rb=%s boot.rb=%s"
              (message "Robe error: %s" (error-message-string err))
              (display-warning 'robe (format "Failed to start Robe: %s" (error-message-string err)))))
         ;; Always restore environment
-        (setenv "PATH" orig-path)
-        (setenv "RUBYOPT" orig-rubyopt))))
+        (setenv "PATH" orig-path))))
 
   ;; Use :around advice instead of :override to avoid recursion
   (advice-add 'robe-start :around #'nh/robe-start-with-env)
